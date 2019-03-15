@@ -15,7 +15,7 @@ public class Test {
     public static void main(String[] args) {
     	
     	//Hecho por mi
-    	String controlador = "AguileraMartosIgnacio.Agent";
+    	String controlador = "AguileraBalderas.Agent";
 
 		// Available tracks:
 		String sampleRandomController = "tracks.singlePlayer.simple.sampleRandom.Agent";
