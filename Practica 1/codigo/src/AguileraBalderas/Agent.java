@@ -1,4 +1,4 @@
-package AguileraMartosIgnacio;
+package AguileraBalderas;
 
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
@@ -36,3 +36,4 @@ public class Agent extends AbstractPlayer{
 	}
 	
 }
+
