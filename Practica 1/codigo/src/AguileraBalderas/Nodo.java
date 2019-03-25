@@ -3,16 +3,16 @@ package AguileraBalderas;
 import tools.Vector2d;
 
 public class Nodo {
-	public int coste_g;
-	public int estimacion_h;
+	public double coste_g;
+	public double estimacion_h;
 	public Vector2d posicion;
-	public Vector2d padre;
+	public Nodo padre;
 	
-	public Nodo(int coste,int heuristica,Vector2d pos,Vector2d nodo_padre) {
-		coste_g = coste;
-		estimacion_h = heuristica;
+	public Nodo(double d,double e,Vector2d pos,Nodo n) {
+		coste_g = d;
+		estimacion_h = e;
 		posicion = pos;
-		padre = nodo_padre;
+		padre = n;
 	}
 	
 	
