@@ -5,6 +5,8 @@ import tools.Vector2d;
 
 import java.lang.*;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -20,13 +22,20 @@ public class AEstrella {
 		this.nodo_inicial = start;
 		this.nodo_objetivo = end;
 		this.mundo = mundo;
+		this.cerrados = new HashSet<Nodo>();
+		this.abiertos = new PriorityQueue<Nodo>(new Comparator<Nodo>() {
+			@Override
+			public int compare(Nodo nodo1, Nodo nodo2) {
+				return Integer.compare(nodo1.f, nodo2.f);
+			}
+		});
 	}
 	
-	private double g(int fila, int columna) {
+	private int g(int fila, int columna) {
 		return Math.abs(fila - nodo_inicial.fila) + Math.abs(columna - nodo_inicial.columna);
 	}
 	
-	private double h(int fila, int columna) {
+	private int h(int fila, int columna) {
 		return Math.abs(fila - nodo_objetivo.fila) + Math.abs(columna - nodo_objetivo.columna);
 	}
 	

@@ -2,15 +2,15 @@ package AguileraBalderas;
 
 
 public class Nodo {
-	public double coste_g;
-	public double estimacion_h;
-	public double f;
+	public int coste_g;
+	public int estimacion_h;
+	public int f;
 	public int fila;
 	public int columna;
 	public Nodo padre;
 	public boolean esMuro;
 	
-	public Nodo(double d,double e,int fila,int columna,Nodo n,boolean muro) {
+	public Nodo(int d,int e,int fila,int columna,Nodo n,boolean muro) {
 		coste_g = d;
 		estimacion_h = e;
 		this.fila = fila;
