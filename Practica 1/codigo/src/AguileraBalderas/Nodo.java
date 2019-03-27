@@ -20,6 +20,10 @@ public class Nodo {
 		esMuro = muro;
 	}
 	
-	
+	@Override
+    public boolean equals(Object arg0) {
+        Nodo nodo = (Nodo) arg0;
+        return this.fila == nodo.fila && this.columna == nodo.columna;
+	}
 	
 }

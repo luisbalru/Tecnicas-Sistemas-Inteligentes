@@ -12,8 +12,8 @@ import java.util.Set;
 public class AEstrella {
 	private Nodo nodo_inicial;
 	private Nodo nodo_objetivo;
-	private PriorityQueue<Nodo> openList;
-	private Set<Nodo> closedSet;
+	private PriorityQueue<Nodo> abiertos;
+	private Set<Nodo> cerrados;
 	private ArrayList<ArrayList<Character> > mundo;
 	
 	public AEstrella(Nodo start, Nodo end,ArrayList<ArrayList<Character> >mundo) {
@@ -40,6 +40,14 @@ public class AEstrella {
 	}
 	
 	public List<Nodo> buscaCamino(){
-		
+		abiertos.add(nodo_inicial);
+		while(!isEmpty(abiertos)) {
+			Nodo nodo_actual = abiertos.poll();
+			
+		}
+	}
+	
+	private boolean isEmpty(PriorityQueue<Nodo> openList) {
+        return openList.size() == 0;
 	}
 }
