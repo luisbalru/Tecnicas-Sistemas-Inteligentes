@@ -11,6 +11,11 @@ public class AEstrella {
 	private Nodo nodo_inicial;
 	private Nodo nodo_objetivo;
 	
+	public AEstrella(Nodo start, Nodo end) {
+		nodo_inicial = start;
+		nodo_objetivo = end;
+	}
+	
 	private double g(Vector2d n) {
 		return Math.abs(n.x - nodo_inicial.posicion.x) + Math.abs(n.y - nodo_inicial.posicion.y);
 	}
