@@ -6,30 +6,40 @@ import tools.Vector2d;
 import java.lang.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 public class AEstrella {
 	private Nodo nodo_inicial;
 	private Nodo nodo_objetivo;
+	private PriorityQueue<Nodo> openList;
+	private Set<Nodo> closedSet;
+	private ArrayList<ArrayList<Character> > mundo;
 	
-	public AEstrella(Nodo start, Nodo end) {
-		nodo_inicial = start;
-		nodo_objetivo = end;
+	public AEstrella(Nodo start, Nodo end,ArrayList<ArrayList<Character> >mundo) {
+		this.nodo_inicial = start;
+		this.nodo_objetivo = end;
+		this.mundo = mundo;
 	}
 	
-	private double g(Vector2d n) {
-		return Math.abs(n.x - nodo_inicial.posicion.x) + Math.abs(n.y - nodo_inicial.posicion.y);
+	private double g(int fila, int columna) {
+		return Math.abs(fila - nodo_inicial.fila) + Math.abs(columna - nodo_inicial.columna);
 	}
 	
-	private double h(Vector2d n) {
-		return Math.abs(n.x - nodo_objetivo.posicion.x) + Math.abs(n.y - nodo_objetivo.posicion.y);
+	private double h(int fila, int columna) {
+		return Math.abs(fila - nodo_objetivo.fila) + Math.abs(columna - nodo_objetivo.columna);
 	}
 	
-	public List<Nodo> obtenerVecinos(Nodo n) {
-		List<Nodo> vecinos = new ArrayList<Nodo>();
-		vecinos.add(new Nodo(g(new Vector2d(n.posicion.x-1,n.posicion.y)), h(new Vector2d(n.posicion.x-1,n.posicion.y)), new Vector2d(n.posicion.x-1,n.posicion.y), n));
-		vecinos.add(new Nodo(g(new Vector2d(n.posicion.x+1,n.posicion.y)), h(new Vector2d(n.posicion.x+1,n.posicion.y)), new Vector2d(n.posicion.x+1,n.posicion.y), n));
-		vecinos.add(new Nodo(g(new Vector2d(n.posicion.x,n.posicion.y-1)), h(new Vector2d(n.posicion.x,n.posicion.y-1)), new Vector2d(n.posicion.x,n.posicion.y-1), n));
-		vecinos.add(new Nodo(g(new Vector2d(n.posicion.x,n.posicion.y+1)), h(new Vector2d(n.posicion.x,n.posicion.y+1)), new Vector2d(n.posicion.x,n.posicion.y+1), n));
+	public ArrayList<Nodo> obtenerVecinos(Nodo n) {
+		ArrayList<Nodo> vecinos = new ArrayList<Nodo>();
+		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila-1,n.columna), n.fila-1,n.columna, n,this.mundo.get(n.fila-1).get(n.columna)=='m'));
+		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila+1,n.columna), n.fila+1,n.columna, n,this.mundo.get(n.fila+1).get(n.columna)=='m'));
+		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila,n.columna-1), n.fila,n.columna-1, n,this.mundo.get(n.fila).get(n.columna-1)=='m'));
+		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila,n.columna+1), n.fila,n.columna+1, n,this.mundo.get(n.fila).get(n.columna+1)=='m'));
 		return vecinos;
+	}
+	
+	public List<Nodo> buscaCamino(){
+		
 	}
 }
