@@ -19,6 +19,7 @@ public class AEstrella {
 	private PriorityQueue<Nodo> abiertos;
 	private Set<Nodo> cerrados;
 	private ArrayList<ArrayList<Character> > mundo;
+	private List<Nodo> camino;
 	
 	public AEstrella(Nodo start, Nodo end,ArrayList<ArrayList<Character> >mundo) {
 		this.nodo_inicial = start;
@@ -55,18 +56,19 @@ public class AEstrella {
 	}
 	
 	public List<Nodo> buscaCamino(){
-		List<Nodo> camino = new ArrayList<Nodo>();
+		List<Nodo> path = new ArrayList<Nodo>();
 		abiertos.add(nodo_inicial);
 		while(!isEmpty(abiertos)) {
 			Nodo nodo_actual = abiertos.poll();
 			if(nodo_actual.equals(nodo_objetivo)) {
 				while(!nodo_actual.equals(nodo_inicial)) {
-					camino.add(nodo_actual);
+					path.add(nodo_actual);
 					nodo_actual = nodo_actual.padre;
 				}
-				camino.add(nodo_actual);
-				Collections.reverse(camino);
-				return camino;
+				path.add(nodo_actual);
+				Collections.reverse(path);
+				camino = path;
+				return path;
 			}
 			List<Nodo> vecinos = obtenerVecinos(nodo_actual);
 			for(int i=0; i < vecinos.size(); i++) {
