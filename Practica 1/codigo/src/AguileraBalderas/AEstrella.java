@@ -1,10 +1,12 @@
 package AguileraBalderas;
 
 import AguileraBalderas.Nodo;
+import java.util.*;
 import tools.Vector2d;
 
 import java.lang.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +65,7 @@ public class AEstrella {
 					nodo_actual = nodo_actual.padre;
 				}
 				camino.add(nodo_actual);
+				Collections.reverse(camino);
 				return camino;
 			}
 			List<Nodo> vecinos = obtenerVecinos(nodo_actual);
@@ -82,7 +85,8 @@ public class AEstrella {
 				abiertos.add(vecinos.get(i));
 			}
 		}
-		return camino;
+		List<Nodo> camino_vacio = new ArrayList<Nodo>();
+		return camino_vacio;
 	}
 	
 	private boolean isEmpty(PriorityQueue<Nodo> openList) {
