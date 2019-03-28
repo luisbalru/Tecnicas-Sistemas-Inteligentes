@@ -47,13 +47,42 @@ public class AEstrella {
 		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila,n.columna+1), n.fila,n.columna+1, n,this.mundo.get(n.fila).get(n.columna+1)=='m'));
 		return vecinos;
 	}
+
+	private int distanciaManhattan(Nodo n1, Nodo n2) {
+		return Math.abs(n1.fila-n2.fila) + Math.abs(n1.columna-n2.columna);
+	}
 	
 	public List<Nodo> buscaCamino(){
+		List<Nodo> camino = new ArrayList<Nodo>();
 		abiertos.add(nodo_inicial);
 		while(!isEmpty(abiertos)) {
 			Nodo nodo_actual = abiertos.poll();
-			
+			if(nodo_actual.equals(nodo_objetivo)) {
+				while(!nodo_actual.equals(nodo_inicial)) {
+					camino.add(nodo_actual);
+					nodo_actual = nodo_actual.padre;
+				}
+				camino.add(nodo_actual);
+				return camino;
+			}
+			List<Nodo> vecinos = obtenerVecinos(nodo_actual);
+			for(int i=0; i < vecinos.size(); i++) {
+				int g = g(nodo_actual.fila,nodo_actual.columna) + distanciaManhattan(nodo_actual,vecinos.get(i));
+				if(abiertos.contains(vecinos.get(i))) {
+					if(g(vecinos.get(i).fila,vecinos.get(i).columna) <= g)
+						continue;
+				}
+				else if(cerrados.contains(vecinos.get(i))){
+					if(g(vecinos.get(i).fila,vecinos.get(i).columna) <= g)
+						continue;
+					cerrados.remove(vecinos.get(i));
+				}
+				vecinos.get(i).padre = nodo_actual;
+				vecinos.get(i).coste_g = g;
+				abiertos.add(vecinos.get(i));
+			}
 		}
+		return camino;
 	}
 	
 	private boolean isEmpty(PriorityQueue<Nodo> openList) {
