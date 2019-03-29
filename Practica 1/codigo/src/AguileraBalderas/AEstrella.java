@@ -1,6 +1,8 @@
 package AguileraBalderas;
 
 import AguileraBalderas.Nodo;
+import ontology.Types;
+
 import java.util.*;
 import tools.Vector2d;
 
@@ -93,5 +95,27 @@ public class AEstrella {
 	
 	private boolean isEmpty(PriorityQueue<Nodo> openList) {
         return openList.size() == 0;
+	}
+	
+	public ArrayList<Types.ACTIONS> devuelveAcciones(){
+		Nodo nodo_actual = nodo_inicial;
+		ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
+		for(int i=0; i < camino.size(); i++) {
+			if(camino.get(i).fila > nodo_actual.fila) 
+				acciones.add(Types.ACTIONS.ACTION_DOWN);
+			
+			else if(camino.get(i).fila < nodo_actual.fila) 
+				acciones.add(Types.ACTIONS.ACTION_UP);
+			
+			else if(camino.get(i).columna > nodo_actual.columna) 
+				acciones.add(Types.ACTIONS.ACTION_RIGHT);
+			
+			else if(camino.get(i).columna < nodo_actual.columna)
+				acciones.add(Types.ACTIONS.ACTION_LEFT);
+			
+			else
+				acciones.add(Types.ACTIONS.ACTION_NIL);
+		}
+		return acciones;
 	}
 }
