@@ -74,6 +74,8 @@ public class Agent extends AbstractPlayer {
 
     @Override
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
+    	System.out.println(stateObs.getObservationGrid());
+    	return Types.ACTIONS.ACTION_NIL;
     }
 
 
