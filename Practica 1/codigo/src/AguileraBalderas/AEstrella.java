@@ -1,12 +1,5 @@
 package AguileraBalderas;
 
-import AguileraBalderas.Nodo;
-import ontology.Types;
-
-import java.util.*;
-import tools.Vector2d;
-
-import java.lang.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,10 +8,14 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import ontology.Types;
+import tools.ElapsedCpuTimer;
+
 public class AEstrella {
 	private Nodo nodo_inicial;
 	private Nodo nodo_objetivo;
 	private PriorityQueue<Nodo> abiertos;
+	private Set<Nodo> abiertos_set;
 	private Set<Nodo> cerrados;
 	private ArrayList<ArrayList<Character> > mundo;
 	private List<Nodo> camino;
@@ -57,11 +54,17 @@ public class AEstrella {
 		return Math.abs(n1.fila-n2.fila) + Math.abs(n1.columna-n2.columna);
 	}
 	
-	public List<Nodo> buscaCamino(){
+	public List<Nodo> buscaCamino(ElapsedCpuTimer timer){
 		List<Nodo> path = new ArrayList<Nodo>();
 		abiertos.add(nodo_inicial);
-		while(!isEmpty(abiertos)) {
+		abiertos_set.add(nodo_inicial);
+		Nodo mejor_nodo = nodo_inicial;
+		while(!isEmpty(abiertos) && timer.elapsedMillis() < 30) {
 			Nodo nodo_actual = abiertos.poll();
+			if(nodo_actual.f < mejor_nodo.f) {
+				mejor_nodo = nodo_actual;
+			}
+			abiertos_set.remove(nodo_actual);
 			if(nodo_actual.equals(nodo_objetivo)) {
 				while(!nodo_actual.equals(nodo_inicial)) {
 					path.add(nodo_actual);
@@ -75,7 +78,7 @@ public class AEstrella {
 			List<Nodo> vecinos = obtenerVecinos(nodo_actual);
 			for(int i=0; i < vecinos.size(); i++) {
 				int g = g(nodo_actual.fila,nodo_actual.columna) + distanciaManhattan(nodo_actual,vecinos.get(i));
-				if(abiertos.contains(vecinos.get(i))) {
+				if(abiertos_set.contains(vecinos.get(i))) {
 					if(g(vecinos.get(i).fila,vecinos.get(i).columna) <= g)
 						continue;
 				}
@@ -84,13 +87,22 @@ public class AEstrella {
 						continue;
 					cerrados.remove(vecinos.get(i));
 				}
-				vecinos.get(i).padre = nodo_actual;
-				vecinos.get(i).coste_g = g;
-				abiertos.add(vecinos.get(i));
+				if(mundo.get(nodo_actual.fila).get(nodo_actual.columna)!= 'm') {
+					vecinos.get(i).padre = nodo_actual;
+					vecinos.get(i).coste_g = g;
+					abiertos.add(vecinos.get(i));
+					abiertos_set.add(vecinos.get(i));
+				}
 			}
 		}
-		List<Nodo> camino_vacio = new ArrayList<Nodo>();
-		return camino_vacio;
+		while(!mejor_nodo.equals(nodo_inicial)) {
+			path.add(mejor_nodo);
+			mejor_nodo = mejor_nodo.padre;
+		}
+		path.add(mejor_nodo);
+		Collections.reverse(path);
+		camino = path;
+		return path;
 	}
 	
 	private boolean isEmpty(PriorityQueue<Nodo> openList) {
