@@ -8,16 +8,14 @@ public class Nodo {
 	public int fila;
 	public int columna;
 	public Nodo padre;
-	public boolean esMuro;
 	
-	public Nodo(int d,int e,int fila,int columna,Nodo n,boolean muro) {
+	public Nodo(int d,int e,int fila,int columna,Nodo n) {
 		coste_g = d;
 		estimacion_h = e;
 		this.fila = fila;
 		this.columna = columna;
 		padre = n;
 		f = coste_g + estimacion_h;
-		esMuro = muro;
 	}
 	
 	@Override

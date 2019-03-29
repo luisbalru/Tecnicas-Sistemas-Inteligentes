@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
+import core.game.Observation;
 
 import ontology.Types;
 import tools.ElapsedCpuTimer;
@@ -17,14 +18,15 @@ public class AEstrella {
 	private PriorityQueue<Nodo> abiertos;
 	private Set<Nodo> abiertos_set;
 	private Set<Nodo> cerrados;
-	private ArrayList<ArrayList<Character> > mundo;
+	private ArrayList<Observation>[][] mundo;
 	private List<Nodo> camino;
 	
-	public AEstrella(Nodo start, Nodo end,ArrayList<ArrayList<Character> >mundo) {
+	public AEstrella(Nodo start, Nodo end,ArrayList<Observation>[][] mundo) {
 		this.nodo_inicial = start;
 		this.nodo_objetivo = end;
 		this.mundo = mundo;
 		this.cerrados = new HashSet<Nodo>();
+		this.abiertos_set = new HashSet<Nodo>();
 		this.abiertos = new PriorityQueue<Nodo>(new Comparator<Nodo>() {
 			@Override
 			public int compare(Nodo nodo1, Nodo nodo2) {
@@ -43,14 +45,14 @@ public class AEstrella {
 	
 	public ArrayList<Nodo> obtenerVecinos(Nodo n) {
 		ArrayList<Nodo> vecinos = new ArrayList<Nodo>();
-		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila-1,n.columna), n.fila-1,n.columna, n,this.mundo.get(n.fila-1).get(n.columna)=='m'));
-		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila+1,n.columna), n.fila+1,n.columna, n,this.mundo.get(n.fila+1).get(n.columna)=='m'));
-		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila,n.columna-1), n.fila,n.columna-1, n,this.mundo.get(n.fila).get(n.columna-1)=='m'));
-		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila,n.columna+1), n.fila,n.columna+1, n,this.mundo.get(n.fila).get(n.columna+1)=='m'));
+		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila-1,n.columna), n.fila-1,n.columna, n));
+		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila+1,n.columna), n.fila+1,n.columna, n));
+		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila,n.columna-1), n.fila,n.columna-1, n));
+		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila,n.columna+1), n.fila,n.columna+1, n));
 		return vecinos;
 	}
 
-	private int distanciaManhattan(Nodo n1, Nodo n2) {
+	public int distanciaManhattan(Nodo n1, Nodo n2) {
 		return Math.abs(n1.fila-n2.fila) + Math.abs(n1.columna-n2.columna);
 	}
 	
@@ -87,7 +89,10 @@ public class AEstrella {
 						continue;
 					cerrados.remove(vecinos.get(i));
 				}
-				if(mundo.get(nodo_actual.fila).get(nodo_actual.columna)!= 'm') {
+				boolean muro = mundo[nodo_actual.fila][nodo_actual.columna].size()==0;
+				if(!muro)
+					muro = mundo[nodo_actual.fila][nodo_actual.columna].get(0).itype!= 0;
+				if(muro) {
 					vecinos.get(i).padre = nodo_actual;
 					vecinos.get(i).coste_g = g;
 					abiertos.add(vecinos.get(i));
@@ -112,7 +117,7 @@ public class AEstrella {
 	public ArrayList<Types.ACTIONS> devuelveAcciones(){
 		Nodo nodo_actual = nodo_inicial;
 		ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
-		for(int i=0; i < camino.size(); i++) {
+		for(int i=1; i < camino.size(); i++) {
 			if(camino.get(i).fila > nodo_actual.fila) 
 				acciones.add(Types.ACTIONS.ACTION_DOWN);
 			
