@@ -29,7 +29,7 @@ public class ResolutorTareas {
 	public ArrayList<Types.ACTIONS> salirPortal(int fila, int columna){
 		int fila_portal = 0;
 		int columna_portal = 0;
-		for(int i = 0; i < mundo.size(); ++i) {
+		for(int i = 0; i < ; ++i) {
 			for(int j = 0; j < mundo.get(i).size(); ++j) {
 				if(mundo.get(i).get(j)=='p') {
 					fila_portal = i;
