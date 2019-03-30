@@ -61,7 +61,8 @@ public class AEstrella {
 		abiertos.add(nodo_inicial);
 		abiertos_set.add(nodo_inicial);
 		Nodo mejor_nodo = nodo_inicial;
-		while(!isEmpty(abiertos) /*&& timer.elapsedMillis() < 30*/) {
+		while(!isEmpty(abiertos) && timer.elapsedMillis() < 35) {
+			long tiempo = timer.elapsedMillis();
 			Nodo nodo_actual = abiertos.poll();
 			if(nodo_actual.f < mejor_nodo.f) {
 				mejor_nodo = nodo_actual;
@@ -89,10 +90,8 @@ public class AEstrella {
 						continue;
 					cerrados.remove(vecinos.get(i));
 				}
-				boolean muro = mundo[nodo_actual.fila][nodo_actual.columna].size()==0;
-				if(!muro)
-					muro = mundo[nodo_actual.fila][nodo_actual.columna].get(0).itype== 0;
-				if(!muro) {
+				boolean accesible = isAccesible(mundo,vecinos.get(i));
+				if(accesible) {
 					vecinos.get(i).padre = nodo_actual;
 					vecinos.get(i).coste_g = g;
 					abiertos.add(vecinos.get(i));
@@ -110,16 +109,34 @@ public class AEstrella {
 		return path;
 	}
 	
+	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo) {
+		int fila = nodo.fila;
+		int columna = nodo.columna;
+		boolean vacio = mundo[fila][columna].size()==0;
+		if(!vacio) {
+			boolean bicho = mundo[fila][columna].get(0).itype==11 || mundo[fila][columna].get(0).itype==10;
+			boolean muro = mundo[fila][columna].get(0).itype==0;
+			boolean piedra = mundo[fila][columna].get(0).itype==7;
+			boolean piedra_arriba = false;
+			if(fila>0 && mundo[fila-1][columna].size()>0)
+				piedra_arriba = mundo[fila-1][columna].get(0).itype==7;
+			boolean condicion = !bicho && !muro && !piedra && !piedra_arriba;
+			return condicion;
+		}
+		return true;
+	}
+
 	private boolean isEmpty(PriorityQueue<Nodo> openList) {
         return openList.size() == 0;
 	}
 	
 	public ArrayList<Types.ACTIONS> devuelveAcciones(){
 		Nodo nodo_actual = nodo_inicial;
+		System.out.println(this.camino.toString());
 		ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
 		for(int i=1; i < camino.size(); i++) {
-			System.out.printf("Nodo actual: Fila %d, Columna %d\n",nodo_actual.fila, nodo_actual.columna);
-			System.out.printf("Nodo del camino: Fila %d, Columna %d\n\n",camino.get(i).fila, camino.get(i).columna);
+			//System.out.printf("Nodo actual: Fila %d, Columna %d\n",nodo_actual.fila, nodo_actual.columna);
+			//System.out.printf("Nodo del camino: Fila %d, Columna %d\n\n",camino.get(i).fila, camino.get(i).columna);
 			if(camino.get(i).fila > nodo_actual.fila) 
 				acciones.add(Types.ACTIONS.ACTION_DOWN);
 			

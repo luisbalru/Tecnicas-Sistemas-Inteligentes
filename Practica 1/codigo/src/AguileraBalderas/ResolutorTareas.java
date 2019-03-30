@@ -23,9 +23,9 @@ public class ResolutorTareas {
 		return Math.abs(fila1-fila2) + Math.abs(col1 - col2);
 	}
 	
-	public ArrayList<Types.ACTIONS> obtenCamino(int fila_actual,int col_actual,int fila_obj, int col_obj, ElapsedCpuTimer timer){
-		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), fila_actual, col_actual, null);
-		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, fila_obj, col_obj, null);
+	public ArrayList<Types.ACTIONS> obtenCamino(int col_actual,int fila_actual,int col_obj, int fila_obj, ElapsedCpuTimer timer){
+		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null);
+		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null);
 		AEstrella aestrella = new AEstrella(inicio, fin, mundo);
 		aestrella.buscaCamino(timer);
 		return aestrella.devuelveAcciones();

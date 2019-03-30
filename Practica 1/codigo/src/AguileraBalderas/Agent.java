@@ -61,6 +61,8 @@ public class Agent extends AbstractPlayer {
     
     private ArrayList<Types.ACTIONS> lista_acciones;
     
+    private int i=0;
+    
     
     private int distanciaManhattan(int fila1, int col1, int fila2, int col2) {
 		return Math.abs(fila1-fila2) + Math.abs(col1 - col2);
@@ -91,12 +93,16 @@ public class Agent extends AbstractPlayer {
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
     	if(lista_acciones.size()==0) {
     		ResolutorTareas resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height);    		
-    		lista_acciones = resolutor.obtenCamino(fila_start, col_start, 1, 4,elapsedTimer);
+    		lista_acciones = resolutor.obtenCamino(col_start, fila_start, 1, 4,elapsedTimer);
     	}
-    	Types.ACTIONS accion = lista_acciones.get(0);
-    	System.out.println(accion.toString());
-    	lista_acciones.remove(0);
-    	return(accion);
+    	i+=1;
+    	if(i%2==0) {
+    		Types.ACTIONS accion = lista_acciones.get(0);
+    		//System.out.println(accion.toString());
+    		lista_acciones.remove(0);
+    		return(accion);
+    	}
+    	return(Types.ACTIONS.ACTION_NIL);
     }
 
 
