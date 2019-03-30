@@ -1,0 +1,12 @@
+package AguileraBalderas;
+
+import tools.Vector2d;
+
+public class Nodo {
+	private int coste_g;
+	private int estimacion_h;
+	private Vector2d posicion;
+	private Vector2d padre;
+	
+	public Nodo()
+}
