@@ -59,7 +59,6 @@ public class Agent extends AbstractPlayer {
     private int fescalaX;
     private int fescalaY;
     
-    boolean uno = true;
     
     private int distanciaManhattan(int fila1, int col1, int fila2, int col2) {
 		return Math.abs(fila1-fila2) + Math.abs(col1 - col2);

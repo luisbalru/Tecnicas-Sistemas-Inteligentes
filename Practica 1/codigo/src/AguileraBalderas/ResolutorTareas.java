@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import ontology.Types;
 import ontology.Types.ACTIONS;
 import AguileraBalderas.AEstrella;
+import core.game.Observation;
 
 public class ResolutorTareas {
 	
-	private ArrayList<ArrayList<Character> > mundo;
+	private ArrayList<Observation>[][] mundo;
 	
-	public ResolutorTareas(ArrayList<ArrayList<Character> > mundo) {
+	public ResolutorTareas(ArrayList<Observation>[][] mundo) {
 		this.mundo = mundo;
 	}
 	
@@ -19,9 +20,9 @@ public class ResolutorTareas {
 	}
 	
 	public ArrayList<Types.ACTIONS> obtenCamino(int fila_actual,int col_actual,int fila_obj, int col_obj){
-		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), fila_actual, col_actual, null, false);
-		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, fila_obj, col_obj, null, false);
-		AEstrella aestrella = new AEstrella(inicio, fin, mundo);;
+		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), fila_actual, col_actual, null);
+		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, fila_obj, col_obj, null);
+		AEstrella aestrella = new AEstrella(inicio, fin, mundo);
 		return aestrella.devuelveAcciones();
 	}
 	
