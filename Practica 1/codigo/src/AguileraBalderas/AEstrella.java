@@ -61,7 +61,7 @@ public class AEstrella {
 		abiertos.add(nodo_inicial);
 		abiertos_set.add(nodo_inicial);
 		Nodo mejor_nodo = nodo_inicial;
-		while(!isEmpty(abiertos) && timer.elapsedMillis() < 30) {
+		while(!isEmpty(abiertos) /*&& timer.elapsedMillis() < 30*/) {
 			Nodo nodo_actual = abiertos.poll();
 			if(nodo_actual.f < mejor_nodo.f) {
 				mejor_nodo = nodo_actual;
@@ -91,8 +91,8 @@ public class AEstrella {
 				}
 				boolean muro = mundo[nodo_actual.fila][nodo_actual.columna].size()==0;
 				if(!muro)
-					muro = mundo[nodo_actual.fila][nodo_actual.columna].get(0).itype!= 0;
-				if(muro) {
+					muro = mundo[nodo_actual.fila][nodo_actual.columna].get(0).itype== 0;
+				if(!muro) {
 					vecinos.get(i).padre = nodo_actual;
 					vecinos.get(i).coste_g = g;
 					abiertos.add(vecinos.get(i));
@@ -118,6 +118,8 @@ public class AEstrella {
 		Nodo nodo_actual = nodo_inicial;
 		ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
 		for(int i=1; i < camino.size(); i++) {
+			System.out.printf("Nodo actual: Fila %d, Columna %d\n",nodo_actual.fila, nodo_actual.columna);
+			System.out.printf("Nodo del camino: Fila %d, Columna %d\n\n",camino.get(i).fila, camino.get(i).columna);
 			if(camino.get(i).fila > nodo_actual.fila) 
 				acciones.add(Types.ACTIONS.ACTION_DOWN);
 			
@@ -132,6 +134,7 @@ public class AEstrella {
 			
 			else
 				acciones.add(Types.ACTIONS.ACTION_NIL);
+			nodo_actual = camino.get(i);
 		}
 		return acciones;
 	}

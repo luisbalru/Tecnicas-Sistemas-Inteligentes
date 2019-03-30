@@ -47,7 +47,7 @@ import tools.Vector2d;
 import tools.pathfinder.Node;
 import tools.pathfinder.PathFinder;
 
-import AguileraBalderas.AEstrella;
+import AguileraBalderas.ResolutorTareas;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -59,12 +59,15 @@ public class Agent extends AbstractPlayer {
     private int fescalaX;
     private int fescalaY;
     
+    private ArrayList<Types.ACTIONS> lista_acciones;
+    
     
     private int distanciaManhattan(int fila1, int col1, int fila2, int col2) {
 		return Math.abs(fila1-fila2) + Math.abs(col1 - col2);
 	}
     
-    public Agent(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+    public Agent(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {    	
+    	lista_acciones = new ArrayList<Types.ACTIONS>();
         //Creamos una lista de IDs de obstaculos
         ArrayList<Integer> tiposObs = new ArrayList();
         tiposObs.add(0); //<- Muros
@@ -84,20 +87,16 @@ public class Agent extends AbstractPlayer {
 
     @Override
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
-    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
-    	int col_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
-    	Nodo start = new Nodo(0, distanciaManhattan(fila_start, col_start, 1, 4), fila_start,col_start,null);
-    	Nodo end = new Nodo(distanciaManhattan(1, 4, fila_start, col_start), 0, 1, 4, null);
-    	
-    	System.out.println(elapsedTimer.elapsedMillis());
-    	AEstrella estrellica = new AEstrella(start, end, stateObs.getObservationGrid());
-    	estrellica.buscaCamino(elapsedTimer);
-    	if(estrellica.devuelveAcciones().size()!=0) {
-    		System.out.println(estrellica.devuelveAcciones().get(0));
-    		return estrellica.devuelveAcciones().get(0);
+    	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
+    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
+    	if(lista_acciones.size()==0) {
+    		ResolutorTareas resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height);    		
+    		lista_acciones = resolutor.obtenCamino(fila_start, col_start, 1, 4,elapsedTimer);
     	}
-    	System.out.println(elapsedTimer.elapsedMillis());
-    	return Types.ACTIONS.ACTION_NIL;
+    	Types.ACTIONS accion = lista_acciones.get(0);
+    	System.out.println(accion.toString());
+    	lista_acciones.remove(0);
+    	return(accion);
     }
 
 
