@@ -30,7 +30,7 @@ public class ResolutorTareas {
 		aestrella.buscaCamino(timer);
 		return aestrella.devuelveAcciones();
 	}
-	
+	// Reemplazable por la función ya definida en el código de prueba
 	public ArrayList<Types.ACTIONS> salirPortal(int fila, int columna, ElapsedCpuTimer timer){
 		int fila_portal = 0;
 		int columna_portal = 0;
