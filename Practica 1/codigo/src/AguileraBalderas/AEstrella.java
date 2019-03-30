@@ -46,9 +46,9 @@ public class AEstrella {
 	public ArrayList<Nodo> obtenerVecinos(Nodo n) {
 		ArrayList<Nodo> vecinos = new ArrayList<Nodo>();
 		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila-1,n.columna), n.fila-1,n.columna, n));
-		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila+1,n.columna), n.fila+1,n.columna, n));
-		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila,n.columna-1), n.fila,n.columna-1, n));
-		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila,n.columna+1), n.fila,n.columna+1, n));
+		vecinos.add(new Nodo(g(n.fila+1,n.columna), h(n.fila+1,n.columna), n.fila+1,n.columna, n));
+		vecinos.add(new Nodo(g(n.fila,n.columna-1), h(n.fila,n.columna-1), n.fila,n.columna-1, n));
+		vecinos.add(new Nodo(g(n.fila,n.columna+1), h(n.fila,n.columna+1), n.fila,n.columna+1, n));
 		return vecinos;
 	}
 
