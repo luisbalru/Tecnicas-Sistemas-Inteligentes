@@ -21,7 +21,7 @@ public class AEstrella {
 	private Set<Nodo> cerrados;
 	private ArrayList<Observation>[][] mundo;
 	private List<Nodo> camino;
-	
+
 	public AEstrella(Nodo start, Nodo end,ArrayList<Observation>[][] mundo) {
 		this.nodo_inicial = start;
 		this.nodo_objetivo = end;
@@ -35,15 +35,15 @@ public class AEstrella {
 			}
 		});
 	}
-	
+
 	private int g(int columna, int fila) {
 		return Math.abs(fila - nodo_inicial.fila) + Math.abs(columna - nodo_inicial.columna);
 	}
-	
+
 	private int h(int columna, int fila) {
 		return Math.abs(fila - nodo_objetivo.fila) + Math.abs(columna - nodo_objetivo.columna);
 	}
-	
+
 	public ArrayList<Nodo> obtenerVecinos(Nodo n) {
 		ArrayList<Nodo> vecinos = new ArrayList<Nodo>();
 		vecinos.add(new Nodo(g(n.columna-1,n.fila), h(n.columna-1,n.fila), n.columna-1,n.fila, n));
@@ -56,15 +56,13 @@ public class AEstrella {
 	public int distanciaManhattan(Nodo n1, Nodo n2) {
 		return Math.abs(n1.fila-n2.fila) + Math.abs(n1.columna-n2.columna);
 	}
-	
+
 	public List<Nodo> buscaCamino(ElapsedCpuTimer timer){
 		List<Nodo> path = new ArrayList<Nodo>();
 		abiertos.add(nodo_inicial);
 		abiertos_set.add(nodo_inicial);
 		Nodo mejor_nodo = nodo_inicial;
-		int veces_bucle = 0;
 		while(!isEmpty(abiertos) && timer.elapsedMillis() < 35) {
-			veces_bucle+=1;
 			long tiempo = timer.elapsedMillis();
 			Nodo nodo_actual = abiertos.poll();
 			if(nodo_actual.estimacion_h < mejor_nodo.estimacion_h) {
@@ -83,9 +81,7 @@ public class AEstrella {
 			}
 			List<Nodo> vecinos = obtenerVecinos(nodo_actual);
 			for(int i=0; i < vecinos.size(); i++) {
-				if(abiertos_set.contains(vecinos.get(i))) {
-				}
-				else if(cerrados.contains(vecinos.get(i))){;
+				if(cerrados.contains(vecinos.get(i))){
 					cerrados.remove(vecinos.get(i));
 				}
 				boolean accesible = isAccesible(mundo,vecinos.get(i));
@@ -106,7 +102,7 @@ public class AEstrella {
 		camino = path;
 		return path;
 	}
-	
+
 	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo) {
 		int fila = nodo.fila;
 		int columna = nodo.columna;
@@ -127,12 +123,12 @@ public class AEstrella {
 	private boolean isEmpty(PriorityQueue<Nodo> openList) {
         return openList.size() == 0;
 	}
-	
+
 	public ArrayList<Types.ACTIONS> devuelveAcciones(StateObservation obs){
 		Nodo nodo_actual = nodo_inicial;
 		System.out.println(this.camino.toString());
 		ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
-		
+
 		if(camino.size()>1) {
 			if(camino.get(1).fila > nodo_actual.fila)
 				if(obs.getAvatarOrientation().y==1.0)
@@ -141,7 +137,7 @@ public class AEstrella {
 					acciones.add(Types.ACTIONS.ACTION_DOWN);
 					acciones.add(Types.ACTIONS.ACTION_DOWN);
 				}
-			
+
 			else if(camino.get(1).fila < nodo_actual.fila)
 				if(obs.getAvatarOrientation().y==-1.0)
 					acciones.add(Types.ACTIONS.ACTION_UP);
@@ -149,7 +145,7 @@ public class AEstrella {
 					acciones.add(Types.ACTIONS.ACTION_UP);
 					acciones.add(Types.ACTIONS.ACTION_UP);
 				}
-			
+
 			else if(camino.get(1).columna > nodo_actual.columna)
 				if(obs.getAvatarOrientation().x==1.0)
 					acciones.add(Types.ACTIONS.ACTION_RIGHT);
@@ -157,7 +153,7 @@ public class AEstrella {
 					acciones.add(Types.ACTIONS.ACTION_RIGHT);
 					acciones.add(Types.ACTIONS.ACTION_RIGHT);
 				}
-			
+
 			else if(camino.get(1).columna < nodo_actual.columna)
 				if(obs.getAvatarOrientation().x==-1.0)
 					acciones.add(Types.ACTIONS.ACTION_LEFT);
@@ -165,48 +161,48 @@ public class AEstrella {
 					acciones.add(Types.ACTIONS.ACTION_LEFT);
 					acciones.add(Types.ACTIONS.ACTION_LEFT);
 				}
-			
+
 			else
 				acciones.add(Types.ACTIONS.ACTION_NIL);
 			nodo_actual = camino.get(1);
 		}
-		
+
 		for(int i=2; i < camino.size(); i++) {
 			Vector2d orientacion = obs.getAvatarOrientation();
 			//System.out.printf("Nodo actual: Fila %d, Columna %d\n",nodo_actual.fila, nodo_actual.columna);
 			//System.out.printf("Nodo del camino: Fila %d, Columna %d\n\n",camino.get(i).fila, camino.get(i).columna);
 			if(camino.get(i).fila > nodo_actual.fila)
-				if(acciones.get(i-1)==Types.ACTIONS.ACTION_DOWN)
+				if(acciones.get(acciones.size()-1)==Types.ACTIONS.ACTION_DOWN)
 					acciones.add(Types.ACTIONS.ACTION_DOWN);
 				else {
 					acciones.add(Types.ACTIONS.ACTION_DOWN);
 					acciones.add(Types.ACTIONS.ACTION_DOWN);
 				}
-			
+
 			else if(camino.get(i).fila < nodo_actual.fila)
-				if(acciones.get(i-1)==Types.ACTIONS.ACTION_UP)
+				if(acciones.get(acciones.size()-1)==Types.ACTIONS.ACTION_UP)
 					acciones.add(Types.ACTIONS.ACTION_UP);
 				else {
 					acciones.add(Types.ACTIONS.ACTION_UP);
 					acciones.add(Types.ACTIONS.ACTION_UP);
 				}
-			
+
 			else if(camino.get(i).columna > nodo_actual.columna)
-				if(acciones.get(i-1)==Types.ACTIONS.ACTION_RIGHT)
+				if(acciones.get(acciones.size()-1)==Types.ACTIONS.ACTION_RIGHT)
 					acciones.add(Types.ACTIONS.ACTION_RIGHT);
 				else {
 					acciones.add(Types.ACTIONS.ACTION_RIGHT);
 					acciones.add(Types.ACTIONS.ACTION_RIGHT);
 				}
-			
+
 			else if(camino.get(i).columna < nodo_actual.columna)
-				if(acciones.get(i-1)==Types.ACTIONS.ACTION_LEFT)
+				if(acciones.get(acciones.size()-1)==Types.ACTIONS.ACTION_LEFT)
 					acciones.add(Types.ACTIONS.ACTION_LEFT);
 				else {
 					acciones.add(Types.ACTIONS.ACTION_LEFT);
 					acciones.add(Types.ACTIONS.ACTION_LEFT);
 				}
-			
+
 			else
 				acciones.add(Types.ACTIONS.ACTION_NIL);
 			nodo_actual = camino.get(i);
