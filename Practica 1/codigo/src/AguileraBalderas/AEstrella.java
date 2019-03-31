@@ -83,7 +83,6 @@ public class AEstrella {
 			}
 			List<Nodo> vecinos = obtenerVecinos(nodo_actual);
 			for(int i=0; i < vecinos.size(); i++) {
-				int g = g(nodo_actual.columna,nodo_actual.fila);
 				if(abiertos_set.contains(vecinos.get(i))) {
 				}
 				else if(cerrados.contains(vecinos.get(i))){;
@@ -92,7 +91,6 @@ public class AEstrella {
 				boolean accesible = isAccesible(mundo,vecinos.get(i));
 				if(accesible) {
 					vecinos.get(i).padre = nodo_actual;
-					vecinos.get(i).coste_g = g(vecinos.get(i).columna,vecinos.get(i).fila);
 					abiertos.add(vecinos.get(i));
 					abiertos_set.add(vecinos.get(i));
 				}
