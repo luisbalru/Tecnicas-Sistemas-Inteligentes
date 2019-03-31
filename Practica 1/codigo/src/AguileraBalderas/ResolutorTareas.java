@@ -27,30 +27,15 @@ public class ResolutorTareas {
 	}
 	
 	public ArrayList<Types.ACTIONS> obtenCamino(int col_actual,int fila_actual,int col_obj, int fila_obj, ElapsedCpuTimer timer){
-		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null);
-		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null);
+		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null, obs.getAvatarOrientation());
+		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null, obs.getAvatarOrientation());
 		AEstrella aestrella = new AEstrella(inicio, fin, mundo);
 		aestrella.buscaCamino(timer);
 		return aestrella.devuelveAcciones(obs);
 	}
-	// Reemplazable por la función ya definida en el código de prueba
+	/* Reemplazable por la función ya definida en el código de prueba
 	public ArrayList<Types.ACTIONS> salirPortal(int fila, int columna, ElapsedCpuTimer timer){
-		int fila_portal = 0;
-		int columna_portal = 0;
-		for(int i = 0; i < ancho; ++i) {
-			for(int j = 0; j < alto; ++j) {
-				boolean puerta = mundo[i][j].size()>0;
-				if(puerta)
-					puerta = mundo[i][j].get(0).itype==5; 
-				if(puerta) {
-					fila_portal = i;
-					columna_portal = j;
-				}
-			}
-		}
-		ArrayList<Types.ACTIONS> acciones = obtenCamino(fila, columna, fila_portal, columna_portal, timer);
-		acciones.add(Types.ACTIONS.ACTION_ESCAPE);
-		return(acciones);
-	}
+		//TODO: Usar obtenCamino
+	}*/
 
 }
