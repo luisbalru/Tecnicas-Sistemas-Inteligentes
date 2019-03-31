@@ -91,18 +91,20 @@ public class Agent extends AbstractPlayer {
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
+    	
     	if(lista_acciones.size()==0) {
-    		ResolutorTareas resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height);    		
+    		ResolutorTareas resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height,stateObs);    		
     		lista_acciones = resolutor.obtenCamino(col_start, fila_start, 1, 4,elapsedTimer);
     	}
     	i+=1;
     	if(i%2==0) {
     		Types.ACTIONS accion = lista_acciones.get(0);
-    		//System.out.println(accion.toString());
+    		System.out.println(accion.toString());
     		lista_acciones.remove(0);
     		return(accion);
     	}
     	return(Types.ACTIONS.ACTION_NIL);
+    	
     }
 
 

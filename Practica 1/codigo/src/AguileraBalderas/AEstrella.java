@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 import core.game.Observation;
-
+import core.game.StateObservation;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
+import tools.Vector2d;
 
 public class AEstrella {
 	private Nodo nodo_inicial;
@@ -35,20 +36,20 @@ public class AEstrella {
 		});
 	}
 	
-	private int g(int fila, int columna) {
+	private int g(int columna, int fila) {
 		return Math.abs(fila - nodo_inicial.fila) + Math.abs(columna - nodo_inicial.columna);
 	}
 	
-	private int h(int fila, int columna) {
+	private int h(int columna, int fila) {
 		return Math.abs(fila - nodo_objetivo.fila) + Math.abs(columna - nodo_objetivo.columna);
 	}
 	
 	public ArrayList<Nodo> obtenerVecinos(Nodo n) {
 		ArrayList<Nodo> vecinos = new ArrayList<Nodo>();
-		vecinos.add(new Nodo(g(n.fila-1,n.columna), h(n.fila-1,n.columna), n.fila-1,n.columna, n));
-		vecinos.add(new Nodo(g(n.fila+1,n.columna), h(n.fila+1,n.columna), n.fila+1,n.columna, n));
-		vecinos.add(new Nodo(g(n.fila,n.columna-1), h(n.fila,n.columna-1), n.fila,n.columna-1, n));
-		vecinos.add(new Nodo(g(n.fila,n.columna+1), h(n.fila,n.columna+1), n.fila,n.columna+1, n));
+		vecinos.add(new Nodo(g(n.columna-1,n.fila), h(n.columna-1,n.fila), n.columna-1,n.fila, n));
+		vecinos.add(new Nodo(g(n.columna+1,n.fila), h(n.columna+1,n.fila), n.columna+1,n.fila, n));
+		vecinos.add(new Nodo(g(n.columna,n.fila-1), h(n.columna,n.fila-1), n.columna,n.fila-1, n));
+		vecinos.add(new Nodo(g(n.columna,n.fila+1), h(n.columna,n.fila+1), n.columna,n.fila+1, n));
 		return vecinos;
 	}
 
@@ -61,10 +62,12 @@ public class AEstrella {
 		abiertos.add(nodo_inicial);
 		abiertos_set.add(nodo_inicial);
 		Nodo mejor_nodo = nodo_inicial;
+		int veces_bucle = 0;
 		while(!isEmpty(abiertos) && timer.elapsedMillis() < 35) {
+			veces_bucle+=1;
 			long tiempo = timer.elapsedMillis();
 			Nodo nodo_actual = abiertos.poll();
-			if(nodo_actual.f < mejor_nodo.f) {
+			if(nodo_actual.estimacion_h < mejor_nodo.estimacion_h) {
 				mejor_nodo = nodo_actual;
 			}
 			abiertos_set.remove(nodo_actual);
@@ -80,24 +83,21 @@ public class AEstrella {
 			}
 			List<Nodo> vecinos = obtenerVecinos(nodo_actual);
 			for(int i=0; i < vecinos.size(); i++) {
-				int g = g(nodo_actual.fila,nodo_actual.columna) + distanciaManhattan(nodo_actual,vecinos.get(i));
+				int g = g(nodo_actual.columna,nodo_actual.fila);
 				if(abiertos_set.contains(vecinos.get(i))) {
-					if(g(vecinos.get(i).fila,vecinos.get(i).columna) <= g)
-						continue;
 				}
-				else if(cerrados.contains(vecinos.get(i))){
-					if(g(vecinos.get(i).fila,vecinos.get(i).columna) <= g)
-						continue;
+				else if(cerrados.contains(vecinos.get(i))){;
 					cerrados.remove(vecinos.get(i));
 				}
 				boolean accesible = isAccesible(mundo,vecinos.get(i));
 				if(accesible) {
 					vecinos.get(i).padre = nodo_actual;
-					vecinos.get(i).coste_g = g;
+					vecinos.get(i).coste_g = g(vecinos.get(i).columna,vecinos.get(i).fila);
 					abiertos.add(vecinos.get(i));
 					abiertos_set.add(vecinos.get(i));
 				}
 			}
+			cerrados.add(nodo_actual);
 		}
 		while(!mejor_nodo.equals(nodo_inicial)) {
 			path.add(mejor_nodo);
@@ -112,14 +112,14 @@ public class AEstrella {
 	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo) {
 		int fila = nodo.fila;
 		int columna = nodo.columna;
-		boolean vacio = mundo[fila][columna].size()==0;
+		boolean vacio = mundo[columna][fila].size()==0;
 		if(!vacio) {
-			boolean bicho = mundo[fila][columna].get(0).itype==11 || mundo[fila][columna].get(0).itype==10;
-			boolean muro = mundo[fila][columna].get(0).itype==0;
-			boolean piedra = mundo[fila][columna].get(0).itype==7;
+			boolean bicho = mundo[columna][fila].get(0).itype==11 || mundo[columna][fila].get(0).itype==10;
+			boolean muro = mundo[columna][fila].get(0).itype==0;
+			boolean piedra = mundo[columna][fila].get(0).itype==7;
 			boolean piedra_arriba = false;
-			if(fila>0 && mundo[fila-1][columna].size()>0)
-				piedra_arriba = mundo[fila-1][columna].get(0).itype==7;
+			if(fila>0 && mundo[columna][fila-1].size()>0)
+				piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
 			boolean condicion = !bicho && !muro && !piedra && !piedra_arriba;
 			return condicion;
 		}
@@ -130,24 +130,84 @@ public class AEstrella {
         return openList.size() == 0;
 	}
 	
-	public ArrayList<Types.ACTIONS> devuelveAcciones(){
+	public ArrayList<Types.ACTIONS> devuelveAcciones(StateObservation obs){
 		Nodo nodo_actual = nodo_inicial;
 		System.out.println(this.camino.toString());
 		ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
-		for(int i=1; i < camino.size(); i++) {
+		
+		if(camino.size()>1) {
+			if(camino.get(1).fila > nodo_actual.fila)
+				if(obs.getAvatarOrientation().y==1.0)
+					acciones.add(Types.ACTIONS.ACTION_DOWN);
+				else {
+					acciones.add(Types.ACTIONS.ACTION_DOWN);
+					acciones.add(Types.ACTIONS.ACTION_DOWN);
+				}
+			
+			else if(camino.get(1).fila < nodo_actual.fila)
+				if(obs.getAvatarOrientation().y==-1.0)
+					acciones.add(Types.ACTIONS.ACTION_UP);
+				else {
+					acciones.add(Types.ACTIONS.ACTION_UP);
+					acciones.add(Types.ACTIONS.ACTION_UP);
+				}
+			
+			else if(camino.get(1).columna > nodo_actual.columna)
+				if(obs.getAvatarOrientation().x==1.0)
+					acciones.add(Types.ACTIONS.ACTION_RIGHT);
+				else {
+					acciones.add(Types.ACTIONS.ACTION_RIGHT);
+					acciones.add(Types.ACTIONS.ACTION_RIGHT);
+				}
+			
+			else if(camino.get(1).columna < nodo_actual.columna)
+				if(obs.getAvatarOrientation().x==-1.0)
+					acciones.add(Types.ACTIONS.ACTION_LEFT);
+				else {
+					acciones.add(Types.ACTIONS.ACTION_LEFT);
+					acciones.add(Types.ACTIONS.ACTION_LEFT);
+				}
+			
+			else
+				acciones.add(Types.ACTIONS.ACTION_NIL);
+			nodo_actual = camino.get(1);
+		}
+		
+		for(int i=2; i < camino.size(); i++) {
+			Vector2d orientacion = obs.getAvatarOrientation();
 			//System.out.printf("Nodo actual: Fila %d, Columna %d\n",nodo_actual.fila, nodo_actual.columna);
 			//System.out.printf("Nodo del camino: Fila %d, Columna %d\n\n",camino.get(i).fila, camino.get(i).columna);
-			if(camino.get(i).fila > nodo_actual.fila) 
-				acciones.add(Types.ACTIONS.ACTION_DOWN);
+			if(camino.get(i).fila > nodo_actual.fila)
+				if(acciones.get(i-1)==Types.ACTIONS.ACTION_DOWN)
+					acciones.add(Types.ACTIONS.ACTION_DOWN);
+				else {
+					acciones.add(Types.ACTIONS.ACTION_DOWN);
+					acciones.add(Types.ACTIONS.ACTION_DOWN);
+				}
 			
-			else if(camino.get(i).fila < nodo_actual.fila) 
-				acciones.add(Types.ACTIONS.ACTION_UP);
+			else if(camino.get(i).fila < nodo_actual.fila)
+				if(acciones.get(i-1)==Types.ACTIONS.ACTION_UP)
+					acciones.add(Types.ACTIONS.ACTION_UP);
+				else {
+					acciones.add(Types.ACTIONS.ACTION_UP);
+					acciones.add(Types.ACTIONS.ACTION_UP);
+				}
 			
-			else if(camino.get(i).columna > nodo_actual.columna) 
-				acciones.add(Types.ACTIONS.ACTION_RIGHT);
+			else if(camino.get(i).columna > nodo_actual.columna)
+				if(acciones.get(i-1)==Types.ACTIONS.ACTION_RIGHT)
+					acciones.add(Types.ACTIONS.ACTION_RIGHT);
+				else {
+					acciones.add(Types.ACTIONS.ACTION_RIGHT);
+					acciones.add(Types.ACTIONS.ACTION_RIGHT);
+				}
 			
 			else if(camino.get(i).columna < nodo_actual.columna)
-				acciones.add(Types.ACTIONS.ACTION_LEFT);
+				if(acciones.get(i-1)==Types.ACTIONS.ACTION_LEFT)
+					acciones.add(Types.ACTIONS.ACTION_LEFT);
+				else {
+					acciones.add(Types.ACTIONS.ACTION_LEFT);
+					acciones.add(Types.ACTIONS.ACTION_LEFT);
+				}
 			
 			else
 				acciones.add(Types.ACTIONS.ACTION_NIL);
