@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
     <fullyQualifiedTypeName name="core.player.AbstractPlayer"/>
-    <fullyQualifiedTypeName name="core.game.StateObservation"/>
     <fullyQualifiedTypeName name="java.util.Random"/>
     <fullyQualifiedTypeName name="tools.pathfinder.AStar"/>
     <fullyQualifiedTypeName name="jdk.nashorn.internal.runtime.linker.JavaAdapterFactory"/>
     <fullyQualifiedTypeName name="java.lang.Math"/>
     <fullyQualifiedTypeName name="java.util.Set"/>
     <fullyQualifiedTypeName name="java.util.List"/>
-    <fullyQualifiedTypeName name="tools.Vector2d"/>
     <fullyQualifiedTypeName name="java.util.PriorityQueue"/>
     <fullyQualifiedTypeName name="java.util.Comparator"/>
     <fullyQualifiedTypeName name="java.lang.Integer"/>
     <fullyQualifiedTypeName name="AguileraBalderas.ResolutorTareas"/>
     <fullyQualifiedTypeName name="sun.security.krb5.internal.crypto.Aes128"/>
-    <fullyQualifiedTypeName name="java.util.ArrayList"/>
     <fullyQualifiedTypeName name="java.lang.Character"/>
-    <fullyQualifiedTypeName name="tools.ElapsedCpuTimer"/>
     <fullyQualifiedTypeName name="java.lang.Object"/>
     <fullyQualifiedTypeName name="core.game.Observation"/>
-    <fullyQualifiedTypeName name="AguileraBalderas.AEstrella"/>
-    <fullyQualifiedTypeName name="AguileraBalderas.Nodo"/>
     <fullyQualifiedTypeName name="java.util.HashSet"/>
-    <fullyQualifiedTypeName name="ontology.Types"/>
-    <fullyQualifiedTypeName name="ontology.Types.ACTIONS"/>
-    <fullyQualifiedTypeName name="java.lang.System"/>
     <fullyQualifiedTypeName name="java.lang.Override"/>
+    <fullyQualifiedTypeName name="AguileraBalderas.Nodo"/>
+    <fullyQualifiedTypeName name="AguileraBalderas.AEstrella"/>
+    <fullyQualifiedTypeName name="com.sun.tools.javac.util.List"/>
+    <fullyQualifiedTypeName name="ontology.Types"/>
+    <fullyQualifiedTypeName name="tools.Vector2d"/>
+    <fullyQualifiedTypeName name="java.lang.System"/>
+    <fullyQualifiedTypeName name="AguileraBalderas.Vector2di"/>
+    <fullyQualifiedTypeName name="java.util.ArrayList"/>
+    <fullyQualifiedTypeName name="ontology.Types.ACTIONS"/>
+    <fullyQualifiedTypeName name="core.game.StateObservation"/>
+    <fullyQualifiedTypeName name="tools.ElapsedCpuTimer"/>
 </qualifiedTypeNameHistroy>
