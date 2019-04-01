@@ -86,9 +86,9 @@ public class Agent extends AbstractPlayer {
         
         lista_gemas_faciles = new ArrayList<Vector2di>();
         lista_gemas_faciles.add(new Vector2di(1,4));
-        lista_gemas_faciles.add(new Vector2di(16,9));
-        lista_gemas_faciles.add(new Vector2di(9,10));
         lista_gemas_faciles.add(new Vector2di(7,9));
+        lista_gemas_faciles.add(new Vector2di(9,10));
+        lista_gemas_faciles.add(new Vector2di(16,9));
         lista_gemas_faciles.add(new Vector2di(18,9));
         lista_gemas_faciles.add(new Vector2di(20,3));
         lista_gemas_faciles.add(new Vector2di(6,11));
@@ -100,7 +100,7 @@ public class Agent extends AbstractPlayer {
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
     	
-    	System.out.println(lista_gemas_faciles);
+    	//System.out.println(lista_gemas_faciles);
     	
     	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0) {
     		if(col_start != lista_gemas_faciles.get(0).x || fila_start != lista_gemas_faciles.get(0).y) {
@@ -112,7 +112,7 @@ public class Agent extends AbstractPlayer {
     	}
     	if(lista_acciones.size()>0) {
 	    	Types.ACTIONS accion = lista_acciones.get(0);
-	    	System.out.println(accion.toString());
+	    	//System.out.println(accion.toString());
 	    	lista_acciones.remove(0);
 	    	return(accion);
     	}

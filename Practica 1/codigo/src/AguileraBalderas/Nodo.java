@@ -3,14 +3,30 @@ package AguileraBalderas;
 import tools.Vector2d;
 
 public class Nodo {
+	// Coste asociado al nodo
 	public int coste_g;
+	// Valor de la heurística en el nodo
 	public int estimacion_h;
+	// Suma del coste y la heurística
 	public int f;
+	// Posición en las filas
 	public int fila;
+	// Posición en las columnas
 	public int columna;
+	// Padre del nodo 
 	public Nodo padre;
+	// Orientación (-1,0)IZQ, (1,0)DER, (0,1)ABJ, (0,-1)ARRI
 	public Vector2d orientacion;
 	
+	/**
+	 * Constructor del nodo
+	 * @param d Distancia o coste del nodo
+	 * @param e Estimación o valor de la heurística
+	 * @param columna Valor de la columna 
+	 * @param fila Valor de la fila
+	 * @param n Nodo padre
+	 * @param orientacion Orientación del nodo (esto está asociado a un camino y sólo se usa en AEstrella)
+	 */
 	public Nodo(int d,int e,int columna,int fila,Nodo n, Vector2d orientacion) {
 		coste_g = d;
 		estimacion_h = e;
