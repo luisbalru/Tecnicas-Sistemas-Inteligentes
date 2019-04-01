@@ -81,8 +81,8 @@ public class Agent extends AbstractPlayer {
         //Se lanza el algoritmo de pathfinding para poder ser usado en la función ACT
         pf.run(stateObs);
 
-        fescalaX = stateObs.getWorldDimension().width / stateObs.getObservationGrid().length;
-        fescalaY = stateObs.getWorldDimension().height / stateObs.getObservationGrid()[0].length;
+        this.fescalaX = stateObs.getWorldDimension().width / stateObs.getObservationGrid().length;
+        this.fescalaY = stateObs.getWorldDimension().height / stateObs.getObservationGrid()[0].length;
         
         lista_gemas_faciles = new ArrayList<Vector2di>();
         lista_gemas_faciles.add(new Vector2di(1,4));
@@ -99,8 +99,8 @@ public class Agent extends AbstractPlayer {
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
-    	
-    	ResolutorTareas resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height,stateObs, fescalaX, fescalaY);
+    	    	
+    	ResolutorTareas resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height,stateObs, this.fescalaX, this.fescalaY);
     	
     	//System.out.println(lista_gemas_faciles);
     	

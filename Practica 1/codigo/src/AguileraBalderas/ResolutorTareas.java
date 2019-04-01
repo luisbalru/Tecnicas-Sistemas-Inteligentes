@@ -34,6 +34,8 @@ public class ResolutorTareas {
 		this.ancho = ancho;
 		this.alto = alto;
 		this.obs = obs;
+		this.fescalaX = fescalaX;
+		this.fescalaY = fescalaY;
 	}
 	
 	/**
@@ -57,8 +59,8 @@ public class ResolutorTareas {
 	 */
 	public ArrayList<Types.ACTIONS> obtenCamino(int col_obj, int fila_obj, ElapsedCpuTimer timer){
 		// Tomamos las coordenadas actuales del avatar
-		int col_actual = (int) Math.round(this.obs.getAvatarPosition().x / fescalaX);
-    	int fila_actual = (int) Math.round(this.obs.getAvatarPosition().y / fescalaY);
+		int col_actual = (int) Math.round(this.obs.getAvatarPosition().x / this.fescalaX);
+    	int fila_actual = (int) Math.round(this.obs.getAvatarPosition().y / this.fescalaY);
     	// Inicializamos el nodo de inicio con la posición del avatar y el final con la posición del objetivo
 		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null, obs.getAvatarOrientation());
 		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null, obs.getAvatarOrientation());
