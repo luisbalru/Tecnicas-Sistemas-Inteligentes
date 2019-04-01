@@ -100,13 +100,13 @@ public class Agent extends AbstractPlayer {
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
     	
-    	ResolutorTareas resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height,stateObs);
+    	ResolutorTareas resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height,stateObs, fescalaX, fescalaY);
     	
     	//System.out.println(lista_gemas_faciles);
     	
     	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0) {
     		if(col_start != lista_gemas_faciles.get(0).x || fila_start != lista_gemas_faciles.get(0).y) {    		
-    			lista_acciones = resolutor.obtenCamino(col_start, fila_start, lista_gemas_faciles.get(0).x, lista_gemas_faciles.get(0).y,elapsedTimer);
+    			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles.get(0).x, lista_gemas_faciles.get(0).y,elapsedTimer);
     		}
     		else
     			lista_gemas_faciles.remove(0);
@@ -118,7 +118,7 @@ public class Agent extends AbstractPlayer {
 	    	return(accion);
     	}
     	if(lista_gemas_faciles.size()==0) {
-    		lista_acciones = resolutor.salirPortal(elapsedTimer, fescalaX, fescalaY);
+    		lista_acciones = resolutor.salirPortal(elapsedTimer);
     	}
     	return Types.ACTIONS.ACTION_NIL;
     	
