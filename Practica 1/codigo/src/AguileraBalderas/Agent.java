@@ -91,7 +91,7 @@ public class Agent extends AbstractPlayer {
         lista_gemas_faciles.add(new Vector2di(16,9));
         lista_gemas_faciles.add(new Vector2di(18,9));
         lista_gemas_faciles.add(new Vector2di(20,3));
-        lista_gemas_faciles.add(new Vector2di(6,11));
+        //lista_gemas_faciles.add(new Vector2di(6,11));
     }
 
 
@@ -100,11 +100,12 @@ public class Agent extends AbstractPlayer {
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
     	
+    	ResolutorTareas resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height,stateObs);
+    	
     	//System.out.println(lista_gemas_faciles);
     	
     	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0) {
-    		if(col_start != lista_gemas_faciles.get(0).x || fila_start != lista_gemas_faciles.get(0).y) {
-    			ResolutorTareas resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height,stateObs);    		
+    		if(col_start != lista_gemas_faciles.get(0).x || fila_start != lista_gemas_faciles.get(0).y) {    		
     			lista_acciones = resolutor.obtenCamino(col_start, fila_start, lista_gemas_faciles.get(0).x, lista_gemas_faciles.get(0).y,elapsedTimer);
     		}
     		else
@@ -115,6 +116,9 @@ public class Agent extends AbstractPlayer {
 	    	//System.out.println(accion.toString());
 	    	lista_acciones.remove(0);
 	    	return(accion);
+    	}
+    	if(lista_gemas_faciles.size()==0) {
+    		lista_acciones = resolutor.salirPortal(elapsedTimer, fescalaX, fescalaY);
     	}
     	return Types.ACTIONS.ACTION_NIL;
     	
