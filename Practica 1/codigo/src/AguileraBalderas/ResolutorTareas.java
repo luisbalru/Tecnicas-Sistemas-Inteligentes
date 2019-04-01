@@ -65,7 +65,7 @@ public class ResolutorTareas {
 		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null, obs.getAvatarOrientation());
 		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null, obs.getAvatarOrientation());
 		// Inicializamos el objeto AEstrella y buscamos el camino
-		AEstrella aestrella = new AEstrella(inicio, fin, mundo);
+		AEstrella aestrella = new AEstrella(inicio, fin, mundo, mundo.length, mundo[0].length);
 		aestrella.buscaCamino(timer);
 		return aestrella.devuelveAcciones(obs);
 	}

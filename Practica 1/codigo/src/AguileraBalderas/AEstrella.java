@@ -31,15 +31,20 @@ public class AEstrella {
 	private ArrayList<Observation>[][] mundo;
 	//Camino obtenido por buscaCamino tras ser ejecutado
 	private List<Nodo> camino;
+	// Tamaño del mundo
+	int ancho, alto;
 	
 	/**
 	 * Constructor de la clase AEstrella
 	 * @param start Nodo de inicio
 	 * @param end Nodo final
 	 * @param mundo Grid con el estado del mundo
+	 * @param ancho Ancho del mundo
+	 * @param alto Alto del mundo
 	 */
-	public AEstrella(Nodo start, Nodo end,ArrayList<Observation>[][] mundo) {
-
+	public AEstrella(Nodo start, Nodo end,ArrayList<Observation>[][] mundo, int ancho, int alto) {
+		this.ancho = ancho;
+		this.alto = alto;
 		this.nodo_inicial = start;
 		this.nodo_objetivo = end;
 		this.mundo = mundo;
@@ -88,10 +93,14 @@ public class AEstrella {
 	public ArrayList<Nodo> obtenerVecinos(Nodo n) {
 		ArrayList<Nodo> vecinos = new ArrayList<Nodo>();
 		Vector2d orientacion = n.orientacion;
-		vecinos.add(new Nodo(-1, h(n.columna-1,n.fila), n.columna-1,n.fila, n, new Vector2d(-1,0)));
-		vecinos.add(new Nodo(-1, h(n.columna+1,n.fila), n.columna+1,n.fila, n, new Vector2d(1,0)));
-		vecinos.add(new Nodo(-1, h(n.columna,n.fila-1), n.columna,n.fila-1, n, new Vector2d(0,-1)));
-		vecinos.add(new Nodo(-1, h(n.columna,n.fila+1), n.columna,n.fila+1, n, new Vector2d(0,1)));
+		if(n.columna-1>0)
+			vecinos.add(new Nodo(-1, h(n.columna-1,n.fila), n.columna-1,n.fila, n, new Vector2d(-1,0)));
+		if(n.columna+1<ancho)
+			vecinos.add(new Nodo(-1, h(n.columna+1,n.fila), n.columna+1,n.fila, n, new Vector2d(1,0)));
+		if(n.fila-1>0)
+			vecinos.add(new Nodo(-1, h(n.columna,n.fila-1), n.columna,n.fila-1, n, new Vector2d(0,-1)));
+		if(n.fila+1<alto)
+			vecinos.add(new Nodo(-1, h(n.columna,n.fila+1), n.columna,n.fila+1, n, new Vector2d(0,1)));
 		return vecinos;
 	}
 
