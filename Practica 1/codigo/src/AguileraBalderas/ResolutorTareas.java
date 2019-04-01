@@ -33,9 +33,21 @@ public class ResolutorTareas {
 		aestrella.buscaCamino(timer);
 		return aestrella.devuelveAcciones(obs);
 	}
-	/* Reemplazable por la función ya definida en el código de prueba
-	public ArrayList<Types.ACTIONS> salirPortal(int fila, int columna, ElapsedCpuTimer timer){
-		//TODO: Usar obtenCamino
-	}*/
+	public ArrayList<Types.ACTIONS> salirPortal(ElapsedCpuTimer timer, double fescalaX, double fescalaY){
+		int col_portal = (int) Math.round(this.obs.getPortalsPositions()[0].get(0).position.x / fescalaX);
+    	int fila_portal = (int) Math.round(this.obs.getPortalsPositions()[0].get(0).position.y / fescalaY);
+    	
+    	int col_avatar = (int) Math.round(this.obs.getAvatarPosition().x / fescalaX);
+    	int fila_avatar = (int) Math.round(this.obs.getAvatarPosition().y / fescalaY);
+    	
+    	ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
+    	
+    	if(col_portal==col_avatar && fila_portal==fila_avatar) {
+    		acciones.add(Types.ACTIONS.ACTION_NIL);
+    		return acciones;
+    	}
+    	return obtenCamino(col_avatar, fila_avatar, col_portal, fila_portal, timer);
+    	
+	}
 
 }
