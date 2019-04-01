@@ -190,7 +190,7 @@ public class AEstrella {
 		Collections.reverse(path);
 		camino = path;
 		return path;
-	}
+	}		
 	
 	/**
 	 * Función que comprueba si un nodo es accesible

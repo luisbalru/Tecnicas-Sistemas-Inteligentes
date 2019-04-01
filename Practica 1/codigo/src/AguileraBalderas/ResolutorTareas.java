@@ -94,5 +94,9 @@ public class ResolutorTareas {
     	return obtenCamino(col_portal, fila_portal, timer);
     	
 	}
+	
+	/*public ArrayList<Types.ACTIONS> moverPiedra(int columna, int fila){
+		
+	}*/
 
 }

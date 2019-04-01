@@ -91,7 +91,8 @@ public class Agent extends AbstractPlayer {
         lista_gemas_faciles.add(new Vector2di(16,9));
         lista_gemas_faciles.add(new Vector2di(18,9));
         lista_gemas_faciles.add(new Vector2di(20,3));
-        //lista_gemas_faciles.add(new Vector2di(6,11));
+        /*lista_gemas_faciles.add(new Vector2di(14,9));
+        lista_gemas_faciles.add(new Vector2di(15,9));*/
     }
 
 
