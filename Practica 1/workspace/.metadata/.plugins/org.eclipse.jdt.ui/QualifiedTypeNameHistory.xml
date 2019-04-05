@@ -13,19 +13,19 @@
     <fullyQualifiedTypeName name="AguileraBalderas.ResolutorTareas"/>
     <fullyQualifiedTypeName name="sun.security.krb5.internal.crypto.Aes128"/>
     <fullyQualifiedTypeName name="java.lang.Character"/>
-    <fullyQualifiedTypeName name="java.lang.Object"/>
-    <fullyQualifiedTypeName name="core.game.Observation"/>
     <fullyQualifiedTypeName name="java.util.HashSet"/>
     <fullyQualifiedTypeName name="java.lang.Override"/>
     <fullyQualifiedTypeName name="AguileraBalderas.Nodo"/>
-    <fullyQualifiedTypeName name="com.sun.tools.javac.util.List"/>
     <fullyQualifiedTypeName name="ontology.Types"/>
     <fullyQualifiedTypeName name="tools.Vector2d"/>
-    <fullyQualifiedTypeName name="java.lang.System"/>
-    <fullyQualifiedTypeName name="java.util.ArrayList"/>
-    <fullyQualifiedTypeName name="core.game.StateObservation"/>
     <fullyQualifiedTypeName name="tools.ElapsedCpuTimer"/>
-    <fullyQualifiedTypeName name="AguileraBalderas.AEstrella"/>
-    <fullyQualifiedTypeName name="ontology.Types.ACTIONS"/>
     <fullyQualifiedTypeName name="AguileraBalderas.Vector2di"/>
+    <fullyQualifiedTypeName name="com.sun.tools.javac.util.List"/>
+    <fullyQualifiedTypeName name="AguileraBalderas.AEstrella"/>
+    <fullyQualifiedTypeName name="java.lang.Object"/>
+    <fullyQualifiedTypeName name="ontology.Types.ACTIONS"/>
+    <fullyQualifiedTypeName name="core.game.StateObservation"/>
+    <fullyQualifiedTypeName name="java.util.ArrayList"/>
+    <fullyQualifiedTypeName name="core.game.Observation"/>
+    <fullyQualifiedTypeName name="java.lang.System"/>
 </qualifiedTypeNameHistroy>

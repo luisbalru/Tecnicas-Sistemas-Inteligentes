@@ -2,6 +2,8 @@ package AguileraBalderas;
 
 import java.util.ArrayList;
 
+import java.util.List;
+
 import ontology.Types;
 import ontology.Types.ACTIONS;
 import tools.ElapsedCpuTimer;
@@ -20,6 +22,8 @@ public class ResolutorTareas {
 	// Factores de escala para las coordenadas
 	double fescalaX, fescalaY;
 	
+	AEstrella aestrella;
+	
 	/**
 	 * Constructor de ResolutorTareas
 	 * @param mundo Grid del mundo obtenido mediante un objeto de tipo {@link StateObservation}
@@ -36,6 +40,7 @@ public class ResolutorTareas {
 		this.obs = obs;
 		this.fescalaX = fescalaX;
 		this.fescalaY = fescalaY;
+		this.aestrella=new AEstrella(ancho, alto);
 	}
 	
 	/**
@@ -64,9 +69,14 @@ public class ResolutorTareas {
     	// Inicializamos el nodo de inicio con la posición del avatar y el final con la posición del objetivo
 		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null, obs.getAvatarOrientation());
 		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null, obs.getAvatarOrientation());
-		// Inicializamos el objeto AEstrella y buscamos el camino
-		AEstrella aestrella = new AEstrella(inicio, fin, mundo, mundo.length, mundo[0].length);
-		aestrella.buscaCamino(timer);
+		aestrella.setParametros(inicio, fin, mundo);
+		List<Nodo> camino = aestrella.buscaCamino(timer);
+		//System.out.println(timer.elapsedMillis());
+		if(camino.get(camino.size()-1).columna!=col_obj || camino.get(camino.size()-1).fila!=fila_obj) {
+			ArrayList<Types.ACTIONS> idle = new ArrayList<Types.ACTIONS>();
+			idle.add(Types.ACTIONS.ACTION_NIL);
+			return idle;
+		}
 		return aestrella.devuelveAcciones(obs);
 	}
 	
@@ -95,8 +105,13 @@ public class ResolutorTareas {
     	
 	}
 	
-	/*public ArrayList<Types.ACTIONS> moverPiedra(int columna, int fila){
-		
-	}*/
+	public void reset() {
+		this.aestrella.reset();
+	}
+	
+	public void setParametros(StateObservation obs) {
+		this.obs = obs;
+		this.mundo = obs.getObservationGrid();
+	}
 
 }

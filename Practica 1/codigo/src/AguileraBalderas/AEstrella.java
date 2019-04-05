@@ -33,6 +33,8 @@ public class AEstrella {
 	private List<Nodo> camino;
 	// Tamaño del mundo
 	int ancho, alto;
+	// Mejor nodo en cada momento del A*
+	Nodo mejor_nodo;
 	
 	/**
 	 * Constructor de la clase AEstrella
@@ -42,12 +44,9 @@ public class AEstrella {
 	 * @param ancho Ancho del mundo
 	 * @param alto Alto del mundo
 	 */
-	public AEstrella(Nodo start, Nodo end,ArrayList<Observation>[][] mundo, int ancho, int alto) {
+	public AEstrella(int ancho, int alto) {
 		this.ancho = ancho;
 		this.alto = alto;
-		this.nodo_inicial = start;
-		this.nodo_objetivo = end;
-		this.mundo = mundo;
 		this.cerrados = new HashSet<Nodo>();
 		this.abiertos_set = new HashSet<Nodo>();
 		//La priority queue de abiertos ordena los nodos según su valor de f
@@ -57,6 +56,12 @@ public class AEstrella {
 				return Integer.compare(nodo1.f, nodo2.f);
 			}
 		});
+	}
+	
+	public void setParametros(Nodo start, Nodo end, ArrayList<Observation>[][] mundo) {
+		this.mundo = mundo;
+		this.nodo_inicial = start;
+		this.nodo_objetivo = end;
 	}
 	
 	/**
@@ -124,9 +129,9 @@ public class AEstrella {
 		List<Nodo> path = new ArrayList<Nodo>();
 		abiertos.add(nodo_inicial);
 		abiertos_set.add(nodo_inicial);
-		Nodo mejor_nodo = nodo_inicial;
+		mejor_nodo = nodo_inicial;
 		// Mientras que queden abiertos y no hayamos excedido el tiempo
-		while(!isEmpty(abiertos) && timer.elapsedMillis() < 35) {
+		while(!isEmpty(abiertos) && timer.elapsedMillis() < 30) {
 			// Sacamos el siguiente nodo de abiertos y actualizamos el mejor nodo
 			Nodo nodo_actual = abiertos.poll();
 			mejor_nodo = nodo_actual;
@@ -145,6 +150,8 @@ public class AEstrella {
 			}
 			// Obtenemos los vecinos
 			List<Nodo> vecinos = obtenerVecinos(nodo_actual);
+			System.out.println(timer.elapsedMillis());
+			System.out.println("Abiertos: " + abiertos.size());
 			// Para cada vecino
 			for(int i=0; i < vecinos.size(); i++) {
 				//Comprobamos si es accesible
@@ -159,12 +166,6 @@ public class AEstrella {
 						continue;
 					// Si esta en abiertos actualizamos para que tenga al mejor padre y no lo metemos en abiertos de nuevo
 					if(abiertos_set.contains(vecinos.get(i))) {
-						java.util.Iterator<Nodo> it = abiertos_set.iterator();
-						while(it.hasNext()) {
-					        Nodo nodo = it.next();
-					        if (nodo.equals(vecinos.get(i))&&nodo_actual.f<nodo.f)
-					        	nodo.padre=nodo_actual;
-					    }
 						java.util.Iterator<Nodo> it2 = abiertos.iterator();
 						while(it2.hasNext()) {
 					        Nodo nodo = it2.next();
@@ -178,6 +179,7 @@ public class AEstrella {
 					abiertos_set.add(vecinos.get(i));
 				}
 			}
+			System.out.println(timer.elapsedMillis());
 			// Metemos en cerrados el nodo actual
 			cerrados.add(nodo_actual);
 		}
@@ -317,5 +319,17 @@ public class AEstrella {
 			nodo_actual = camino.get(i);
 		}
 		return acciones;
+	}
+	
+	public void reset() {
+		this.cerrados = new HashSet<Nodo>();
+		this.abiertos_set = new HashSet<Nodo>();
+		//La priority queue de abiertos ordena los nodos según su valor de f
+		this.abiertos = new PriorityQueue<Nodo>(new Comparator<Nodo>() {
+			@Override
+			public int compare(Nodo nodo1, Nodo nodo2) {
+				return Integer.compare(nodo1.f, nodo2.f);
+			}
+		});
 	}
 }
