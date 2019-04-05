@@ -18,14 +18,14 @@
     <fullyQualifiedTypeName name="java.util.HashSet"/>
     <fullyQualifiedTypeName name="java.lang.Override"/>
     <fullyQualifiedTypeName name="AguileraBalderas.Nodo"/>
-    <fullyQualifiedTypeName name="AguileraBalderas.AEstrella"/>
     <fullyQualifiedTypeName name="com.sun.tools.javac.util.List"/>
     <fullyQualifiedTypeName name="ontology.Types"/>
     <fullyQualifiedTypeName name="tools.Vector2d"/>
     <fullyQualifiedTypeName name="java.lang.System"/>
-    <fullyQualifiedTypeName name="AguileraBalderas.Vector2di"/>
     <fullyQualifiedTypeName name="java.util.ArrayList"/>
-    <fullyQualifiedTypeName name="ontology.Types.ACTIONS"/>
     <fullyQualifiedTypeName name="core.game.StateObservation"/>
     <fullyQualifiedTypeName name="tools.ElapsedCpuTimer"/>
+    <fullyQualifiedTypeName name="AguileraBalderas.AEstrella"/>
+    <fullyQualifiedTypeName name="ontology.Types.ACTIONS"/>
+    <fullyQualifiedTypeName name="AguileraBalderas.Vector2di"/>
 </qualifiedTypeNameHistroy>
