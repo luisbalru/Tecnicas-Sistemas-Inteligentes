@@ -151,6 +151,8 @@ public class Agent extends AbstractPlayer {
     	
     }
     
+    // Hay que controlar si la vía de escape está bloqueada para añadir una alternativa
+    // Hasta ahora consigue deshacerse del bicho a veces si no se ve atrapado
     private ArrayList<ACTIONS> esquivaBicho(StateObservation obs,ArrayList<ACTIONS> lista_acciones2) {
     	ArrayList<Types.ACTIONS> lista_acciones = new ArrayList<Types.ACTIONS>(lista_acciones2);
 		if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_LEFT)
@@ -161,7 +163,7 @@ public class Agent extends AbstractPlayer {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);	
 			}
 			else {
-				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
@@ -175,7 +177,7 @@ public class Agent extends AbstractPlayer {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);	
 			}
 			else {
-				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
@@ -189,7 +191,7 @@ public class Agent extends AbstractPlayer {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);	
 			}
 			else {
-				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
@@ -203,7 +205,7 @@ public class Agent extends AbstractPlayer {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_UP);	
 			}
 			else {
-				lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
