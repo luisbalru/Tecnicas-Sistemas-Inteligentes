@@ -124,7 +124,7 @@ public class AEstrella {
 	 * @param timer Objeto de tipo {@link ElapsedCpuTimer} para controlar el tiempo transcurrido
 	 * @return
 	 */
-	public List<Nodo> buscaCamino(ElapsedCpuTimer timer){
+	public List<Nodo> buscaCamino(ElapsedCpuTimer timer, boolean notime){
 		//Inicializamos el camino, los abiertos y el mejor nodo.
 		List<Nodo> path = new ArrayList<Nodo>();
 		mejor_nodo = nodo_inicial;
@@ -133,9 +133,8 @@ public class AEstrella {
 			abiertos_set.add(nodo_inicial);
 		}
 		// Mientras que queden abiertos y no hayamos excedido el tiempo
-		while(!isEmpty(abiertos) && timer.elapsedMillis() < 25) {
+		while(!isEmpty(abiertos) && (timer.elapsedMillis() < 25 || notime)) {
 			// Sacamos el siguiente nodo de abiertos y actualizamos el mejor nodo
-			//System.out.println(abiertos_set.size());
 			Nodo nodo_actual = abiertos.poll();
 			if(nodo_actual.f<mejor_nodo.f)
 				mejor_nodo = nodo_actual;
@@ -143,9 +142,6 @@ public class AEstrella {
 			// Si el nodo sacado es el objetivo
 			if(nodo_actual.equals(nodo_objetivo)) {
 				// Reconstruimos el camino y lo devolvemos
-				System.out.println(nodo_actual.toString());
-				System.out.println(nodo_inicial.toString());
-				System.out.println("Con el nodo actual polliqui");
 				while(!nodo_actual.equals(nodo_inicial)) {
 					path.add(nodo_actual);
 					nodo_actual = nodo_actual.padre;
@@ -157,8 +153,6 @@ public class AEstrella {
 			}
 			// Obtenemos los vecinos
 			List<Nodo> vecinos = obtenerVecinos(nodo_actual);
-			//System.out.println(timer.elapsedMillis());
-			//System.out.println("Abiertos: " + abiertos.size());
 			// Para cada vecino
 			for(int i=0; i < vecinos.size(); i++) {
 				//Comprobamos si es accesible
@@ -186,13 +180,9 @@ public class AEstrella {
 					abiertos_set.add(vecinos.get(i));
 				}
 			}
-		//	System.out.println(timer.elapsedMillis());
 			// Metemos en cerrados el nodo actual
 			cerrados.add(nodo_actual);
 		}
-		System.out.println(mejor_nodo.toString());
-		System.out.println(nodo_inicial.toString());
-		System.out.println("Con el mejor nodo");
 		// Si no hemos encontrado el camino hasta el nodo objetivo reconstruimos el camino hasta el mejor nodo que hemos sacado
 		while(!mejor_nodo.equals(nodo_inicial)) {
 			path.add(mejor_nodo);
