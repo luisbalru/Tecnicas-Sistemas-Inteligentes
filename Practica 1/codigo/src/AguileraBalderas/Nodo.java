@@ -1,6 +1,7 @@
 package AguileraBalderas;
 
 import tools.Vector2d;
+import java.lang.Double;
 
 public class Nodo {
 	// Coste asociado al nodo
@@ -46,6 +47,11 @@ public class Nodo {
 	@Override
 	public String toString() {
 		return "Fila: " + this.fila + ", Columna: " + this.columna;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Double.valueOf((this.columna/Math.exp(this.fila))).hashCode();
 	}
 	
 }

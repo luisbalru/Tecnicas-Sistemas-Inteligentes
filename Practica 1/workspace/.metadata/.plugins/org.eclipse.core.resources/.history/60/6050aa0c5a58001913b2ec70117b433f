@@ -133,7 +133,7 @@ public class AEstrella {
 			mejor_nodo = nodo_inicial;
 		}
 		// Mientras que queden abiertos y no hayamos excedido el tiempo
-		while(!isEmpty(abiertos) && timer.elapsedMillis() < 25) {
+		while(!isEmpty(abiertos) && timer.elapsedMillis() < 30) {
 			// Sacamos el siguiente nodo de abiertos y actualizamos el mejor nodo
 			//System.out.println(abiertos_set.size());
 			Nodo nodo_actual = abiertos.poll();
