@@ -227,7 +227,7 @@ public class AEstrella {
 			if(fila>0 && mundo[columna][fila-1].size()>0)
 				piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
 			// Si no hay un bicho ni un muro ni una piedra ni una piedra encima entonces es una casilla accesible
-			boolean condicion = !bicho && !muro && !piedra && !piedra_arriba;
+			boolean condicion =/* !bicho &&*/ !muro && !piedra && !piedra_arriba;
 			return condicion;
 		}
 		return true;

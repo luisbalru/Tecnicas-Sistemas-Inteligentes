@@ -123,10 +123,7 @@ public class Agent extends AbstractPlayer {
     	//System.out.println(lista_gemas_faciles);
     	//System.out.println(lista_acciones);
     	
-    	resolutor.setParametros(stateObs);
-    	
-    	if(lista_acciones.size()==0)
-    		resolutor.reset();
+    	resolutor.setParametros(stateObs); 
     	
     	if(lista_gemas_faciles.size()==0)
     		acabado=true;
@@ -164,33 +161,57 @@ public class Agent extends AbstractPlayer {
     	ArrayList<Types.ACTIONS> lista_acciones = new ArrayList<Types.ACTIONS>();
 		if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_LEFT)
 			if(obs.getAvatarOrientation().x==1.0) {
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);	
 			}
 			else {
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
 			}
 		else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_RIGHT)
 			if(obs.getAvatarOrientation().x==-1.0) {
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);	
 			}
 			else {
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 			}
 		else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_UP)
 			if(obs.getAvatarOrientation().y==1.0) {
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);	
 			}
 			else {
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 			}
 		else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_DOWN)
 			if(obs.getAvatarOrientation().y==-1.0) {
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_UP);	
 			}
 			else {
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
+				//lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
 			}

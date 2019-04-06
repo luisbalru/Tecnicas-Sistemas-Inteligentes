@@ -46,7 +46,7 @@ public class Nodo {
 	
 	@Override
 	public String toString() {
-		return "Fila: " + this.fila + ", Columna: " + this.columna + ", f: " + this.f + ", g: " + this.coste_g + ", h: " + this.estimacion_h + ", padre: " + this.padre;
+		return "Fila: " + this.fila + ", Columna: " + this.columna;
 	}
 	
 	@Override

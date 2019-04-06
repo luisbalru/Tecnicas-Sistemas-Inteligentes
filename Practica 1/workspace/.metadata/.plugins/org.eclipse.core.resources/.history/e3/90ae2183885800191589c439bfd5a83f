@@ -137,15 +137,11 @@ public class AEstrella {
 			// Sacamos el siguiente nodo de abiertos y actualizamos el mejor nodo
 			//System.out.println(abiertos_set.size());
 			Nodo nodo_actual = abiertos.poll();
-			if(nodo_actual.f<mejor_nodo.f)
-				mejor_nodo = nodo_actual;
+			mejor_nodo = nodo_actual;
 			abiertos_set.remove(nodo_actual);
 			// Si el nodo sacado es el objetivo
 			if(nodo_actual.equals(nodo_objetivo)) {
 				// Reconstruimos el camino y lo devolvemos
-				System.out.println(nodo_actual.toString());
-				System.out.println(nodo_inicial.toString());
-				System.out.println("Con el nodo actual polliqui");
 				while(!nodo_actual.equals(nodo_inicial)) {
 					path.add(nodo_actual);
 					nodo_actual = nodo_actual.padre;
@@ -192,7 +188,6 @@ public class AEstrella {
 		}
 		System.out.println(mejor_nodo.toString());
 		System.out.println(nodo_inicial.toString());
-		System.out.println("Con el mejor nodo");
 		// Si no hemos encontrado el camino hasta el nodo objetivo reconstruimos el camino hasta el mejor nodo que hemos sacado
 		while(!mejor_nodo.equals(nodo_inicial)) {
 			path.add(mejor_nodo);
@@ -227,7 +222,7 @@ public class AEstrella {
 			if(fila>0 && mundo[columna][fila-1].size()>0)
 				piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
 			// Si no hay un bicho ni un muro ni una piedra ni una piedra encima entonces es una casilla accesible
-			boolean condicion = !bicho && !muro && !piedra && !piedra_arriba;
+			boolean condicion =/* !bicho &&*/ !muro && !piedra && !piedra_arriba;
 			return condicion;
 		}
 		return true;
