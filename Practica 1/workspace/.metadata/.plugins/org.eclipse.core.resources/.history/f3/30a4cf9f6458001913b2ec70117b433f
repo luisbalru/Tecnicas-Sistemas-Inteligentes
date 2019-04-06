@@ -52,6 +52,8 @@ import AguileraBalderas.ResolutorTareas;
 
 import javax.swing.*;
 
+import com.sun.java.swing.action.NewAction;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -116,9 +118,6 @@ public class Agent extends AbstractPlayer {
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
     	
-    	System.out.println(lista_gemas_faciles);
-    	System.out.println(lista_acciones);
-    	
     	resolutor.setParametros(stateObs); 
     	
     	if(lista_gemas_faciles.size()==0)
@@ -152,8 +151,8 @@ public class Agent extends AbstractPlayer {
     }
     
     private ArrayList<ACTIONS> esquivaBicho(StateObservation obs,ArrayList<ACTIONS> lista_acciones2) {
-    	ArrayList<Types.ACTIONS> lista_acciones = new ArrayList<Types.ACTIONS>(lista_acciones2);
-		if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_LEFT)
+    	ArrayList<Types.ACTIONS> lista_acciones = new ArrayList<Types.ACTIONS>(lista_acciones);
+		if(lista_acciones.get(0)==Types.ACTIONS.ACTION_LEFT)
 			if(obs.getAvatarOrientation().x==1.0) {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
@@ -167,7 +166,7 @@ public class Agent extends AbstractPlayer {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
 			}
-		else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_RIGHT)
+		else if(lista_acciones.get(0)==Types.ACTIONS.ACTION_RIGHT)
 			if(obs.getAvatarOrientation().x==-1.0) {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
@@ -181,7 +180,7 @@ public class Agent extends AbstractPlayer {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 			}
-		else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_UP)
+		else if(lista_acciones.get(0)==Types.ACTIONS.ACTION_UP)
 			if(obs.getAvatarOrientation().y==1.0) {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
@@ -195,7 +194,7 @@ public class Agent extends AbstractPlayer {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 			}
-		else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_DOWN)
+		else if(lista_acciones.get(0)==Types.ACTIONS.ACTION_UP)
 			if(obs.getAvatarOrientation().y==-1.0) {
 				lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
 				lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
@@ -225,45 +224,21 @@ public class Agent extends AbstractPlayer {
     		if(fila_start+2<alto)
     			if(mundo[col_start][fila_start+2].size()!=0)
     				hay_bicho = hay_bicho || mundo[col_start][fila_start+2].get(0).itype==11 || mundo[col_start][fila_start+2].get(0).itype==10;
-    		if(fila_start+1<alto && col_start-1>0)
-    			if(mundo[col_start-1][fila_start+1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start-1][fila_start+1].get(0).itype==11 || mundo[col_start-1][fila_start+1].get(0).itype==10;
-    		if(fila_start+1<alto && col_start+1<ancho)
-    			if(mundo[col_start+1][fila_start+1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start+1][fila_start+1].get(0).itype==11 || mundo[col_start+1][fila_start+1].get(0).itype==10;
     	}
     	else if(accion == Types.ACTIONS.ACTION_UP) {
     		if(fila_start-2>0)
     			if(mundo[col_start][fila_start-2].size()!=0)
     				hay_bicho = hay_bicho || mundo[col_start][fila_start-2].get(0).itype==11 || mundo[col_start][fila_start-2].get(0).itype==10;
-    		if(fila_start-1>0 && col_start-1>0)
-    			if(mundo[col_start-1][fila_start-1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start-1][fila_start-1].get(0).itype==11 || mundo[col_start-1][fila_start-1].get(0).itype==10;
-    		if(fila_start-1>0 && col_start+1<ancho)
-    			if(mundo[col_start+1][fila_start-1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start+1][fila_start-1].get(0).itype==11 || mundo[col_start+1][fila_start-1].get(0).itype==10;
     	}
     	else if(accion == Types.ACTIONS.ACTION_LEFT) {
     		if(col_start-2>0)
     			if(mundo[col_start-2][fila_start].size()!=0)
     				hay_bicho = hay_bicho || mundo[col_start-2][fila_start].get(0).itype==11 || mundo[col_start-2][fila_start].get(0).itype==10;
-    		if(col_start-1>0 && fila_start-1>0)
-    			if(mundo[col_start-1][fila_start-1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start-1][fila_start-1].get(0).itype==11 || mundo[col_start-1][fila_start-1].get(0).itype==10;
-    		if(col_start-1>0 && fila_start+1<alto)
-    			if(mundo[col_start-1][fila_start+1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start-1][fila_start+1].get(0).itype==11 || mundo[col_start-1][fila_start+1].get(0).itype==10;
     	}
     	else if(accion == Types.ACTIONS.ACTION_RIGHT) {
     		if(col_start+2<ancho)
     			if(mundo[col_start+2][fila_start].size()!=0)
     				hay_bicho = hay_bicho || mundo[col_start+2][fila_start].get(0).itype==11 || mundo[col_start+2][fila_start].get(0).itype==10;
-    		if(col_start+1<ancho && fila_start-1>0)
-    			if(mundo[col_start+1][fila_start-1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start+1][fila_start-1].get(0).itype==11 || mundo[col_start+1][fila_start-1].get(0).itype==10;
-    		if(col_start+1<ancho && fila_start+1<alto)
-    			if(mundo[col_start+1][fila_start+1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start+1][fila_start+1].get(0).itype==11 || mundo[col_start+1][fila_start+1].get(0).itype==10;
     	}
     	
     	return hay_bicho;

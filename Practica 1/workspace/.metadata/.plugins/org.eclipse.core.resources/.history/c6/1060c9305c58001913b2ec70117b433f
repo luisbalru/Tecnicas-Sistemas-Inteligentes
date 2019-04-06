@@ -99,7 +99,7 @@ public class ResolutorTareas {
     	
     	// Si ya estamos en el portal devolvemos la acción nula, en caso contrario llamamos obtenCamino para ir hacia el portal
     	if(col_portal==col_avatar && fila_portal==fila_avatar) {
-    		acciones.add(Types.ACTIONS.ACTION_ESCAPE);
+    		acciones.add(Types.ACTIONS.ACTION_NIL);
     		return acciones;
     	}
     	return obtenCamino(col_portal, fila_portal, timer);
@@ -107,18 +107,11 @@ public class ResolutorTareas {
 	}
 	
 	public ArrayList<Types.ACTIONS> moverPiedra(int col_piedra, int fila_piedra){
+		int col_avatar = (int) Math.round(this.obs.getAvatarPosition().x / fescalaX);
     	int fila_avatar = (int) Math.round(this.obs.getAvatarPosition().y / fescalaY);
 		ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
 		Vector2d orientacion_avatar = this.obs.getAvatarOrientation();
-		boolean bien_orientados = fila_piedra == fila_avatar + orientacion_avatar.x;
-		if(!bien_orientados) {
-			if(orientacion_avatar.x==1.0)
-				acciones.add(Types.ACTIONS.ACTION_LEFT);
-			else
-				acciones.add(Types.ACTIONS.ACTION_RIGHT);
-		}
-		acciones.add(Types.ACTIONS.ACTION_USE);
-		return acciones;
+		boolean cond = fila_piedra == fila_avatar + orientacion_avatar.x;
 	}
 	
 	public void reset() {

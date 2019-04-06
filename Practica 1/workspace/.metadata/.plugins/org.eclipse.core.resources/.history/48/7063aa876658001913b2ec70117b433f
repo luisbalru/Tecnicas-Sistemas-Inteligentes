@@ -116,8 +116,7 @@ public class Agent extends AbstractPlayer {
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
     	
-    	System.out.println(lista_gemas_faciles);
-    	System.out.println(lista_acciones);
+    	System.out.println(lista_gemas_faciles)
     	
     	resolutor.setParametros(stateObs); 
     	
