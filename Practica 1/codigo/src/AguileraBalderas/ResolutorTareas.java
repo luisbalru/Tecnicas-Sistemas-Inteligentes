@@ -22,6 +22,8 @@ public class ResolutorTareas {
 	StateObservation obs;
 	// Factores de escala para las coordenadas
 	double fescalaX, fescalaY;
+	// Variable para encontrar el mejor camino inteligente
+	public int cantidad_pasos;
 	
 	AEstrella aestrella;
 	
@@ -42,6 +44,7 @@ public class ResolutorTareas {
 		this.fescalaX = fescalaX;
 		this.fescalaY = fescalaY;
 		this.aestrella=new AEstrella(ancho, alto);
+		this.cantidad_pasos = 0;
 	}
 	
 	/**
@@ -78,7 +81,34 @@ public class ResolutorTareas {
 			idle.add(Types.ACTIONS.ACTION_NIL);
 			return idle;
 		}
-		return aestrella.devuelveAcciones(obs);
+		ArrayList<Types.ACTIONS> acciones = aestrella.devuelveAcciones(obs);
+		return acciones;
+	}
+	
+	/**
+	 * Función que recibe una posición e inicia una instancia de AEstrella para llevar el avatar a la posición dada por col_obj y fila_obj
+	 * @param col_actual Columna de inicio
+	 * @param fila_actual Fila de inicio
+	 * @param col_obj Columna del objetivo a ir
+	 * @param fila_obj Fila del objetivo a ir
+	 * @param timer Objeto de tipo {@link ElapsedCpuTimer} para controlar el tiempo consumido en el AEstrella
+	 * @return Devuelve una lista de acciones a realizar para ir hacia el objetivo
+	 */
+	public ArrayList<Types.ACTIONS> obtenCamino2(int col_actual, int fila_actual,int col_obj, int fila_obj, ElapsedCpuTimer timer, boolean notime){
+    	// Inicializamos el nodo de inicio con la posición del avatar y el final con la posición del objetivo
+		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null, obs.getAvatarOrientation());
+		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null, obs.getAvatarOrientation());
+		aestrella.setParametros(inicio, fin, mundo);
+		List<Nodo> camino = aestrella.buscaCamino(timer,notime);
+		
+		if(camino.get(camino.size()-1).columna!=col_obj || camino.get(camino.size()-1).fila!=fila_obj) {
+			ArrayList<Types.ACTIONS> idle = new ArrayList<Types.ACTIONS>();
+			idle.add(Types.ACTIONS.ACTION_NIL);
+			return idle;
+		}
+		ArrayList<Types.ACTIONS> acciones = aestrella.devuelveAcciones(obs);
+		cantidad_pasos = acciones.size();
+		return acciones;
 	}
 	
 	/**
