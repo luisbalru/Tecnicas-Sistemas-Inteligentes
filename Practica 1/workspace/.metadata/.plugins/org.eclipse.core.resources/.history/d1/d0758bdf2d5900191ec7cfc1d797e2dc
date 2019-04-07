@@ -39,7 +39,6 @@ public class Agent extends AbstractPlayer{
 package AguileraBalderas;
 
 import core.game.Observation;
-import java.util.concurrent.ThreadLocalRandom;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
@@ -73,7 +72,6 @@ public class Agent extends AbstractPlayer {
     
     int fila_portal, col_portal;
     int fila_inicial, col_inicial;
-    int tercer_punto_fila, tercer_punto_col;
     
     boolean escapando;
     
@@ -126,22 +124,6 @@ public class Agent extends AbstractPlayer {
         
         ancho = stateObs.getObservationGrid().length;
         alto = stateObs.getObservationGrid()[0].length;
-        ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
-        
-        
-        ArrayList<Vector2di> posiciones_accesibles = new ArrayList<Vector2di>();
-        for(int i=0; i < ancho;++i)
-        	for(int j = 0; j < alto; j++) {
-        		if(mundo[i][j].size()==0)
-        			posiciones_accesibles.add(new Vector2di(i,j));
-        		else if(mundo[i][j].get(0).itype==4)
-        			posiciones_accesibles.add(new Vector2di(i,j));
-        	}
-        
-        int pos_aleatoria = ThreadLocalRandom.current().nextInt(0, posiciones_accesibles.size());
-        tercer_punto_col = posiciones_accesibles.get(pos_aleatoria).x;
-        tercer_punto_fila = posiciones_accesibles.get(pos_aleatoria).y;
-        
         
         col_portal = (int) Math.round(stateObs.getPortalsPositions()[0].get(0).position.x / this.fescalaX);
     	fila_portal = (int) Math.round(stateObs.getPortalsPositions()[0].get(0).position.y / this.fescalaY);
@@ -397,10 +379,8 @@ public class Agent extends AbstractPlayer {
     	
     	resolutor.reset();
     	resolutor.setParametros(obs);
-    	if(this.veces_escapadas%3==0)
+    	if(this.veces_escapadas%10==0)
     		lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
-    	else if(this.veces_escapadas%2==1)
-    		lista_acciones = resolutor.obtenCamino(this.tercer_punto_col, this.tercer_punto_fila, timer, false);
     	else
     		lista_acciones = resolutor.obtenCamino(this.col_portal, this.fila_portal, timer, false);
     	return lista_acciones;

@@ -397,10 +397,9 @@ public class Agent extends AbstractPlayer {
     	
     	resolutor.reset();
     	resolutor.setParametros(obs);
-    	if(this.veces_escapadas%3==0)
+    	if(this.veces_escapadas%5==0)
     		lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
-    	else if(this.veces_escapadas%2==1)
-    		lista_acciones = resolutor.obtenCamino(this.tercer_punto_col, this.tercer_punto_fila, timer, false);
+    	else if(this.veces_escapadas%23==0)
     	else
     		lista_acciones = resolutor.obtenCamino(this.col_portal, this.fila_portal, timer, false);
     	return lista_acciones;
