@@ -62,7 +62,7 @@ public class Agent extends AbstractPlayer {
     private int fescalaY;
     
     private ArrayList<Types.ACTIONS> lista_acciones;
-    private ArrayList<Vector2di> lista_gemas_faciles;
+    private ArrayList<Gema> lista_gemas_faciles;
     
     private ResolutorTareas resolutor;
     
@@ -95,7 +95,7 @@ public class Agent extends AbstractPlayer {
         this.fescalaX = stateObs.getWorldDimension().width / stateObs.getObservationGrid().length;
         this.fescalaY = stateObs.getWorldDimension().height / stateObs.getObservationGrid()[0].length;
         
-        lista_gemas_faciles = new ArrayList<Vector2di>();
+        lista_gemas_faciles = new ArrayList<Gema>();
         /*lista_gemas_faciles.add(new Vector2di(1,4));
         lista_gemas_faciles.add(new Vector2di(7,9));
         lista_gemas_faciles.add(new Vector2di(9,10));
@@ -118,45 +118,58 @@ public class Agent extends AbstractPlayer {
     }
 
 
-    private ArrayList<Vector2di> obtenListaGemasFaciles(StateObservation stateObs, ElapsedCpuTimer timer) {
+    private ArrayList<Gema> obtenListaGemasFaciles(StateObservation stateObs, ElapsedCpuTimer timer) {
+    	int col_actual = (int) Math.round(stateObs.getAvatarPosition().x / this.fescalaX);
+    	int fila_actual = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
     	ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
 		ResolutorTareas resolutor_aux = new ResolutorTareas(mundo, mundo.length, mundo[0].length, stateObs, fescalaX, fescalaY);
-		ArrayList<Vector2di> gemas_faciles = new ArrayList<Vector2di>();
+		ArrayList<Gema> gemas_faciles = new ArrayList<Gema>();
+		ArrayList<Gema> gemas = new ArrayList<Gema>();
 		
 		ArrayList<Observation>[] posiciones_gemas = stateObs.getResourcesPositions();
-		ArrayList<Vector2di> gemas = new ArrayList<Vector2di>();
 		for(Observation o : posiciones_gemas[0]) {
-			Vector2di gema = new Vector2di();
-			gema.x = (int) Math.round(o.position.x / fescalaX);
-			gema.y = (int) Math.round(o.position.y / fescalaY);
+			Gema gema = new Gema();
+			gema.coordenadas.x = (int) Math.round(o.position.x / fescalaX);
+			gema.coordenadas.y = (int) Math.round(o.position.y / fescalaY);
 			gemas.add(gema);
 		}
-		for(Vector2di gema : gemas) {
-			resolutor_aux.reset();
-			resolutor_aux.setParametros(stateObs);
-			if(esGemaFacil(gema,resolutor_aux,mundo,timer))
-				gemas_faciles.add(gema);
+		ArrayList<Gema> gemas9 = new ArrayList<Gema>();
+		for(int i=0; i<9; i++) {
+			for(Gema gema : gemas) {
+				resolutor_aux.reset();
+				resolutor_aux.setParametros(stateObs);
+				if(resolutor_aux.obtenCamino2(col_actual,fila_actual,gema.coordenadas.x, gema.coordenadas.y, timer,true).get(0)!=Types.ACTIONS.ACTION_NIL) {
+					gema.distancia_actual = resolutor_aux.cantidad_pasos;
+					gemas_faciles.add(gema);
+				}
+			}
+			Gema min = gemas_faciles.get(0);
+			for(int j = 1; j<gemas_faciles.size();j++) {
+				if(gemas_faciles.get(j).distancia_actual < min.distancia_actual)
+					min = gemas_faciles.get(j);
+			}
+			gemas9.add(min);
+			col_actual = gemas9.get(gemas9.size()-1).coordenadas.x;
+			fila_actual = gemas9.get(gemas9.size()-1).coordenadas.y;
+			
 		}
-		
-		ArrayList<Vector2di> gemas9 = new ArrayList<Vector2di>();
-		for(int i = 0; i < 9; ++i)
-			gemas9.add(gemas_faciles.get(i));
 		return gemas9;
 	}
-
-	private boolean esGemaFacil(Vector2di gema, ResolutorTareas resolutor_aux, ArrayList<Observation>[][] mundo, ElapsedCpuTimer timer) {
-		boolean gema_facil = false;
-		if(gema.x-1>=0) {
-			gema_facil = mundo[gema.x][gema.y].size()==0;
+/*
+	private int esGemaFacil(Gema gema, ResolutorTareas resolutor_aux, ArrayList<Observation>[][] mundo, ElapsedCpuTimer timer) {
+		if(gema.coordenadas.x-1>=0) {
+			gema_facil = mundo[gema.coordenadas.x][gema.coordenadas.y].size()==0;
 		}
 		if(!gema_facil) {
 			for(int i = 0; i <= 25 && !gema_facil;i++)
-				if(resolutor_aux.obtenCamino(gema.x, gema.y, timer,true).get(0)!=Types.ACTIONS.ACTION_NIL)
+				if(resolutor_aux.obtenCamino(gema.coordenadas.x, gema.coordenadas.y, timer,true).get(0)!=Types.ACTIONS.ACTION_NIL) {
 					gema_facil = true;
+				}
+					
 		}
-		return gema_facil;
+		return -1
 	}
-
+*/
 	@Override
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
@@ -171,8 +184,8 @@ public class Agent extends AbstractPlayer {
     		acabado=true;
     	
     	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0) {
-    		if(col_start != lista_gemas_faciles.get(0).x || fila_start != lista_gemas_faciles.get(0).y) {    		
-    			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles.get(0).x, lista_gemas_faciles.get(0).y,elapsedTimer,false);
+    		if(col_start != lista_gemas_faciles.get(0).coordenadas.x || fila_start != lista_gemas_faciles.get(0).coordenadas.y) {    		
+    			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles.get(0).coordenadas.x, lista_gemas_faciles.get(0).coordenadas.y,elapsedTimer,false);
     			if(lista_acciones.size()==1 && lista_acciones.get(0)==Types.ACTIONS.ACTION_NIL)
     				lista_acciones.remove(0);
     				return Types.ACTIONS.ACTION_NIL;
