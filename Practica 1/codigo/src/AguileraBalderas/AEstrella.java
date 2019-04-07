@@ -156,7 +156,7 @@ public class AEstrella {
 			// Para cada vecino
 			for(int i=0; i < vecinos.size(); i++) {
 				//Comprobamos si es accesible
-				boolean accesible = isAccesible(mundo,vecinos.get(i));
+				boolean accesible = isAccesible(mundo,vecinos.get(i), notime);
 				if(accesible) {
 					// Actualizamos su padre, el coste y la f.
 					vecinos.get(i).padre = nodo_actual;
@@ -200,7 +200,7 @@ public class AEstrella {
 	 * @param nodo Nodo que queremos comprobar si es accesible
 	 * @return Devuelve un booleano indicando si el nodo es accesible
 	 */
-	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo) {
+	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo, boolean constructor) {
 		int fila = nodo.fila;
 		int columna = nodo.columna;
 		// Si el nodo está vacío es accesible
@@ -218,8 +218,6 @@ public class AEstrella {
 				piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
 			// Comprueba si hay un monstruo arriba, abajo, a la izquierda o a la derecha
 			/*boolean monstruo_alrededores = false;
-			System.out.println("Fila: " + fila + ", Columna: " + columna);
-			System.out.println("Alto: " + this.alto + ", Ancho: " + this.ancho);
 			if(fila-1>=0)
 				if(mundo[columna][fila-1].size()>0)
 					monstruo_alrededores = monstruo_alrededores || mundo[columna][fila-1].get(0).itype==11 || mundo[columna][fila-1].get(0).itype==10;
@@ -233,7 +231,8 @@ public class AEstrella {
 				if(mundo[columna+1][fila].size()>0)
 					monstruo_alrededores = monstruo_alrededores || mundo[columna+1][fila].get(0).itype==11 || mundo[columna+1][fila].get(0).itype==10;*/
 			// Si no hay un bicho ni un muro ni una piedra ni una piedra encima entonces es una casilla accesible
-			boolean condicion = !bicho && !muro && !piedra && !piedra_arriba;
+			boolean condicion;
+			condicion = !bicho && !muro && !piedra && !piedra_arriba;
 			return condicion;
 		}
 		return true;

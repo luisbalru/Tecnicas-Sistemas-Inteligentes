@@ -70,13 +70,18 @@ public class Agent extends AbstractPlayer {
     
     int alto, ancho;
     
+    int fila_inicial, col_inicial;
+    
+    boolean escapando;
+    
         
     
     private int distanciaManhattan(int fila1, int col1, int fila2, int col2) {
 		return Math.abs(fila1-fila2) + Math.abs(col1 - col2);
 	}
     
-    public Agent(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {  
+    public Agent(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+    	escapando=false;
     	acabado = false;
  	
     	lista_acciones = new ArrayList<Types.ACTIONS>();
@@ -111,10 +116,13 @@ public class Agent extends AbstractPlayer {
         System.out.println(lista_gemas_faciles);
         
         
-        resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getWorldDimension().width, stateObs.getWorldDimension().height,stateObs, this.fescalaX, this.fescalaY);
+        resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getObservationGrid().length, stateObs.getObservationGrid()[0].length,stateObs, this.fescalaX, this.fescalaY);
         
         ancho = stateObs.getObservationGrid().length;
         alto = stateObs.getObservationGrid()[0].length;
+        
+        col_inicial = (int) Math.round(stateObs.getAvatarPosition().x / this.fescalaX);
+    	fila_inicial = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
     }
 
 
@@ -135,12 +143,15 @@ public class Agent extends AbstractPlayer {
 		}
 		ArrayList<Gema> gemas9 = new ArrayList<Gema>();
 		for(int i=0; i<9; i++) {
+			gemas_faciles = new ArrayList<Gema>();
 			for(Gema gema : gemas) {
 				resolutor_aux.reset();
 				resolutor_aux.setParametros(stateObs);
-				if(resolutor_aux.obtenCamino2(col_actual,fila_actual,gema.coordenadas.x, gema.coordenadas.y, timer,true).get(0)!=Types.ACTIONS.ACTION_NIL) {
-					gema.distancia_actual = resolutor_aux.cantidad_pasos;
-					gemas_faciles.add(gema);
+				for(int j = 0; j < 20; j++) {
+					if(resolutor_aux.obtenCamino2(col_actual,fila_actual,gema.coordenadas.x, gema.coordenadas.y, timer,true).get(0)!=Types.ACTIONS.ACTION_NIL) {
+						gema.distancia_actual = resolutor_aux.cantidad_pasos;
+						gemas_faciles.add(gema);
+					}
 				}
 			}
 			Gema min = gemas_faciles.get(0);
@@ -148,6 +159,7 @@ public class Agent extends AbstractPlayer {
 				if(gemas_faciles.get(j).distancia_actual < min.distancia_actual)
 					min = gemas_faciles.get(j);
 			}
+			gemas.remove(min);
 			gemas9.add(min);
 			col_actual = gemas9.get(gemas9.size()-1).coordenadas.x;
 			fila_actual = gemas9.get(gemas9.size()-1).coordenadas.y;
@@ -155,25 +167,13 @@ public class Agent extends AbstractPlayer {
 		}
 		return gemas9;
 	}
-/*
-	private int esGemaFacil(Gema gema, ResolutorTareas resolutor_aux, ArrayList<Observation>[][] mundo, ElapsedCpuTimer timer) {
-		if(gema.coordenadas.x-1>=0) {
-			gema_facil = mundo[gema.coordenadas.x][gema.coordenadas.y].size()==0;
-		}
-		if(!gema_facil) {
-			for(int i = 0; i <= 25 && !gema_facil;i++)
-				if(resolutor_aux.obtenCamino(gema.coordenadas.x, gema.coordenadas.y, timer,true).get(0)!=Types.ACTIONS.ACTION_NIL) {
-					gema_facil = true;
-				}
-					
-		}
-		return -1
-	}
-*/
+    
 	@Override
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
+		//return Types.ACTIONS.ACTION_NIL;
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
+    		
     	
     	resolutor.setParametros(stateObs);
     	
@@ -197,11 +197,7 @@ public class Agent extends AbstractPlayer {
     	}
     	if(lista_acciones.size()>0) {
     		if(hayPeligroBicho(stateObs, lista_acciones)) {
-    			System.out.println(lista_acciones);
-    			System.out.println(stateObs.getAvatarOrientation());
-    			System.out.println("Columna: " + col_start + ", Fila: " + fila_start);
-    			lista_acciones = esquivaBicho(stateObs,lista_acciones);
-    			System.out.println(lista_acciones);
+    			lista_acciones = esquivaBicho(stateObs,lista_acciones, elapsedTimer);
     		}
 	    	Types.ACTIONS accion = lista_acciones.get(0);
 	    	lista_acciones.remove(0);
@@ -230,22 +226,25 @@ public class Agent extends AbstractPlayer {
 				piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
 			// Si no hay un bicho ni un muro ni una piedra ni una piedra encima entonces es una casilla accesible
 			boolean condicion = !bicho && !muro && !piedra && !piedra_arriba;
-			System.out.println(condicion);
 			return condicion;
 		}
-		System.out.println("Vacío");
 		return true;
 	}
     
     // Hay que controlar si la vía de escape está bloqueada para añadir una alternativa
     // Hasta ahora consigue deshacerse del bicho a veces si no se ve atrapado
-    private ArrayList<ACTIONS> esquivaBicho(StateObservation obs,ArrayList<ACTIONS> lista_acciones2) {
+    private ArrayList<ACTIONS> esquivaBicho(StateObservation obs,ArrayList<ACTIONS> lista_acciones2, ElapsedCpuTimer timer) {
     	ArrayList<Observation>[][] mundo = obs.getObservationGrid();
     	ArrayList<Types.ACTIONS> lista_acciones = new ArrayList<Types.ACTIONS>();
     	int col_start = (int) Math.round(obs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(obs.getAvatarPosition().y / fescalaY);
     	
-		if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_LEFT) {
+    	resolutor.reset();
+    	resolutor.setParametros(obs);
+    	lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
+    	return lista_acciones;
+    	
+		/*if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_LEFT) {
 			if(obs.getAvatarOrientation().x==1.0) {
 				if(isAccesible(mundo, col_start+1, fila_start))
 					lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
@@ -357,7 +356,7 @@ public class Agent extends AbstractPlayer {
 				}
 			}
 		}
-		return lista_acciones;
+		return lista_acciones;*/
 	}
 
 	public boolean hayPeligroBicho(StateObservation obs, ArrayList<Types.ACTIONS> lista_acciones) {

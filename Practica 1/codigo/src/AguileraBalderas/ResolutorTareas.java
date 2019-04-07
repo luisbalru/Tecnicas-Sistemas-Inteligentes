@@ -43,7 +43,7 @@ public class ResolutorTareas {
 		this.obs = obs;
 		this.fescalaX = fescalaX;
 		this.fescalaY = fescalaY;
-		this.aestrella=new AEstrella(ancho, alto);
+		this.aestrella=new AEstrella(ancho,alto);
 		this.cantidad_pasos = 0;
 	}
 	
