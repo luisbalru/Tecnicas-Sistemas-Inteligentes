@@ -507,6 +507,26 @@ public class Agent extends AbstractPlayer {
 			    			}
 			    			else
 			    				posiciones.add(new Vector2di(col_start-2, fila_start));
+			    		
+			    		if(col_start+2<ancho)
+			    			if(mundo[col_start+2][fila_start].size()>0) {
+			    				if(mundo[col_start+2][fila_start].get(0).itype!=7 && mundo[col_start+2][fila_start].get(0).itype!=4 && mundo[col_start+2][fila_start].get(0).itype!=0)
+			    					posiciones.add(new Vector2di(col_start+3, fila_start));
+			    			}
+			    			else
+			    				posiciones.add(new Vector2di(col_start+3, fila_start));
+			    		
+			    		if(col_start-2>=0)
+			    			if(mundo[col_start-2][fila_start].size()>0) {
+			    				if(mundo[col_start-2][fila_start].get(0).itype!=7 && mundo[col_start-2][fila_start].get(0).itype!=4 && mundo[col_start-2][fila_start].get(0).itype!=0)
+			    					posiciones.add(new Vector2di(col_start-3, fila_start));
+			    			}
+			    			else
+			    				posiciones.add(new Vector2di(col_start-3, fila_start));
+			    		
+			    		/*posiciones.add(new Vector2di(col_start, fila_start-1));
+			    		posiciones.add(new Vector2di(col_start-1, fila_start));
+			    		posiciones.add(new Vector2di(col_start+1, fila_start));*/
     				}
     			}
     			else {
@@ -536,6 +556,25 @@ public class Agent extends AbstractPlayer {
 		    			else
 		    				posiciones.add(new Vector2di(col_start-2, fila_start));
 		    		
+		    		if(col_start+2<ancho)
+		    			if(mundo[col_start+2][fila_start].size()>0) {
+		    				if(mundo[col_start+2][fila_start].get(0).itype!=7 && mundo[col_start+2][fila_start].get(0).itype!=4 && mundo[col_start+2][fila_start].get(0).itype!=0)
+		    					posiciones.add(new Vector2di(col_start+3, fila_start));
+		    			}
+		    			else
+		    				posiciones.add(new Vector2di(col_start+3, fila_start));
+		    		
+		    		if(col_start-2>=0)
+		    			if(mundo[col_start-2][fila_start].size()>0) {
+		    				if(mundo[col_start-2][fila_start].get(0).itype!=7 && mundo[col_start-2][fila_start].get(0).itype!=4 && mundo[col_start-2][fila_start].get(0).itype!=0)
+		    					posiciones.add(new Vector2di(col_start-3, fila_start));
+		    			}
+		    			else
+		    				posiciones.add(new Vector2di(col_start-3, fila_start));
+		    		
+		    		/*posiciones.add(new Vector2di(col_start, fila_start-1));
+		    		posiciones.add(new Vector2di(col_start-1, fila_start));
+		    		posiciones.add(new Vector2di(col_start+1, fila_start));*/
     			}
     		if(col_start-1>=0 && col_start-1<ancho && fila_start+1>=0 && fila_start+1<alto)
     			if(mundo[col_start-1][fila_start+1].size()!=0) {
@@ -592,6 +631,25 @@ public class Agent extends AbstractPlayer {
 			    			else
 			    				posiciones.add(new Vector2di(col_start-2, fila_start));
 			    		
+			    		if(col_start+2<ancho)
+			    			if(mundo[col_start+2][fila_start].size()>0) {
+			    				if(mundo[col_start+2][fila_start].get(0).itype!=7 && mundo[col_start+2][fila_start].get(0).itype!=4 && mundo[col_start+2][fila_start].get(0).itype!=0)
+			    					posiciones.add(new Vector2di(col_start+3, fila_start));
+			    			}
+			    			else
+			    				posiciones.add(new Vector2di(col_start+3, fila_start));
+			    		
+			    		if(col_start-2>=0)
+			    			if(mundo[col_start-2][fila_start].size()>0) {
+			    				if(mundo[col_start-2][fila_start].get(0).itype!=7 && mundo[col_start-2][fila_start].get(0).itype!=4 && mundo[col_start-2][fila_start].get(0).itype!=0)
+			    					posiciones.add(new Vector2di(col_start-3, fila_start));
+			    			}
+			    			else
+			    				posiciones.add(new Vector2di(col_start-3, fila_start));
+    					
+    					/*posiciones.add(new Vector2di(col_start, fila_start+1));
+			    		posiciones.add(new Vector2di(col_start-1, fila_start));
+			    		posiciones.add(new Vector2di(col_start+1, fila_start));*/
     				}
     			}
     			else {
@@ -621,6 +679,25 @@ public class Agent extends AbstractPlayer {
 		    			else
 		    				posiciones.add(new Vector2di(col_start-2, fila_start));
 		    		
+		    		if(col_start+2<ancho)
+		    			if(mundo[col_start+2][fila_start].size()>0) {
+		    				if(mundo[col_start+2][fila_start].get(0).itype!=7 && mundo[col_start+2][fila_start].get(0).itype!=4 && mundo[col_start+2][fila_start].get(0).itype!=0)
+		    					posiciones.add(new Vector2di(col_start+3, fila_start));
+		    			}
+		    			else
+		    				posiciones.add(new Vector2di(col_start+3, fila_start));
+		    		
+		    		if(col_start-2>=0)
+		    			if(mundo[col_start-2][fila_start].size()>0) {
+		    				if(mundo[col_start-2][fila_start].get(0).itype!=7 && mundo[col_start-2][fila_start].get(0).itype!=4 && mundo[col_start-2][fila_start].get(0).itype!=0)
+		    					posiciones.add(new Vector2di(col_start-3, fila_start));
+		    			}
+		    			else
+		    				posiciones.add(new Vector2di(col_start-3, fila_start));
+					
+					/*posiciones.add(new Vector2di(col_start, fila_start+1));
+		    		posiciones.add(new Vector2di(col_start-1, fila_start));
+		    		posiciones.add(new Vector2di(col_start+1, fila_start));*/
     			}
     		if(col_start-1>=0 && col_start-1<ancho && fila_start-1>=0 && fila_start-1<alto)
     			if(mundo[col_start-1][fila_start-1].size()!=0) {
@@ -676,6 +753,26 @@ public class Agent extends AbstractPlayer {
 			    			}
 			    			else
 			    				posiciones.add(new Vector2di(col_start, fila_start-2));
+			    		
+			    		if(fila_start+2<alto)
+			    			if(mundo[col_start][fila_start+2].size()>0) {
+			    				if(mundo[col_start][fila_start+2].get(0).itype!=7 && mundo[col_start][fila_start+2].get(0).itype!=4 && mundo[col_start][fila_start+2].get(0).itype!=0)
+			    					posiciones.add(new Vector2di(col_start, fila_start+3));
+			    			}
+			    			else
+			    				posiciones.add(new Vector2di(col_start, fila_start+3));
+			    		
+			    		if(fila_start-2>=0)
+			    			if(mundo[col_start][fila_start-2].size()>0) {
+			    				if(mundo[col_start][fila_start-2].get(0).itype!=7 && mundo[col_start][fila_start-2].get(0).itype!=4 && mundo[col_start][fila_start-2].get(0).itype!=0)
+			    					posiciones.add(new Vector2di(col_start, fila_start-3));
+			    			}
+			    			else
+			    				posiciones.add(new Vector2di(col_start, fila_start-3));
+			    		
+			    		/*posiciones.add(new Vector2di(col_start+1, fila_start));
+			    		posiciones.add(new Vector2di(col_start, fila_start-1));
+			    		posiciones.add(new Vector2di(col_start, fila_start+1));*/
     				}
     			}
     			else {
@@ -705,6 +802,25 @@ public class Agent extends AbstractPlayer {
 		    			else
 		    				posiciones.add(new Vector2di(col_start, fila_start-2));
 		    		
+		    		if(fila_start+2<alto)
+		    			if(mundo[col_start][fila_start+2].size()>0) {
+		    				if(mundo[col_start][fila_start+2].get(0).itype!=7 && mundo[col_start][fila_start+2].get(0).itype!=4 && mundo[col_start][fila_start+2].get(0).itype!=0)
+		    					posiciones.add(new Vector2di(col_start, fila_start+3));
+		    			}
+		    			else
+		    				posiciones.add(new Vector2di(col_start, fila_start+3));
+		    		
+		    		if(fila_start-2>=0)
+		    			if(mundo[col_start][fila_start-2].size()>0) {
+		    				if(mundo[col_start][fila_start-2].get(0).itype!=7 && mundo[col_start][fila_start-2].get(0).itype!=4 && mundo[col_start][fila_start-2].get(0).itype!=0)
+		    					posiciones.add(new Vector2di(col_start, fila_start-3));
+		    			}
+		    			else
+		    				posiciones.add(new Vector2di(col_start, fila_start-3));
+		    		
+		    		/*posiciones.add(new Vector2di(col_start+1, fila_start));
+		    		posiciones.add(new Vector2di(col_start, fila_start-1));
+		    		posiciones.add(new Vector2di(col_start, fila_start+1));*/
     			}
     		if(col_start-1>=0 && col_start-1<ancho && fila_start-1>=0 && fila_start-1<alto)
     			if(mundo[col_start-1][fila_start-1].size()!=0) {
@@ -761,6 +877,25 @@ public class Agent extends AbstractPlayer {
 			    			else
 			    				posiciones.add(new Vector2di(col_start, fila_start-2));
 			    		
+			    		if(fila_start+2<alto)
+			    			if(mundo[col_start][fila_start+2].size()>0) {
+			    				if(mundo[col_start][fila_start+2].get(0).itype!=7 && mundo[col_start][fila_start+2].get(0).itype!=4 && mundo[col_start][fila_start+2].get(0).itype!=0)
+			    					posiciones.add(new Vector2di(col_start, fila_start+3));
+			    			}
+			    			else
+			    				posiciones.add(new Vector2di(col_start, fila_start+3));
+			    		
+			    		if(fila_start-2>=0)
+			    			if(mundo[col_start][fila_start-2].size()>0) {
+			    				if(mundo[col_start][fila_start-2].get(0).itype!=7 && mundo[col_start][fila_start-2].get(0).itype!=4 && mundo[col_start][fila_start-2].get(0).itype!=0)
+			    					posiciones.add(new Vector2di(col_start, fila_start-3));
+			    			}
+			    			else
+			    				posiciones.add(new Vector2di(col_start, fila_start-3));
+			    		
+			    		/*posiciones.add(new Vector2di(col_start-1, fila_start));
+			    		posiciones.add(new Vector2di(col_start, fila_start-1));
+			    		posiciones.add(new Vector2di(col_start, fila_start+1));*/
     				}
     			}
     			else {
@@ -789,7 +924,26 @@ public class Agent extends AbstractPlayer {
 		    			}
 		    			else
 		    				posiciones.add(new Vector2di(col_start, fila_start-2));
-		    	
+		    		
+		    		if(fila_start+2<alto)
+		    			if(mundo[col_start][fila_start+2].size()>0) {
+		    				if(mundo[col_start][fila_start+2].get(0).itype!=7 && mundo[col_start][fila_start+2].get(0).itype!=4 && mundo[col_start][fila_start+2].get(0).itype!=0)
+		    					posiciones.add(new Vector2di(col_start, fila_start+3));
+		    			}
+		    			else
+		    				posiciones.add(new Vector2di(col_start, fila_start+3));
+		    		
+		    		if(fila_start-2>=0)
+		    			if(mundo[col_start][fila_start-2].size()>0) {
+		    				if(mundo[col_start][fila_start-2].get(0).itype!=7 && mundo[col_start][fila_start-2].get(0).itype!=4 && mundo[col_start][fila_start-2].get(0).itype!=0)
+		    					posiciones.add(new Vector2di(col_start, fila_start-3));
+		    			}
+		    			else
+		    				posiciones.add(new Vector2di(col_start, fila_start-3));
+		    		
+		    		/*posiciones.add(new Vector2di(col_start-1, fila_start));
+		    		posiciones.add(new Vector2di(col_start, fila_start-1));
+		    		posiciones.add(new Vector2di(col_start, fila_start+1));*/
     			}
     		if(col_start+1>=0 && col_start+1<ancho && fila_start-1>=0 && fila_start-1<alto)
     			if(mundo[col_start+1][fila_start-1].size()!=0) {

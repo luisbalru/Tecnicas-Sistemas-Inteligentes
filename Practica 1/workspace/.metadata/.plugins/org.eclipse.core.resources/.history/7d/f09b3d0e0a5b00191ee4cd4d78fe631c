@@ -447,24 +447,13 @@ public class Agent extends AbstractPlayer {
     	resolutor.reset();
     	resolutor.setParametros(obs);
     	
-    	int distancia_portal = distanciaManhattan(col_portal, fila_portal, col_start, fila_start);
-    	int distancia_origen = distanciaManhattan(col_inicial, fila_inicial, col_start, fila_start);
-    	int distancia_tercero = distanciaManhattan(tercer_punto_col, tercer_punto_fila, col_start, fila_start);
     	
-    	if(distancia_portal<distancia_origen && distancia_portal<distancia_tercero)
-    		lista_acciones = resolutor.obtenCamino(this.col_portal, this.fila_portal, timer, false);
-    	else if(distancia_origen<distancia_portal && distancia_origen<distancia_tercero)
-    		lista_acciones = resolutor.obtenCamino(this.tercer_punto_col, this.tercer_punto_fila, timer, false);
-    	else
-    		lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
-    	
-    	
-    	/*if(this.veces_escapadas%3==0)
+    	if(this.veces_escapadas%3==0)
     		lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
     	else if(this.veces_escapadas%2==1)
     		lista_acciones = resolutor.obtenCamino(this.tercer_punto_col, this.tercer_punto_fila, timer, false);
     	else
-    		lista_acciones = resolutor.obtenCamino(this.col_portal, this.fila_portal, timer, false);*/
+    		lista_acciones = resolutor.obtenCamino(this.col_portal, this.fila_portal, timer, false);
     	return lista_acciones;
 	}
 
@@ -489,24 +478,6 @@ public class Agent extends AbstractPlayer {
 			    		posiciones.add(new Vector2di(col_start, fila_start+1));
 			    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
 			    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-			    		
-			    		posiciones.add(new Vector2di(col_start-1, fila_start));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start));
-			    		if(col_start+1<ancho)
-			    			if(mundo[col_start+1][fila_start].size()>0) {
-			    				if(mundo[col_start+1][fila_start].get(0).itype!=7 && mundo[col_start+1][fila_start].get(0).itype!=4 && mundo[col_start+1][fila_start].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start+2, fila_start));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start+2, fila_start));
-			    		
-			    		if(col_start-1>=0)
-			    			if(mundo[col_start-1][fila_start].size()>0) {
-			    				if(mundo[col_start-1][fila_start].get(0).itype!=7 && mundo[col_start-1][fila_start].get(0).itype!=4 && mundo[col_start-1][fila_start].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start-2, fila_start));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start-2, fila_start));
     				}
     			}
     			else {
@@ -517,25 +488,6 @@ public class Agent extends AbstractPlayer {
 		    		posiciones.add(new Vector2di(col_start, fila_start+1));
 		    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
 		    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-		    		
-		    		posiciones.add(new Vector2di(col_start-1, fila_start));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start));
-		    		if(col_start+1<ancho)
-		    			if(mundo[col_start+1][fila_start].size()>0) {
-		    				if(mundo[col_start+1][fila_start].get(0).itype!=7 && mundo[col_start+1][fila_start].get(0).itype!=4 && mundo[col_start+1][fila_start].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start+2, fila_start));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start+2, fila_start));
-		    		
-		    		if(col_start-1>=0)
-		    			if(mundo[col_start-1][fila_start].size()>0) {
-		    				if(mundo[col_start-1][fila_start].get(0).itype!=7 && mundo[col_start-1][fila_start].get(0).itype!=4 && mundo[col_start-1][fila_start].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start-2, fila_start));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start-2, fila_start));
-		    		
     			}
     		if(col_start-1>=0 && col_start-1<ancho && fila_start+1>=0 && fila_start+1<alto)
     			if(mundo[col_start-1][fila_start+1].size()!=0) {
@@ -573,25 +525,6 @@ public class Agent extends AbstractPlayer {
     					posiciones.add(new Vector2di(col_start, fila_start-1));
     					posiciones.add(new Vector2di(col_start-1, fila_start-1));
     					posiciones.add(new Vector2di(col_start+1, fila_start-1));
-    					
-    					posiciones.add(new Vector2di(col_start-1, fila_start));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start));
-			    		if(col_start+1<ancho)
-			    			if(mundo[col_start+1][fila_start].size()>0) {
-			    				if(mundo[col_start+1][fila_start].get(0).itype!=7 && mundo[col_start+1][fila_start].get(0).itype!=4 && mundo[col_start+1][fila_start].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start+2, fila_start));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start+2, fila_start));
-			    		
-			    		if(col_start-1>=0)
-			    			if(mundo[col_start-1][fila_start].size()>0) {
-			    				if(mundo[col_start-1][fila_start].get(0).itype!=7 && mundo[col_start-1][fila_start].get(0).itype!=4 && mundo[col_start-1][fila_start].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start-2, fila_start));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start-2, fila_start));
-			    		
     				}
     			}
     			else {
@@ -602,25 +535,6 @@ public class Agent extends AbstractPlayer {
 					posiciones.add(new Vector2di(col_start, fila_start-1));
 					posiciones.add(new Vector2di(col_start-1, fila_start-1));
 					posiciones.add(new Vector2di(col_start+1, fila_start-1));
-					
-					posiciones.add(new Vector2di(col_start-1, fila_start));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start));
-		    		if(col_start+1<ancho)
-		    			if(mundo[col_start+1][fila_start].size()>0) {
-		    				if(mundo[col_start+1][fila_start].get(0).itype!=7 && mundo[col_start+1][fila_start].get(0).itype!=4 && mundo[col_start+1][fila_start].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start+2, fila_start));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start+2, fila_start));
-		    		
-		    		if(col_start-1>=0)
-		    			if(mundo[col_start-1][fila_start].size()>0) {
-		    				if(mundo[col_start-1][fila_start].get(0).itype!=7 && mundo[col_start-1][fila_start].get(0).itype!=4 && mundo[col_start-1][fila_start].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start-2, fila_start));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start-2, fila_start));
-		    		
     			}
     		if(col_start-1>=0 && col_start-1<ancho && fila_start-1>=0 && fila_start-1<alto)
     			if(mundo[col_start-1][fila_start-1].size()!=0) {
@@ -658,24 +572,6 @@ public class Agent extends AbstractPlayer {
 			    		posiciones.add(new Vector2di(col_start-1, fila_start));
 			    		posiciones.add(new Vector2di(col_start-1, fila_start-1));
 			    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
-			    		
-			    		posiciones.add(new Vector2di(col_start, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start, fila_start-1));
-			    		if(fila_start+1<alto)
-			    			if(mundo[col_start][fila_start+1].size()>0) {
-			    				if(mundo[col_start][fila_start+1].get(0).itype!=7 && mundo[col_start][fila_start+1].get(0).itype!=4 && mundo[col_start][fila_start+1].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start, fila_start+2));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start, fila_start+2));
-			    		
-			    		if(fila_start-1>=0)
-			    			if(mundo[col_start][fila_start-1].size()>0) {
-			    				if(mundo[col_start][fila_start-1].get(0).itype!=7 && mundo[col_start][fila_start-1].get(0).itype!=4 && mundo[col_start][fila_start-1].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start, fila_start-2));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start, fila_start-2));
     				}
     			}
     			else {
@@ -686,25 +582,6 @@ public class Agent extends AbstractPlayer {
 		    		posiciones.add(new Vector2di(col_start-1, fila_start));
 		    		posiciones.add(new Vector2di(col_start-1, fila_start-1));
 		    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
-		    		
-		    		posiciones.add(new Vector2di(col_start, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start, fila_start-1));
-		    		if(fila_start+1<alto)
-		    			if(mundo[col_start][fila_start+1].size()>0) {
-		    				if(mundo[col_start][fila_start+1].get(0).itype!=7 && mundo[col_start][fila_start+1].get(0).itype!=4 && mundo[col_start][fila_start+1].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start, fila_start+2));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start, fila_start+2));
-		    		
-		    		if(fila_start-1>=0)
-		    			if(mundo[col_start][fila_start-1].size()>0) {
-		    				if(mundo[col_start][fila_start-1].get(0).itype!=7 && mundo[col_start][fila_start-1].get(0).itype!=4 && mundo[col_start][fila_start-1].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start, fila_start-2));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start, fila_start-2));
-		    		
     			}
     		if(col_start-1>=0 && col_start-1<ancho && fila_start-1>=0 && fila_start-1<alto)
     			if(mundo[col_start-1][fila_start-1].size()!=0) {
@@ -742,25 +619,6 @@ public class Agent extends AbstractPlayer {
 			    		posiciones.add(new Vector2di(col_start+1, fila_start));
 			    		posiciones.add(new Vector2di(col_start+1, fila_start-1));
 			    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-			    		
-			    		posiciones.add(new Vector2di(col_start, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start, fila_start-1));
-			    		if(fila_start+1<alto)
-			    			if(mundo[col_start][fila_start+1].size()>0) {
-			    				if(mundo[col_start][fila_start+1].get(0).itype!=7 && mundo[col_start][fila_start+1].get(0).itype!=4 && mundo[col_start][fila_start+1].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start, fila_start+2));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start, fila_start+2));
-			    		
-			    		if(fila_start-1>=0)
-			    			if(mundo[col_start][fila_start-1].size()>0) {
-			    				if(mundo[col_start][fila_start-1].get(0).itype!=7 && mundo[col_start][fila_start-1].get(0).itype!=4 && mundo[col_start][fila_start-1].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start, fila_start-2));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start, fila_start-2));
-			    		
     				}
     			}
     			else {
@@ -771,25 +629,6 @@ public class Agent extends AbstractPlayer {
 		    		posiciones.add(new Vector2di(col_start+1, fila_start));
 		    		posiciones.add(new Vector2di(col_start+1, fila_start-1));
 		    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-		    		
-		    		posiciones.add(new Vector2di(col_start, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start, fila_start-1));
-		    		if(fila_start+1<alto)
-		    			if(mundo[col_start][fila_start+1].size()>0) {
-		    				if(mundo[col_start][fila_start+1].get(0).itype!=7 && mundo[col_start][fila_start+1].get(0).itype!=4 && mundo[col_start][fila_start+1].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start, fila_start+2));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start, fila_start+2));
-		    		
-		    		if(fila_start-1>=0)
-		    			if(mundo[col_start][fila_start-1].size()>0) {
-		    				if(mundo[col_start][fila_start-1].get(0).itype!=7 && mundo[col_start][fila_start-1].get(0).itype!=4 && mundo[col_start][fila_start-1].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start, fila_start-2));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start, fila_start-2));
-		    	
     			}
     		if(col_start+1>=0 && col_start+1<ancho && fila_start-1>=0 && fila_start-1<alto)
     			if(mundo[col_start+1][fila_start-1].size()!=0) {
