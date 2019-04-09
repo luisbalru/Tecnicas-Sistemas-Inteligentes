@@ -7,12 +7,10 @@
     <fullyQualifiedTypeName name="java.lang.Math"/>
     <fullyQualifiedTypeName name="java.util.Set"/>
     <fullyQualifiedTypeName name="java.util.List"/>
-    <fullyQualifiedTypeName name="java.util.PriorityQueue"/>
     <fullyQualifiedTypeName name="java.util.Comparator"/>
     <fullyQualifiedTypeName name="sun.security.krb5.internal.crypto.Aes128"/>
     <fullyQualifiedTypeName name="java.lang.Character"/>
     <fullyQualifiedTypeName name="java.util.HashSet"/>
-    <fullyQualifiedTypeName name="java.lang.Override"/>
     <fullyQualifiedTypeName name="AguileraBalderas.Nodo"/>
     <fullyQualifiedTypeName name="ontology.Types"/>
     <fullyQualifiedTypeName name="com.sun.tools.javac.util.List"/>
@@ -23,10 +21,14 @@
     <fullyQualifiedTypeName name="com.sun.java.swing.action.NewAction"/>
     <fullyQualifiedTypeName name="java.lang.Integer"/>
     <fullyQualifiedTypeName name="AguileraBalderas.ResolutorTareas"/>
-    <fullyQualifiedTypeName name="core.game.Observation"/>
+    <fullyQualifiedTypeName name="java.lang.Override"/>
     <fullyQualifiedTypeName name="tools.ElapsedCpuTimer"/>
-    <fullyQualifiedTypeName name="ontology.Types.ACTIONS"/>
-    <fullyQualifiedTypeName name="java.lang.System"/>
+    <fullyQualifiedTypeName name="com.sun.tools.javac.code.Attribute.Array"/>
+    <fullyQualifiedTypeName name="core.game.Observation"/>
     <fullyQualifiedTypeName name="AguileraBalderas.Vector2di"/>
+    <fullyQualifiedTypeName name="java.lang.System"/>
+    <fullyQualifiedTypeName name="ontology.Types.ACTIONS"/>
+    <fullyQualifiedTypeName name="com.sun.org.apache.xpath.internal.operations.Equals"/>
+    <fullyQualifiedTypeName name="java.util.PriorityQueue"/>
     <fullyQualifiedTypeName name="java.util.ArrayList"/>
 </qualifiedTypeNameHistroy>

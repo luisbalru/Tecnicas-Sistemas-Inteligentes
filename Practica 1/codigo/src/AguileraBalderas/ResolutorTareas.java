@@ -76,6 +76,12 @@ public class ResolutorTareas {
 		aestrella.setParametros(inicio, fin, mundo);
 		List<Nodo> camino = aestrella.buscaCamino(timer,notime);
 		
+		if(col_actual == col_obj && fila_actual == fila_obj) {
+			ArrayList<Types.ACTIONS> idle = new ArrayList<Types.ACTIONS>();
+			idle.add(Types.ACTIONS.ACTION_NIL);
+			return idle;
+		}
+		
 		if(camino.get(camino.size()-1).columna!=col_obj || camino.get(camino.size()-1).fila!=fila_obj) {
 			ArrayList<Types.ACTIONS> idle = new ArrayList<Types.ACTIONS>();
 			idle.add(Types.ACTIONS.ACTION_NIL);

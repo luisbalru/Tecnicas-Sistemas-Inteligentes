@@ -79,6 +79,9 @@ public class Agent extends AbstractPlayer {
     
     int veces_escapadas;
     
+    int bloqueado = 0;
+    Gema gema_objetivo = null;
+    
         
     
     private int distanciaManhattan(int fila1, int col1, int fila2, int col2) {
@@ -119,8 +122,7 @@ public class Agent extends AbstractPlayer {
         lista_gemas_faciles.add(new Vector2di(24,7));*/
         
         lista_gemas_faciles = obtenListaGemasFaciles(stateObs,elapsedTimer);
-        System.out.println(lista_gemas_faciles);
-        
+        gema_objetivo = lista_gemas_faciles.get(0);
         
         resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getObservationGrid().length, stateObs.getObservationGrid()[0].length,stateObs, this.fescalaX, this.fescalaY);
         
@@ -132,15 +134,13 @@ public class Agent extends AbstractPlayer {
         ArrayList<Vector2di> posiciones_accesibles = new ArrayList<Vector2di>();
         for(int i=0; i < ancho;++i)
         	for(int j = 0; j < alto; j++) {
-        		if(mundo[i][j].size()==0)
-        			posiciones_accesibles.add(new Vector2di(i,j));
-        		else if(mundo[i][j].get(0).itype==4)
-        			posiciones_accesibles.add(new Vector2di(i,j));
+        		resolutor.reset();
+        		resolutor.setParametros(stateObs);
+        		if(isAccesible(mundo, i, j)) {
+	        		if(resolutor.obtenCamino(i, j, elapsedTimer, true).get(0)!=Types.ACTIONS.ACTION_NIL)
+	        			posiciones_accesibles.add(new Vector2di(i,j));
+        		}
         	}
-        
-        int pos_aleatoria = ThreadLocalRandom.current().nextInt(0, posiciones_accesibles.size());
-        tercer_punto_col = posiciones_accesibles.get(pos_aleatoria).x;
-        tercer_punto_fila = posiciones_accesibles.get(pos_aleatoria).y;
         
         
         col_portal = (int) Math.round(stateObs.getPortalsPositions()[0].get(0).position.x / this.fescalaX);
@@ -148,6 +148,16 @@ public class Agent extends AbstractPlayer {
     	
     	col_inicial = (int) Math.round(stateObs.getAvatarPosition().x / this.fescalaX);
     	fila_inicial = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
+    	
+    	Vector2di max_dist = posiciones_accesibles.get(0);
+        for(Vector2di pos : posiciones_accesibles) {
+        	if(distanciaManhattan(max_dist.x, max_dist.y, col_inicial, fila_inicial)<distanciaManhattan(pos.x, pos.y, col_inicial, fila_inicial))
+        		if(distanciaManhattan(max_dist.x, max_dist.y, col_portal, fila_portal)<distanciaManhattan(pos.x, pos.y, col_portal, fila_portal))
+        			max_dist = pos;
+        }
+                
+        tercer_punto_col = max_dist.x;
+        tercer_punto_fila = max_dist.y;
     }
 
 
@@ -167,7 +177,7 @@ public class Agent extends AbstractPlayer {
 			gemas.add(gema);
 		}
 		ArrayList<Gema> gemas9 = new ArrayList<Gema>();
-		for(int i=0; i<9; i++) {
+		while(gemas.size()>0) {
 			gemas_faciles = new ArrayList<Gema>();
 			for(Gema gema : gemas) {
 				resolutor_aux.reset();
@@ -179,15 +189,19 @@ public class Agent extends AbstractPlayer {
 					}
 				}
 			}
-			Gema min = gemas_faciles.get(0);
-			for(int j = 1; j<gemas_faciles.size();j++) {
-				if(gemas_faciles.get(j).distancia_actual < min.distancia_actual)
-					min = gemas_faciles.get(j);
+			if(gemas_faciles.size()>0) {
+				Gema min = gemas_faciles.get(0);
+				for(int j = 1; j<gemas_faciles.size();j++) {
+					if(gemas_faciles.get(j).distancia_actual < min.distancia_actual)
+						min = gemas_faciles.get(j);
+				}
+				gemas.remove(min);
+				gemas9.add(min);
+				col_actual = gemas9.get(gemas9.size()-1).coordenadas.x;
+				fila_actual = gemas9.get(gemas9.size()-1).coordenadas.y;
 			}
-			gemas.remove(min);
-			gemas9.add(min);
-			col_actual = gemas9.get(gemas9.size()-1).coordenadas.x;
-			fila_actual = gemas9.get(gemas9.size()-1).coordenadas.y;
+			else
+				return gemas9;
 			
 		}
 		return gemas9;
@@ -201,6 +215,24 @@ public class Agent extends AbstractPlayer {
     		
     	
     	resolutor.setParametros(stateObs);
+    	if(lista_gemas_faciles.size()>0)
+	    	if(gema_objetivo.equals(lista_gemas_faciles.get(0)))
+	    		bloqueado+=1;
+	    	else {
+	    		gema_objetivo = lista_gemas_faciles.get(0);
+	    		bloqueado=0;
+	    	}
+    	
+    	if(bloqueado>150) {
+    		Gema gem = lista_gemas_faciles.get(0);
+    		lista_gemas_faciles.remove(0);
+    		lista_gemas_faciles.add(gem);
+    	}
+    		
+    	
+    	if(stateObs.getAvatarResources().size()>0)
+    		if(stateObs.getAvatarResources().get(6)==9)
+    			acabado=true;
     	
     	if(lista_acciones.size()==0) {
     		resolutor.reset();
@@ -416,48 +448,92 @@ public class Agent extends AbstractPlayer {
     	
     	Types.ACTIONS accion = lista_acciones.get(0);
     	if(accion == Types.ACTIONS.ACTION_DOWN) {
-    		if(fila_start+2<alto)
-    			if(mundo[col_start][fila_start+2].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start][fila_start+2].get(0).itype==11 || mundo[col_start][fila_start+2].get(0).itype==10;
-    		if(fila_start+1<alto && col_start-1>0)
+    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
+    		posiciones.add(new Vector2di(col_start, fila_start+3));
+    		posiciones.add(new Vector2di(col_start, fila_start+2));
+    		posiciones.add(new Vector2di(col_start+1, fila_start+2));
+    		posiciones.add(new Vector2di(col_start-1, fila_start+2));
+    		posiciones.add(new Vector2di(col_start, fila_start+1));
+    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
+    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
+    		if(col_start-1>=0 && col_start-1<ancho && fila_start+1>=0 && fila_start+1<alto)
     			if(mundo[col_start-1][fila_start+1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start-1][fila_start+1].get(0).itype==11 || mundo[col_start-1][fila_start+1].get(0).itype==10;
-    		if(fila_start+1<alto && col_start+1<ancho)
+    				if(mundo[col_start-1][fila_start+1].get(0).itype!=0 && mundo[col_start-1][fila_start+1].get(0).itype!=7 && mundo[col_start-1][fila_start+1].get(0).itype!=4)
+    					posiciones.add(new Vector2di(col_start-2, fila_start+1));
+    		if(col_start+1>=0 && col_start+1<ancho && fila_start+1>=0 && fila_start+1<alto)
     			if(mundo[col_start+1][fila_start+1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start+1][fila_start+1].get(0).itype==11 || mundo[col_start+1][fila_start+1].get(0).itype==10;
+    				if(mundo[col_start+1][fila_start+1].get(0).itype!=0 && mundo[col_start+1][fila_start+1].get(0).itype!=7 && mundo[col_start+1][fila_start+1].get(0).itype!=4)
+    					posiciones.add(new Vector2di(col_start+2, fila_start+1));
+    		for(Vector2di pos : posiciones)
+    			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
+    				if(mundo[pos.x][pos.y].size()!=0)
+    					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
     	}
     	else if(accion == Types.ACTIONS.ACTION_UP) {
-    		if(fila_start-2>0)
-    			if(mundo[col_start][fila_start-2].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start][fila_start-2].get(0).itype==11 || mundo[col_start][fila_start-2].get(0).itype==10;
-    		if(fila_start-1>0 && col_start-1>0)
+    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
+    		posiciones.add(new Vector2di(col_start, fila_start-3));
+    		posiciones.add(new Vector2di(col_start, fila_start-2));
+    		posiciones.add(new Vector2di(col_start+1, fila_start-2));
+    		posiciones.add(new Vector2di(col_start-1, fila_start-2));
+    		posiciones.add(new Vector2di(col_start, fila_start-1));
+    		posiciones.add(new Vector2di(col_start-1, fila_start-1));
+    		posiciones.add(new Vector2di(col_start+1, fila_start-1));
+    		if(col_start-1>=0 && col_start-1<ancho && fila_start-1>=0 && fila_start-1<alto)
     			if(mundo[col_start-1][fila_start-1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start-1][fila_start-1].get(0).itype==11 || mundo[col_start-1][fila_start-1].get(0).itype==10;
-    		if(fila_start-1>0 && col_start+1<ancho)
+    				if(mundo[col_start-1][fila_start-1].get(0).itype!=0 && mundo[col_start-1][fila_start-1].get(0).itype!=7 && mundo[col_start-1][fila_start-1].get(0).itype!=4)
+    					posiciones.add(new Vector2di(col_start-2, fila_start-1));
+    		if(col_start+1>=0 && col_start+1<ancho && fila_start-1>=0 && fila_start-1<alto)
     			if(mundo[col_start+1][fila_start-1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start+1][fila_start-1].get(0).itype==11 || mundo[col_start+1][fila_start-1].get(0).itype==10;
+    				if(mundo[col_start+1][fila_start-1].get(0).itype!=0 && mundo[col_start+1][fila_start-1].get(0).itype!=7 && mundo[col_start+1][fila_start-1].get(0).itype!=7)
+    					posiciones.add(new Vector2di(col_start+2, fila_start-1));
+    		for(Vector2di pos : posiciones)
+    			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
+    				if(mundo[pos.x][pos.y].size()!=0)
+    					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
     	}
     	else if(accion == Types.ACTIONS.ACTION_LEFT) {
-    		if(col_start-2>0)
-    			if(mundo[col_start-2][fila_start].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start-2][fila_start].get(0).itype==11 || mundo[col_start-2][fila_start].get(0).itype==10;
-    		if(col_start-1>0 && fila_start-1>0)
+    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
+    		posiciones.add(new Vector2di(col_start-3, fila_start));
+    		posiciones.add(new Vector2di(col_start-2, fila_start));
+    		posiciones.add(new Vector2di(col_start-2, fila_start-1));
+    		posiciones.add(new Vector2di(col_start-2, fila_start+1));
+    		posiciones.add(new Vector2di(col_start-1, fila_start));
+    		posiciones.add(new Vector2di(col_start-1, fila_start-1));
+    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
+    		if(col_start-1>=0 && col_start-1<ancho && fila_start-1>=0 && fila_start-1<alto)
     			if(mundo[col_start-1][fila_start-1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start-1][fila_start-1].get(0).itype==11 || mundo[col_start-1][fila_start-1].get(0).itype==10;
-    		if(col_start-1>0 && fila_start+1<alto)
+    				if(mundo[col_start-1][fila_start-1].get(0).itype!=0 && mundo[col_start-1][fila_start-1].get(0).itype!=7 && mundo[col_start-1][fila_start-1].get(0).itype!=4)
+    					posiciones.add(new Vector2di(col_start-1, fila_start-2));
+    		if(col_start-1>=0 && col_start-1<ancho && fila_start+1>=0 && fila_start+1<alto)
     			if(mundo[col_start-1][fila_start+1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start-1][fila_start+1].get(0).itype==11 || mundo[col_start-1][fila_start+1].get(0).itype==10;
+    				if(mundo[col_start-1][fila_start+1].get(0).itype!=0 && mundo[col_start-1][fila_start+1].get(0).itype!=7 && mundo[col_start-1][fila_start+1].get(0).itype!=4)
+    					posiciones.add(new Vector2di(col_start-1, fila_start+2));
+    		for(Vector2di pos : posiciones)
+    			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
+    				if(mundo[pos.x][pos.y].size()!=0)
+    					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
     	}
     	else if(accion == Types.ACTIONS.ACTION_RIGHT) {
-    		if(col_start+2<ancho)
-    			if(mundo[col_start+2][fila_start].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start+2][fila_start].get(0).itype==11 || mundo[col_start+2][fila_start].get(0).itype==10;
-    		if(col_start+1<ancho && fila_start-1>0)
+    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
+    		posiciones.add(new Vector2di(col_start+3, fila_start));
+    		posiciones.add(new Vector2di(col_start+2, fila_start));
+    		posiciones.add(new Vector2di(col_start+2, fila_start-1));
+    		posiciones.add(new Vector2di(col_start+2, fila_start+1));
+    		posiciones.add(new Vector2di(col_start+1, fila_start));
+    		posiciones.add(new Vector2di(col_start+1, fila_start-1));
+    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
+    		if(col_start+1>=0 && col_start+1<ancho && fila_start-1>=0 && fila_start-1<alto)
     			if(mundo[col_start+1][fila_start-1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start+1][fila_start-1].get(0).itype==11 || mundo[col_start+1][fila_start-1].get(0).itype==10;
-    		if(col_start+1<ancho && fila_start+1<alto)
+    				if(mundo[col_start+1][fila_start-1].get(0).itype!=0 && mundo[col_start+1][fila_start-1].get(0).itype!=7 && mundo[col_start+1][fila_start-1].get(0).itype!=4)
+    					posiciones.add(new Vector2di(col_start+1, fila_start-2));
+    		if(col_start+1>=0 && col_start+1<ancho && fila_start+1>=0 && fila_start+1<alto)
     			if(mundo[col_start+1][fila_start+1].size()!=0)
-    				hay_bicho = hay_bicho || mundo[col_start+1][fila_start+1].get(0).itype==11 || mundo[col_start+1][fila_start+1].get(0).itype==10;
+    				if(mundo[col_start+1][fila_start+1].get(0).itype!=0 && mundo[col_start+1][fila_start+1].get(0).itype!=7 && mundo[col_start+1][fila_start+1].get(0).itype!=4)
+    					posiciones.add(new Vector2di(col_start+1, fila_start+2));
+    		for(Vector2di pos : posiciones)
+    			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
+    				if(mundo[pos.x][pos.y].size()!=0)
+    					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
     	}
     	
     	return hay_bicho;

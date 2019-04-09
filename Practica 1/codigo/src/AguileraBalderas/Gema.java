@@ -13,4 +13,10 @@ public class Gema {
 	public String toString() {
 		return "||" + coordenadas.toString() + ", Distancia actual: " + distancia_actual + "||";
 	}
+	
+	@Override
+    public boolean equals(Object arg0) {
+        Gema gema = (Gema) arg0;
+        return this.coordenadas.x == gema.coordenadas.x && this.coordenadas.y == gema.coordenadas.y;
+	}
 }
