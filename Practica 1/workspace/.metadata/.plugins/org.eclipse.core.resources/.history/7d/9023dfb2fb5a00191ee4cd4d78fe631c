@@ -247,7 +247,6 @@ public class Agent extends AbstractPlayer {
     			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles.get(0).coordenadas.x, lista_gemas_faciles.get(0).coordenadas.y,elapsedTimer,false);
     			if(lista_acciones.size()==1 && lista_acciones.get(0)==Types.ACTIONS.ACTION_NIL)
     				lista_acciones.remove(0);
-    				stateObs.advance(Types.ACTIONS.ACTION_NIL);
     				return Types.ACTIONS.ACTION_NIL;
     		}
     		else {
@@ -266,14 +265,12 @@ public class Agent extends AbstractPlayer {
     		if(lista_acciones.size()==0)
     			return Types.ACTIONS.ACTION_NIL;
 	    	Types.ACTIONS accion = lista_acciones.get(0);
-	    	stateObs.advance(accion);
 	    	lista_acciones.remove(0);
 	    	return(accion);
     	}
     	if(acabado) {
     		lista_acciones = resolutor.salirPortal(elapsedTimer);
     	}
-    	stateObs.advance(Types.ACTIONS.ACTION_NIL);
     	return Types.ACTIONS.ACTION_NIL;
     	
     }
@@ -432,8 +429,6 @@ public class Agent extends AbstractPlayer {
     	
     	resolutor.reset();
     	resolutor.setParametros(obs);
-    	
-    	
     	if(this.veces_escapadas%3==0)
     		lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
     	else if(this.veces_escapadas%2==1)
@@ -452,11 +447,11 @@ public class Agent extends AbstractPlayer {
     	boolean hay_bicho = false;
     	
     	Types.ACTIONS accion = lista_acciones.get(0);
-    	if(accion == Types.ACTIONS.ACTION_DOWN) {
+    	//if(accion == Types.ACTIONS.ACTION_DOWN) {
     		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(fila_start+2>=0 && fila_start+2<ancho)
-    			if(mundo[col_start][fila_start+2].size()>0)
-    				if(mundo[col_start][fila_start+2].get(0).itype!=0 && mundo[col_start][fila_start+2].get(0).itype!=7) {	
+    		if(fila_start+1>=0 && fila_start+1<ancho)
+    			if(mundo[col_start][fila_start+1].size()>0)
+    				if(mundo[col_start][fila_start+1].get(0).itype!=0 && mundo[col_start][fila_start+1].get(0).itype!=7) {	
 			    		posiciones.add(new Vector2di(col_start, fila_start+3));
 			    		posiciones.add(new Vector2di(col_start, fila_start+2));
 			    		posiciones.add(new Vector2di(col_start+1, fila_start+2));
@@ -473,21 +468,16 @@ public class Agent extends AbstractPlayer {
     			if(mundo[col_start+1][fila_start+1].size()!=0)
     				if(mundo[col_start+1][fila_start+1].get(0).itype!=0 && mundo[col_start+1][fila_start+1].get(0).itype!=7 && mundo[col_start+1][fila_start+1].get(0).itype!=4)
     					posiciones.add(new Vector2di(col_start+2, fila_start+1));
-    		System.out.println("Estamos yendo hacia abajo");
     		for(Vector2di pos : posiciones)
     			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
-    				if(mundo[pos.x][pos.y].size()!=0) {
+    				if(mundo[pos.x][pos.y].size()!=0)
     					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					System.out.println(mundo[pos.x][pos.y].get(0).itype);
-    				}
-    		System.out.println(hay_bicho);
-    		System.out.println("\n\n");
-    	}
-    	else if(accion == Types.ACTIONS.ACTION_UP) {
-    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(fila_start-2>=0 && fila_start-2<ancho)
-    			if(mundo[col_start][fila_start-2].size()>0)
-    				if(mundo[col_start][fila_start-2].get(0).itype!=0 && mundo[col_start][fila_start-2].get(0).itype!=7) {
+    	//}
+    	//else if(accion == Types.ACTIONS.ACTION_UP) {
+    		/*ArrayList<Vector2di>*/ posiciones = new ArrayList<Vector2di>();
+    		if(fila_start-1>=0 && fila_start-1<ancho)
+    			if(mundo[col_start][fila_start-1].size()>0)
+    				if(mundo[col_start][fila_start-1].get(0).itype!=0 && mundo[col_start][fila_start-1].get(0).itype!=7) {
     					posiciones.add(new Vector2di(col_start, fila_start-3));
     					posiciones.add(new Vector2di(col_start, fila_start-2));
     					posiciones.add(new Vector2di(col_start+1, fila_start-2));
@@ -504,21 +494,16 @@ public class Agent extends AbstractPlayer {
     			if(mundo[col_start+1][fila_start-1].size()!=0)
     				if(mundo[col_start+1][fila_start-1].get(0).itype!=0 && mundo[col_start+1][fila_start-1].get(0).itype!=7 && mundo[col_start+1][fila_start-1].get(0).itype!=7)
     					posiciones.add(new Vector2di(col_start+2, fila_start-1));
-    		System.out.println("Estamos yendo hacia arriba");
     		for(Vector2di pos : posiciones)
     			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
-    				if(mundo[pos.x][pos.y].size()!=0) {
+    				if(mundo[pos.x][pos.y].size()!=0)
     					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					System.out.println(mundo[pos.x][pos.y].get(0).itype);
-    				}
-    		System.out.println(hay_bicho);
-    		System.out.println("\n\n");
-    	}
-    	else if(accion == Types.ACTIONS.ACTION_LEFT) {
-    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(col_start-2>=0 && col_start-2<ancho)
-    			if(mundo[col_start-2][fila_start].size()>0)
-    				if(mundo[col_start-2][fila_start].get(0).itype!=0 && mundo[col_start-2][fila_start].get(0).itype!=7) {
+    	//}
+    	//else if(accion == Types.ACTIONS.ACTION_LEFT) {
+    		/*ArrayList<Vector2di>*/ posiciones = new ArrayList<Vector2di>();
+    		if(col_start-1>=0 && col_start-1<ancho)
+    			if(mundo[col_start-1][fila_start].size()>0)
+    				if(mundo[col_start-1][fila_start].get(0).itype!=0 && mundo[col_start-1][fila_start].get(0).itype!=7) {
 			    		posiciones.add(new Vector2di(col_start-3, fila_start));
 			    		posiciones.add(new Vector2di(col_start-2, fila_start));
 			    		posiciones.add(new Vector2di(col_start-2, fila_start-1));
@@ -535,21 +520,16 @@ public class Agent extends AbstractPlayer {
     			if(mundo[col_start-1][fila_start+1].size()!=0)
     				if(mundo[col_start-1][fila_start+1].get(0).itype!=0 && mundo[col_start-1][fila_start+1].get(0).itype!=7 && mundo[col_start-1][fila_start+1].get(0).itype!=4)
     					posiciones.add(new Vector2di(col_start-1, fila_start+2));
-    		System.out.println("Estamos yendo hacia la izquierda");
     		for(Vector2di pos : posiciones)
     			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
-    				if(mundo[pos.x][pos.y].size()!=0) {
+    				if(mundo[pos.x][pos.y].size()!=0)
     					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					System.out.println(mundo[pos.x][pos.y].get(0).itype);
-    				}
-    		System.out.println(hay_bicho);
-    		System.out.println("\n\n");
-    	}
-    	else if(accion == Types.ACTIONS.ACTION_RIGHT) {
-    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(col_start+2>=0 && col_start+2<ancho)
-    			if(mundo[col_start+2][fila_start].size()>0)
-    				if(mundo[col_start+2][fila_start].get(0).itype!=0 && mundo[col_start+2][fila_start].get(0).itype!=7) {
+    	//}
+    	//else if(accion == Types.ACTIONS.ACTION_RIGHT) {
+    		/*ArrayList<Vector2di>*/ posiciones = new ArrayList<Vector2di>();
+    		if(col_start+1>=0 && col_start+1<ancho)
+    			if(mundo[col_start+1][fila_start].size()>0)
+    				if(mundo[col_start+1][fila_start].get(0).itype!=0 && mundo[col_start+1][fila_start].get(0).itype!=7) {
 			    		posiciones.add(new Vector2di(col_start+3, fila_start));
 			    		posiciones.add(new Vector2di(col_start+2, fila_start));
 			    		posiciones.add(new Vector2di(col_start+2, fila_start-1));
@@ -566,16 +546,11 @@ public class Agent extends AbstractPlayer {
     			if(mundo[col_start+1][fila_start+1].size()!=0)
     				if(mundo[col_start+1][fila_start+1].get(0).itype!=0 && mundo[col_start+1][fila_start+1].get(0).itype!=7 && mundo[col_start+1][fila_start+1].get(0).itype!=4)
     					posiciones.add(new Vector2di(col_start+1, fila_start+2));
-    		System.out.println("Estamos yendo hacia la derecha");
     		for(Vector2di pos : posiciones)
     			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
-    				if(mundo[pos.x][pos.y].size()!=0) {
+    				if(mundo[pos.x][pos.y].size()!=0)
     					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					System.out.println(mundo[pos.x][pos.y].get(0).itype);
-    				}
-    		System.out.println(hay_bicho);
-    		System.out.println("\n\n");
-    	}
+    	//}
     	
     	return hay_bicho;
     }

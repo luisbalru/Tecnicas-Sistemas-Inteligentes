@@ -273,7 +273,6 @@ public class Agent extends AbstractPlayer {
     	if(acabado) {
     		lista_acciones = resolutor.salirPortal(elapsedTimer);
     	}
-    	stateObs.advance(Types.ACTIONS.ACTION_NIL);
     	return Types.ACTIONS.ACTION_NIL;
     	
     }
@@ -454,9 +453,9 @@ public class Agent extends AbstractPlayer {
     	Types.ACTIONS accion = lista_acciones.get(0);
     	if(accion == Types.ACTIONS.ACTION_DOWN) {
     		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(fila_start+2>=0 && fila_start+2<ancho)
-    			if(mundo[col_start][fila_start+2].size()>0)
-    				if(mundo[col_start][fila_start+2].get(0).itype!=0 && mundo[col_start][fila_start+2].get(0).itype!=7) {	
+    		if(fila_start+1>=0 && fila_start+1<ancho)
+    			if(mundo[col_start][fila_start+1].size()>0)
+    				if(mundo[col_start][fila_start+1].get(0).itype!=0 && mundo[col_start][fila_start+1].get(0).itype!=7) {	
 			    		posiciones.add(new Vector2di(col_start, fila_start+3));
 			    		posiciones.add(new Vector2di(col_start, fila_start+2));
 			    		posiciones.add(new Vector2di(col_start+1, fila_start+2));
@@ -485,9 +484,9 @@ public class Agent extends AbstractPlayer {
     	}
     	else if(accion == Types.ACTIONS.ACTION_UP) {
     		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(fila_start-2>=0 && fila_start-2<ancho)
-    			if(mundo[col_start][fila_start-2].size()>0)
-    				if(mundo[col_start][fila_start-2].get(0).itype!=0 && mundo[col_start][fila_start-2].get(0).itype!=7) {
+    		if(fila_start-1>=0 && fila_start-1<ancho)
+    			if(mundo[col_start][fila_start-1].size()>0)
+    				if(mundo[col_start][fila_start-1].get(0).itype!=0 && mundo[col_start][fila_start-1].get(0).itype!=7) {
     					posiciones.add(new Vector2di(col_start, fila_start-3));
     					posiciones.add(new Vector2di(col_start, fila_start-2));
     					posiciones.add(new Vector2di(col_start+1, fila_start-2));
@@ -516,9 +515,9 @@ public class Agent extends AbstractPlayer {
     	}
     	else if(accion == Types.ACTIONS.ACTION_LEFT) {
     		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(col_start-2>=0 && col_start-2<ancho)
-    			if(mundo[col_start-2][fila_start].size()>0)
-    				if(mundo[col_start-2][fila_start].get(0).itype!=0 && mundo[col_start-2][fila_start].get(0).itype!=7) {
+    		if(col_start-1>=0 && col_start-1<ancho)
+    			if(mundo[col_start-1][fila_start].size()>0)
+    				if(mundo[col_start-1][fila_start].get(0).itype!=0 && mundo[col_start-1][fila_start].get(0).itype!=7) {
 			    		posiciones.add(new Vector2di(col_start-3, fila_start));
 			    		posiciones.add(new Vector2di(col_start-2, fila_start));
 			    		posiciones.add(new Vector2di(col_start-2, fila_start-1));
@@ -547,9 +546,9 @@ public class Agent extends AbstractPlayer {
     	}
     	else if(accion == Types.ACTIONS.ACTION_RIGHT) {
     		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(col_start+2>=0 && col_start+2<ancho)
-    			if(mundo[col_start+2][fila_start].size()>0)
-    				if(mundo[col_start+2][fila_start].get(0).itype!=0 && mundo[col_start+2][fila_start].get(0).itype!=7) {
+    		if(col_start+1>=0 && col_start+1<ancho)
+    			if(mundo[col_start+1][fila_start].size()>0)
+    				if(mundo[col_start+1][fila_start].get(0).itype!=0 && mundo[col_start+1][fila_start].get(0).itype!=7) {
 			    		posiciones.add(new Vector2di(col_start+3, fila_start));
 			    		posiciones.add(new Vector2di(col_start+2, fila_start));
 			    		posiciones.add(new Vector2di(col_start+2, fila_start-1));
