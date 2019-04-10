@@ -142,11 +142,12 @@ public class ResolutorTareas {
     	
 	}
 	
-	public ArrayList<Types.ACTIONS> moverPiedra(int col_piedra, int fila_piedra){
-    	int fila_avatar = (int) Math.round(this.obs.getAvatarPosition().y / fescalaY);
+	public ArrayList<Types.ACTIONS> moverPiedra(int col, int fil,int col_piedra, int fila_piedra){
+    	int fila_avatar = fil;
+    	int columna_avatar = col;
 		ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
 		Vector2d orientacion_avatar = this.obs.getAvatarOrientation();
-		boolean bien_orientados = fila_piedra == fila_avatar + orientacion_avatar.x;
+		boolean bien_orientados = (col_piedra == columna_avatar + orientacion_avatar.x);
 		if(!bien_orientados) {
 			if(orientacion_avatar.x==1.0)
 				acciones.add(Types.ACTIONS.ACTION_LEFT);
