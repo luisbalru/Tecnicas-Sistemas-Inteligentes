@@ -78,6 +78,7 @@ public class Agent extends AbstractPlayer {
     boolean escapando;
     
     int veces_escapadas;
+    boolean yendo_por_piedra = true;
     
     int bloqueado = 0;
     Gema gema_objetivo = null;
@@ -92,6 +93,7 @@ public class Agent extends AbstractPlayer {
     	veces_escapadas=0;
     	escapando=false;
     	acabado = false;
+    	yendo_por_piedra = false;
  	
     	lista_acciones = new ArrayList<Types.ACTIONS>();
         //Creamos una lista de IDs de obstaculos
@@ -212,8 +214,16 @@ public class Agent extends AbstractPlayer {
 		//return Types.ACTIONS.ACTION_NIL;
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
-    		
+    	ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
     	
+
+    	if(stateObs.getAvatarResources().size()>0) {
+    		System.out.println(stateObs.getAvatarResources().get(6));
+    		System.out.println(acabado);
+    	}
+    	
+    	//System.out.println(lista_acciones.toString());
+    
     	resolutor.setParametros(stateObs);
     	if(lista_gemas_faciles.size()>0)
 	    	if(gema_objetivo.equals(lista_gemas_faciles.get(0)))
@@ -223,7 +233,7 @@ public class Agent extends AbstractPlayer {
 	    		bloqueado=0;
 	    	}
     	
-    	if(bloqueado>150) {
+    	if(bloqueado>75) {
     		Gema gem = lista_gemas_faciles.get(0);
     		lista_gemas_faciles.remove(0);
     		lista_gemas_faciles.add(gem);
@@ -237,12 +247,40 @@ public class Agent extends AbstractPlayer {
     	if(lista_acciones.size()==0) {
     		resolutor.reset();
     		escapando=false;
+    		yendo_por_piedra = false;
+    	}
+    	if(lista_gemas_faciles.size()==0 && !acabado) {
+    		lista_gemas_faciles = obtenListaGemasFaciles(stateObs,elapsedTimer);
     	}
     	
-    	if(lista_gemas_faciles.size()==0)
-    		acabado=true;
-    	
-    	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0) {
+    	if(lista_gemas_faciles.size()==0 && !yendo_por_piedra) {
+    		resolutor.reset();
+    		if(stateObs.getAvatarResources().size()>0) {
+	    		if(stateObs.getAvatarResources().get(6)<9) {
+	    			acabado = false;
+	    			
+	    			ArrayList<Observation>[] piedras = stateObs.getMovablePositions(/*new Vector2d(col_start,fila_start)*/);
+	    			int n =(int) Math.round((Math.random()+1)*100);
+	    			int col_piedra =(int) Math.round(piedras[0].get(n%2).position.x)/fescalaX;
+	    			int fil_piedra = (int) Math.round(piedras[0].get(n%2).position.y)/fescalaY;
+	    			if(fila_start != fil_piedra+1) {
+		    			if(isAccesible(mundo, col_piedra-1, fil_piedra+1)) {
+		    				lista_acciones = resolutor.obtenCamino(col_piedra-1, fil_piedra+1, elapsedTimer, true);
+		    				lista_acciones.addAll(resolutor.moverPiedra(col_piedra-1,fil_piedra+1,col_piedra, fil_piedra));
+		    				yendo_por_piedra = true;
+		    			}
+		    			else if(isAccesible(mundo, col_piedra+1, fil_piedra+1)) {
+		    				lista_acciones = resolutor.obtenCamino(col_piedra+1, fil_piedra+1, elapsedTimer, true);
+		    				lista_acciones.addAll(resolutor.moverPiedra(col_piedra+1,fil_piedra+1,col_piedra, fil_piedra));
+		    				yendo_por_piedra = true;
+		    			}
+	    			}
+	    		}
+	    		else	
+	    			acabado=true;
+    		}
+		}
+    	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0 && !acabado) {
     		if(col_start != lista_gemas_faciles.get(0).coordenadas.x || fila_start != lista_gemas_faciles.get(0).coordenadas.y) {    		
     			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles.get(0).coordenadas.x, lista_gemas_faciles.get(0).coordenadas.y,elapsedTimer,false);
     			if(lista_acciones.size()==1 && lista_acciones.get(0)==Types.ACTIONS.ACTION_NIL)
@@ -458,8 +496,8 @@ public class Agent extends AbstractPlayer {
     	else
     		lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
     	
-    	
-    	/*if(this.veces_escapadas%3==0)
+    	/*
+    	if(this.veces_escapadas%3==0)
     		lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
     	else if(this.veces_escapadas%2==1)
     		lista_acciones = resolutor.obtenCamino(this.tercer_punto_col, this.tercer_punto_fila, timer, false);
@@ -471,7 +509,22 @@ public class Agent extends AbstractPlayer {
 	public boolean hayPeligroBicho(StateObservation obs, ArrayList<Types.ACTIONS> lista_acciones) {
     	int col_start = (int) Math.round(obs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(obs.getAvatarPosition().y / fescalaY);
+    	/*
+    	ArrayList<Observation> [] bichos = obs.getNPCPositions(new Vector2d(col_start, fila_start));
     	
+    	// Bucle para escorpiones
+    	for(int i = 0; i<bichos[0].size(); i++) {
+    		if(distanciaManhattan(fila_start, col_start,(int)Math.round(bichos[0].get(i).position.y)/fescalaY, (int)Math.round(bichos[0].get(i).position.x)/fescalaX) <= 3 
+    								&& ! hayBarrera(col_start, fila_start,(int)Math.round(bichos[0].get(i).position.x)/fescalaX,(int)Math.round(bichos[0].get(i).position.y)/fescalaY,obs))
+    			return true;
+    	}
+    	
+    	for(int i = 0; i<bichos[1].size(); i++) {
+    		if(distanciaManhattan(fila_start, col_start,(int)Math.round(bichos[0].get(i).position.y)/fescalaY, (int)Math.round(bichos[0].get(i).position.x)/fescalaX) <= 3
+    				&& ! hayBarrera(col_start, fila_start,(int)Math.round(bichos[0].get(i).position.x)/fescalaX,(int)Math.round(bichos[0].get(i).position.y)/fescalaY,obs))
+    			return true;
+    	}
+    	*/
     	ArrayList<Observation>[][] mundo = obs.getObservationGrid();
     	
     	boolean hay_bicho = false;
@@ -551,15 +604,15 @@ public class Agent extends AbstractPlayer {
     			}
     			else
     				posiciones.add(new Vector2di(col_start+2, fila_start+1));
-    		System.out.println("Estamos yendo hacia abajo");
+    		//System.out.println("Estamos yendo hacia abajo");
     		for(Vector2di pos : posiciones)
     			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
     				if(mundo[pos.x][pos.y].size()!=0) {
     					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					System.out.println(mundo[pos.x][pos.y].get(0).itype);
+    					//System.out.println(mundo[pos.x][pos.y].get(0).itype);
     				}
-    		System.out.println(hay_bicho);
-    		System.out.println("\n\n");
+    		//System.out.println(hay_bicho);
+    		//System.out.println("\n\n");
     	}
     	else if(accion == Types.ACTIONS.ACTION_UP) {
     		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
@@ -636,15 +689,15 @@ public class Agent extends AbstractPlayer {
     			}
     			else
     				posiciones.add(new Vector2di(col_start+2, fila_start-1));
-    		System.out.println("Estamos yendo hacia arriba");
+    		//System.out.println("Estamos yendo hacia arriba");
     		for(Vector2di pos : posiciones)
     			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
     				if(mundo[pos.x][pos.y].size()!=0) {
     					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					System.out.println(mundo[pos.x][pos.y].get(0).itype);
+    					//System.out.println(mundo[pos.x][pos.y].get(0).itype);
     				}
-    		System.out.println(hay_bicho);
-    		System.out.println("\n\n");
+    		//System.out.println(hay_bicho);
+    		//System.out.println("\n\n");
     	}
     	else if(accion == Types.ACTIONS.ACTION_LEFT) {
     		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
@@ -720,15 +773,15 @@ public class Agent extends AbstractPlayer {
     			}
     			else
     				posiciones.add(new Vector2di(col_start-1, fila_start+2));
-    		System.out.println("Estamos yendo hacia la izquierda");
+    		//System.out.println("Estamos yendo hacia la izquierda");
     		for(Vector2di pos : posiciones)
     			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
     				if(mundo[pos.x][pos.y].size()!=0) {
     					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					System.out.println(mundo[pos.x][pos.y].get(0).itype);
+    					//System.out.println(mundo[pos.x][pos.y].get(0).itype);
     				}
-    		System.out.println(hay_bicho);
-    		System.out.println("\n\n");
+    		//System.out.println(hay_bicho);
+    		//System.out.println("\n\n");
     	}
     	else if(accion == Types.ACTIONS.ACTION_RIGHT) {
     		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
@@ -805,19 +858,46 @@ public class Agent extends AbstractPlayer {
     			}
     			else
     				posiciones.add(new Vector2di(col_start+1, fila_start+2));
-    		System.out.println("Estamos yendo hacia la derecha");
+    		//System.out.println("Estamos yendo hacia la derecha");
     		for(Vector2di pos : posiciones)
     			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
     				if(mundo[pos.x][pos.y].size()!=0) {
     					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					System.out.println(mundo[pos.x][pos.y].get(0).itype);
+    					//System.out.println(mundo[pos.x][pos.y].get(0).itype);
     				}
-    		System.out.println(hay_bicho);
-    		System.out.println("\n\n");
+    		//System.out.println(hay_bicho);
+    		//System.out.println("\n\n");
     	}
     	
     	return hay_bicho;
+    	//return false;
     }
+	/*
+	private boolean hayBarrera(int col1, int fil1, int col2, int fil2, StateObservation obs) {
+		ArrayList<Observation>[][] mundo = obs.getObservationGrid();
+		if(fil1 != fil2) {
+			if(Math.abs(fil2 - fil1) == 2)
+				if(mundo[col1][(int)(fil2+fil1)/2].size() > 0)
+					return (mundo[col1][(int)(fil2+fil1)/2].get(0).itype == 0 /*|| (mundo[col1][(fil2+fil1)/2].get(0).itype == 4 && mundo[col2][(fil2+fil1)/2].get(0).itype == 4)*///);
+				/*else
+					return false;
+			else if(Math.abs(fil2 - fil1) > 2)
+				return true;
+			else
+				return false;
+		}
+		else {
+			if(Math.abs(col2-col1) == 2)
+				if(mundo[col1][(int)(fil2+fil1)/2].size() > 0)
+					return (mundo[fil1][(int)(col2+col1)/2].get(0).itype == 0 /*|| (mundo[fil1][(col2+col1)/2].get(0).itype == 4 && mundo[fil2][(col2+col1)/2].get(0).itype == 4)*///);
+				/*else
+					return false;
+			else if(Math.abs(col2-col1) > 2)
+				return true;
+			else 
+				return false;
+		}
+	}*/
 
 
 }
