@@ -66,7 +66,7 @@ public class ResolutorTareas {
 	 * @param timer Objeto de tipo {@link ElapsedCpuTimer} para controlar el tiempo consumido en el AEstrella
 	 * @return Devuelve una lista de acciones a realizar para ir hacia el objetivo
 	 */
-	public ArrayList<Types.ACTIONS> obtenCamino(int col_obj, int fila_obj, ElapsedCpuTimer timer, boolean notime){
+	public ArrayList<Types.ACTIONS> obtenCamino(int col_obj, int fila_obj, ElapsedCpuTimer timer, boolean notime, boolean mira_piedras){
 		// Tomamos las coordenadas actuales del avatar
 		int col_actual = (int) Math.round(this.obs.getAvatarPosition().x / this.fescalaX);
     	int fila_actual = (int) Math.round(this.obs.getAvatarPosition().y / this.fescalaY);
@@ -74,7 +74,7 @@ public class ResolutorTareas {
 		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null, obs.getAvatarOrientation());
 		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null, obs.getAvatarOrientation());
 		aestrella.setParametros(inicio, fin, mundo);
-		List<Nodo> camino = aestrella.buscaCamino(timer,notime);
+		List<Nodo> camino = aestrella.buscaCamino(timer,notime, mira_piedras);
 		
 		if(col_actual == col_obj && fila_actual == fila_obj) {
 			ArrayList<Types.ACTIONS> idle = new ArrayList<Types.ACTIONS>();
@@ -100,12 +100,12 @@ public class ResolutorTareas {
 	 * @param timer Objeto de tipo {@link ElapsedCpuTimer} para controlar el tiempo consumido en el AEstrella
 	 * @return Devuelve una lista de acciones a realizar para ir hacia el objetivo
 	 */
-	public ArrayList<Types.ACTIONS> obtenCamino2(int col_actual, int fila_actual,int col_obj, int fila_obj, ElapsedCpuTimer timer, boolean notime){
+	public ArrayList<Types.ACTIONS> obtenCamino2(int col_actual, int fila_actual,int col_obj, int fila_obj, ElapsedCpuTimer timer, boolean notime, boolean mira_piedras){
     	// Inicializamos el nodo de inicio con la posición del avatar y el final con la posición del objetivo
 		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null, obs.getAvatarOrientation());
 		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null, obs.getAvatarOrientation());
 		aestrella.setParametros(inicio, fin, mundo);
-		List<Nodo> camino = aestrella.buscaCamino(timer,notime);
+		List<Nodo> camino = aestrella.buscaCamino(timer,notime, mira_piedras);
 		
 		if(camino.get(camino.size()-1).columna!=col_obj || camino.get(camino.size()-1).fila!=fila_obj) {
 			ArrayList<Types.ACTIONS> idle = new ArrayList<Types.ACTIONS>();
@@ -138,7 +138,7 @@ public class ResolutorTareas {
     		acciones.add(Types.ACTIONS.ACTION_ESCAPE);
     		return acciones;
     	}
-    	return obtenCamino(col_portal, fila_portal, timer,false);
+    	return obtenCamino(col_portal, fila_portal, timer,false, true);
     	
 	}
 	

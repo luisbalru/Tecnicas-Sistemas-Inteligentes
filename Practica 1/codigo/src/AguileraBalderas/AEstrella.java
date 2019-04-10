@@ -124,7 +124,7 @@ public class AEstrella {
 	 * @param timer Objeto de tipo {@link ElapsedCpuTimer} para controlar el tiempo transcurrido
 	 * @return
 	 */
-	public List<Nodo> buscaCamino(ElapsedCpuTimer timer, boolean notime){
+	public List<Nodo> buscaCamino(ElapsedCpuTimer timer, boolean notime, boolean mira_piedras){
 		//Inicializamos el camino, los abiertos y el mejor nodo.
 		List<Nodo> path = new ArrayList<Nodo>();
 		mejor_nodo = nodo_inicial;
@@ -156,7 +156,7 @@ public class AEstrella {
 			// Para cada vecino
 			for(int i=0; i < vecinos.size(); i++) {
 				//Comprobamos si es accesible
-				boolean accesible = isAccesible(mundo,vecinos.get(i), notime);
+				boolean accesible = isAccesible(mundo,vecinos.get(i), notime, mira_piedras);
 				if(accesible) {
 					// Actualizamos su padre, el coste y la f.
 					vecinos.get(i).padre = nodo_actual;
@@ -200,7 +200,7 @@ public class AEstrella {
 	 * @param nodo Nodo que queremos comprobar si es accesible
 	 * @return Devuelve un booleano indicando si el nodo es accesible
 	 */
-	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo, boolean constructor) {
+	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo, boolean constructor, boolean mira_piedras) {
 		int fila = nodo.fila;
 		int columna = nodo.columna;
 		// Si el nodo está vacío es accesible
@@ -215,7 +215,10 @@ public class AEstrella {
 			// Comprueba si la casilla tiene una piedra encima
 			boolean piedra_arriba = false;
 			if(fila>0 && mundo[columna][fila-1].size()>0)
-				piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
+				if(!mira_piedras)
+					piedra_arriba = mundo[columna][fila-1].get(0).itype==7 && nodo.padre.fila==fila+1;
+				else
+					piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
 			// Comprueba si hay un monstruo arriba, abajo, a la izquierda o a la derecha
 			/*boolean monstruo_alrededores = false;
 			if(fila-1>=0)
@@ -232,7 +235,7 @@ public class AEstrella {
 					monstruo_alrededores = monstruo_alrededores || mundo[columna+1][fila].get(0).itype==11 || mundo[columna+1][fila].get(0).itype==10;*/
 			// Si no hay un bicho ni un muro ni una piedra ni una piedra encima entonces es una casilla accesible
 			boolean condicion;
-			condicion = !bicho && !muro && !piedra /*&& !piedra_arriba*/;
+			condicion = !bicho && !muro && !piedra && !piedra_arriba /*&& !monstruo_alrededores*/;
 			return condicion;
 		}
 		return true;
