@@ -232,7 +232,7 @@ public class AEstrella {
 					monstruo_alrededores = monstruo_alrededores || mundo[columna+1][fila].get(0).itype==11 || mundo[columna+1][fila].get(0).itype==10;*/
 			// Si no hay un bicho ni un muro ni una piedra ni una piedra encima entonces es una casilla accesible
 			boolean condicion;
-			condicion = !bicho && !muro && !piedra && !piedra_arriba;
+			condicion = !bicho && !muro && !piedra /*&& !piedra_arriba*/;
 			return condicion;
 		}
 		return true;
