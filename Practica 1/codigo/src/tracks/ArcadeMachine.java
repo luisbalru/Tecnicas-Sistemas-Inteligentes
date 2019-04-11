@@ -474,8 +474,10 @@ public class ArcadeMachine {
 		// at least 1 in single player.
 		// Get array of scores back.
 		if ((no_players - disqCount) >= toPlay.no_players) {
-		    score = toPlay.runGame(players, randomSeed);
-		    //score = toPlay.playGame(players, randomSeed, false, 0);
+		    //score = toPlay.runGame(players, randomSeed);
+			System.out.println("Jugando el nivel " + level_file);
+			System.out.flush();
+		    score = toPlay.playGame(players, randomSeed, false, 0);
 		    toPlay.printResult();
 		} else {
 		    // Get the score for the result.
@@ -503,6 +505,7 @@ public class ArcadeMachine {
 	    }
 
 	    levelIdx++;
+	    System.out.println("\n\n");
 	}
 
 	String vict = "", sc = "";

@@ -138,7 +138,7 @@ public class ResolutorTareas {
     		acciones.add(Types.ACTIONS.ACTION_ESCAPE);
     		return acciones;
     	}
-    	return obtenCamino(col_portal, fila_portal, timer,false, true);
+    	return obtenCamino(col_portal, fila_portal, timer,false, false);
     	
 	}
 	

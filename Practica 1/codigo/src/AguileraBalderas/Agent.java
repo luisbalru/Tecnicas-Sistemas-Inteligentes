@@ -157,7 +157,7 @@ public class Agent extends AbstractPlayer {
     	fila_inicial = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
     	
     	puntos_huida.add(new Vector2di(col_inicial, fila_inicial));
-    	puntos_huida.add(new Vector2di(col_portal, fila_portal));
+    	//puntos_huida.add(new Vector2di(col_portal, fila_portal));
     	
     	Vector2di max_dist = posiciones_accesibles.get(0);
         for(Vector2di pos : posiciones_accesibles) {
@@ -187,6 +187,7 @@ public class Agent extends AbstractPlayer {
 			Gema gema = new Gema();
 			gema.coordenadas.x = (int) Math.round(o.position.x / fescalaX);
 			gema.coordenadas.y = (int) Math.round(o.position.y / fescalaY);
+			gema.mira_piedras=true;
 			gemas.add(gema);
 		}
 		ArrayList<Gema> gemas9 = new ArrayList<Gema>();
@@ -198,7 +199,6 @@ public class Agent extends AbstractPlayer {
 				for(int j = 0; j < 20; j++) {
 					if(resolutor_aux.obtenCamino(gema.coordenadas.x, gema.coordenadas.y, timer,true, true).get(0)!=Types.ACTIONS.ACTION_NIL) {
 						gema.distancia_actual = resolutor_aux.cantidad_pasos;
-						gema.mira_piedras=true;
 						gemas_faciles.add(gema);
 					}
 				}
@@ -234,6 +234,7 @@ public class Agent extends AbstractPlayer {
 				Gema gema = new Gema();
 				gema.coordenadas.x = (int) Math.round(o.position.x / fescalaX);
 				gema.coordenadas.y = (int) Math.round(o.position.y / fescalaY);
+				gema.mira_piedras=false;
 				gemas.add(gema);
 			}
 			ArrayList<Gema> gemas9 = new ArrayList<Gema>();
@@ -243,7 +244,6 @@ public class Agent extends AbstractPlayer {
 				resolutor_aux.setParametros(stateObs);
 				for(int j = 0; j < 5; j++) {
 					if(resolutor_aux.obtenCamino(gema.coordenadas.x, gema.coordenadas.y, timer,false, false).get(0)!=Types.ACTIONS.ACTION_NIL) {
-						gema.mira_piedras=false;
 						gemas9.add(gema);
 						return gemas9;
 					}
@@ -261,33 +261,53 @@ public class Agent extends AbstractPlayer {
     	ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
     	
     	//System.out.println(lista_acciones.toString());
+    	
+    	if(stateObs.getAvatarResources().size()>0)
+    		if(stateObs.getAvatarResources().get(6)>=9) {
+    			if(acabado==false) {
+    				lista_acciones = new ArrayList<Types.ACTIONS>();
+    				lista_gemas_faciles = new ArrayList<Gema>();
+    			}
+    			acabado=true;
+    		}
     
     	resolutor.setParametros(stateObs);
     	if(lista_gemas_faciles.size()>0)
-	    	if(gema_objetivo.equals(lista_gemas_faciles.get(0)) || (col_start==col_anterior) && (fila_start==fila_anterior))
+	    	if(gema_objetivo.equals(lista_gemas_faciles.get(0)) || (col_start==col_anterior && fila_start==fila_anterior))
 	    		bloqueado+=1;
 	    	else {
 	    		gema_objetivo = lista_gemas_faciles.get(0);
 	    		bloqueado=0;
 	    	}
-    	col_anterior = col_start;
-    	fila_anterior = fila_start;
     	
-    	if(bloqueado>50) {
-    		escapando=false;
-    		ArrayList<Gema> gema_facil = obtenListaGemaFacil(stateObs,elapsedTimer);
-    		if(gema_facil.size()>0) {
-	    		for(int i = 0; i < lista_gemas_faciles.size();++i)
-	    			if(lista_gemas_faciles.get(i).equals(gema_facil.get(0)))
-	    				lista_gemas_faciles.remove(i);
-	    		lista_gemas_faciles.add(0, gema_facil.get(0));
+    	if(bloqueado>=75) {
+    		if(col_start==col_anterior && fila_start==fila_anterior)
+				escapando=false;
+    		if(bloqueado==75) {
+    			resolutor.reset();
+    			lista_acciones = resolutor.obtenCamino(col_inicial, fila_inicial, elapsedTimer, false, true); 
+    			bloqueado+=1;
+    		}
+    		else {
+	    		//System.out.println("Me he quedado bloqueado");
+	    		ArrayList<Gema> gema_facil = obtenListaGemaFacil(stateObs,elapsedTimer);
+	    		/*if(gema_facil.size()>0)
+	    			System.out.println("Ahora voy a ir a " + gema_facil.get(0));
+	    		else
+	    			System.out.println("No he conseguido una gema accesible desde donde estoy");*/
+	    		if(gema_facil.size()>0) {
+	    			if(lista_gemas_faciles.size()>0) {
+	    				if(!gema_facil.equals(lista_gemas_faciles.get(0)))
+	    					lista_gemas_faciles.add(0, gema_facil.get(0));
+	    			}
+	    			else
+	    				lista_gemas_faciles.add(0, gema_facil.get(0));
+	    		}
     		}
     	}
-    		
     	
-    	if(stateObs.getAvatarResources().size()>0)
-    		if(stateObs.getAvatarResources().get(6)==9)
-    			acabado=true;
+    	col_anterior = col_start;
+    	fila_anterior = fila_start;    		
     	
     	if(lista_acciones.size()==0) {
     		resolutor.reset();
@@ -326,7 +346,9 @@ public class Agent extends AbstractPlayer {
     		}
 		}
     	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0 && !acabado) {
-    		if(col_start != lista_gemas_faciles.get(0).coordenadas.x || fila_start != lista_gemas_faciles.get(0).coordenadas.y) {    		
+    		if(col_start != lista_gemas_faciles.get(0).coordenadas.x || fila_start != lista_gemas_faciles.get(0).coordenadas.y) {    	
+    			//System.out.println("Me estoy moviendo hacia la gema " + lista_gemas_faciles.get(0).toString());
+    			//System.out.println("Estoy teniendo en cuenta las piedras: " + lista_gemas_faciles.get(0).mira_piedras);
     			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles.get(0).coordenadas.x, lista_gemas_faciles.get(0).coordenadas.y,elapsedTimer,false, lista_gemas_faciles.get(0).mira_piedras);
     			if(lista_acciones.size()==1 && lista_acciones.get(0)==Types.ACTIONS.ACTION_NIL)
     				lista_acciones.remove(0);
@@ -339,12 +361,10 @@ public class Agent extends AbstractPlayer {
     		}
     	}
     	if(lista_acciones.size()>0) {
-    		if(this.escapando && hayPeligroBicho(stateObs, lista_acciones)) {
-    			System.out.println("Huyo de forma reactiva");
+    		if(this.escapando && hayPeligroBicho(stateObs, lista_acciones) && !acabado) {
     			lista_acciones = escapaReactivo(stateObs, lista_acciones);
     		}
-    		else if(hayPeligroBicho(stateObs, lista_acciones)) {
-    			System.out.println("Huyo de forma plafinicada");
+    		else if(hayPeligroBicho(stateObs, lista_acciones) && !acabado) {
     			escapando=true;
     			lista_acciones = esquivaBicho(stateObs,lista_acciones, elapsedTimer);
     		}
@@ -474,7 +494,6 @@ public class Agent extends AbstractPlayer {
 			}
 		}
 		else {
-		//else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_DOWN) {
 			if(obs.getAvatarOrientation().y==-1.0) {
 				if(isAccesible(mundo, col_start, fila_start-1))
 					lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
@@ -502,32 +521,6 @@ public class Agent extends AbstractPlayer {
 				}
 			}
 		}
-	    /*if(lista_acciones.size()>0) {
-	    	if(lista_acciones.get(0)==Types.ACTIONS.ACTION_RIGHT){
-	    		if(isAccesible(mundo, col_start+1, fila_start-1)) {
-		    		lista_acciones.add(Types.ACTIONS.ACTION_UP);
-		    		lista_acciones.add(Types.ACTIONS.ACTION_UP);
-	    		}
-	    	}
-	    	else if(lista_acciones.get(0)==Types.ACTIONS.ACTION_UP) {
-	    		if(isAccesible(mundo, col_start-1, fila_start-1)) {
-	    			lista_acciones.add(Types.ACTIONS.ACTION_LEFT);
-	    			lista_acciones.add(Types.ACTIONS.ACTION_LEFT);
-	    		}
-	    	}
-	    	else if(lista_acciones.get(0)==Types.ACTIONS.ACTION_LEFT) {
-	    		if(isAccesible(mundo, col_start-1, fila_start+1)) {
-					lista_acciones.add(Types.ACTIONS.ACTION_DOWN);
-					lista_acciones.add(Types.ACTIONS.ACTION_DOWN);
-	    		}
-		    }
-	    	else {
-		    	if(isAccesible(mundo, col_start+1, fila_start-1)) {	
-		    		lista_acciones.add(Types.ACTIONS.ACTION_RIGHT);
-		    		lista_acciones.add(Types.ACTIONS.ACTION_RIGHT);
-		    	}
-	    	}
-	    }*/
     		
 		return lista_acciones;
 	}
@@ -576,7 +569,7 @@ public class Agent extends AbstractPlayer {
     	int col_start = (int) Math.round(obs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(obs.getAvatarPosition().y / fescalaY);
     	
-    	resolutor.reset();
+    	/*resolutor.reset();
     	resolutor.setParametros(obs);
     	
     	int pos = 0;
@@ -585,9 +578,10 @@ public class Agent extends AbstractPlayer {
     		if(distanciaManhattan(puntos_huida.get(pos).x, puntos_huida.get(pos).y, col_start, fila_start)<distanciaManhattan(puntos_huida.get(i).x, puntos_huida.get(i).y, col_start, fila_start)) {
     			pos = i;
     		}
-    	}
+    	}*/
     	
-    	lista_acciones = resolutor.obtenCamino(puntos_huida.get(pos).x,	puntos_huida.get(pos).y, timer, false, false);
+    	Vector2di punto_huida = puntos_huida.get(this.veces_escapadas%puntos_huida.size());    	
+    	lista_acciones = resolutor.obtenCamino(punto_huida.x,punto_huida.y, timer, false, false);
     	
     	
     	/*
