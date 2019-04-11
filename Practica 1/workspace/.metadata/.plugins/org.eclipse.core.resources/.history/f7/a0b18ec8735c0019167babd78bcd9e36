@@ -373,6 +373,7 @@ public class Agent extends AbstractPlayer {
 	    	Types.ACTIONS accion = lista_acciones.get(0);
 	    	stateObs.advance(accion);
 	    	lista_acciones.remove(0);
+	    	System.out.println("Estoy haciendo: " + accion);
 	    	return(accion);
     	}
     	if(acabado) {
@@ -380,6 +381,7 @@ public class Agent extends AbstractPlayer {
     		if(lista_acciones.get(0)==Types.ACTIONS.ACTION_NIL)
     			yendo_por_piedra = true;
     	}
+    	System.out.println("Estoy haciendo: " + Types.ACTIONS.ACTION_NIL);
     	stateObs.advance(Types.ACTIONS.ACTION_NIL);
     	return Types.ACTIONS.ACTION_NIL;
     	

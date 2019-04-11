@@ -329,12 +329,12 @@ public class Agent extends AbstractPlayer {
 	    			int col_piedra =(int) Math.round(piedras[0].get(n%piedras[0].size()).position.x)/fescalaX;
 	    			int fil_piedra = (int) Math.round(piedras[0].get(n%piedras[0].size()).position.y)/fescalaY;
 	    			if(fila_start != fil_piedra+1) {
-		    			if(isAccesible(mundo, col_piedra-1, fil_piedra+1) && isAccesible(mundo, col_piedra+1, fil_piedra)) {
+		    			if(isAccesible(mundo, col_piedra-1, fil_piedra+1)) {
 		    				lista_acciones = resolutor.obtenCamino(col_piedra-1, fil_piedra+1, elapsedTimer, true, false);
 		    				lista_acciones.addAll(resolutor.moverPiedra(col_piedra-1,fil_piedra+1,col_piedra, fil_piedra));
 		    				yendo_por_piedra = true;
 		    			}
-		    			else if(isAccesible(mundo, col_piedra+1, fil_piedra+1) && isAccesible(mundo, col_piedra-1, fil_piedra)) {
+		    			else if(isAccesible(mundo, col_piedra+1, fil_piedra+1)) {
 		    				lista_acciones = resolutor.obtenCamino(col_piedra+1, fil_piedra+1, elapsedTimer, true, false);
 		    				lista_acciones.addAll(resolutor.moverPiedra(col_piedra+1,fil_piedra+1,col_piedra, fil_piedra));
 		    				yendo_por_piedra = true;
@@ -622,10 +622,7 @@ public class Agent extends AbstractPlayer {
     	Types.ACTIONS accion = lista_acciones.get(0);
     	if(accion == Types.ACTIONS.ACTION_DOWN) {
     		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(fila_start+2>=0 && fila_start+2<ancho) {
-    			/*System.out.println("Estamos en " + col_start + ":" + fila_start);
-    			System.out.println("Vamos a " + col_start + ":" + fila_start+2);
-    			System.out.println("Ancho: " + ancho + ", alto: " + alto);*/
+    		if(fila_start+2>=0 && fila_start+2<ancho)
     			if(mundo[col_start][fila_start+2].size()>0) {
     				if(mundo[col_start][fila_start+2].get(0).itype!=0 && mundo[col_start][fila_start+2].get(0).itype!=7) {	
 			    		posiciones.add(new Vector2di(col_start, fila_start+3));
@@ -659,7 +656,6 @@ public class Agent extends AbstractPlayer {
 			    				posiciones.add(new Vector2di(col_start-2, fila_start));
     				}
     			}
-    		}
     			else {
     				posiciones.add(new Vector2di(col_start, fila_start+3));
 		    		posiciones.add(new Vector2di(col_start, fila_start+2));

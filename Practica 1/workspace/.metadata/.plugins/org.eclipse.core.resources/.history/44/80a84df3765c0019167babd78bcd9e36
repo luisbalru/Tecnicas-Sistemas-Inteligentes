@@ -512,7 +512,7 @@ public class ArcadeMachine {
 	    levelIdx++;
 	    
 	    niveles_pasados.add(pasados.contains(true));
-	    System.out.println(pasados);
+	    System.out.println(niveles_pasados);
 	    System.out.println("\n\n");
 	}
 

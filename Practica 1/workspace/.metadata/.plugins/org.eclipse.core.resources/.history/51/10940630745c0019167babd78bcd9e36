@@ -391,9 +391,7 @@ public class ArcadeMachine {
      *   game, should be recorded. Accepts null if no recording is desired. If not null,
      *   this array must contain as much String objects as level_files.length*level_times.
      */
-    public static void runGames(String game_file, String[] level_files, int level_times, String agentName, String[] actionFiles) { 	
-    ArrayList<Boolean> niveles_pasados = new ArrayList<Boolean>();
-    	
+    public static void runGames(String game_file, String[] level_files, int level_times, String agentName, String[] actionFiles) {
 	VGDLFactory.GetInstance().init(); // This always first thing to do.
 	VGDLRegistry.GetInstance().init();
 
@@ -417,8 +415,6 @@ public class ArcadeMachine {
 	performance = new StatSummary();
 
 	for (String level_file : level_files) {
-		ArrayList<Boolean> pasados = new ArrayList<Boolean>();
-		
 	    for (int i = 0; i < level_times; ++i) {
 		if (VERBOSE)
 		    System.out.println(" ** Playing game " + game_file + ", level " + level_file + " (" + (i + 1) + "/"
@@ -482,8 +478,8 @@ public class ArcadeMachine {
 			System.out.println("Jugando el nivel " + level_file);
 			System.out.flush();
 		    score = toPlay.playGame(players, randomSeed, false, 0);
-		    Types.WINNER ganado = toPlay.printResult();
-		    pasados.add(score[0]>=18 && ganado==Types.WINNER.PLAYER_WINS);
+		    System.out.println(score);
+		    toPlay.printResult();
 		} else {
 		    // Get the score for the result.
 		    score = toPlay.handleResult();
@@ -510,9 +506,6 @@ public class ArcadeMachine {
 	    }
 
 	    levelIdx++;
-	    
-	    niveles_pasados.add(pasados.contains(true));
-	    System.out.println(pasados);
 	    System.out.println("\n\n");
 	}
 
@@ -527,8 +520,6 @@ public class ArcadeMachine {
 	}
 	System.out.println("Results in game " + game_file + ", " + vict + " , " + sc);
 	 	//+ " , " + performance.mean());
-	
-	System.out.println(niveles_pasados);
     }
 
     /**

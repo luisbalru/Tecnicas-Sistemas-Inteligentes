@@ -623,9 +623,8 @@ public class Agent extends AbstractPlayer {
     	if(accion == Types.ACTIONS.ACTION_DOWN) {
     		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
     		if(fila_start+2>=0 && fila_start+2<ancho) {
-    			/*System.out.println("Estamos en " + col_start + ":" + fila_start);
-    			System.out.println("Vamos a " + col_start + ":" + fila_start+2);
-    			System.out.println("Ancho: " + ancho + ", alto: " + alto);*/
+    			System.out.println("Estamos en " + col_start + ":" + fila_start);
+    			System.out.println("Vamos a " + col_start + ":" + fila_start+1);
     			if(mundo[col_start][fila_start+2].size()>0) {
     				if(mundo[col_start][fila_start+2].get(0).itype!=0 && mundo[col_start][fila_start+2].get(0).itype!=7) {	
 			    		posiciones.add(new Vector2di(col_start, fila_start+3));

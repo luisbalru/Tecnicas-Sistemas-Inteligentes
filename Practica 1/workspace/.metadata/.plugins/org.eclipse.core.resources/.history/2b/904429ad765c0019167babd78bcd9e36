@@ -1166,7 +1166,7 @@ public abstract class Game {
 	 * Prints the result of the game, indicating the winner, the score and the
 	 * number of game ticks played, in this order.
 	 */
-	public Types.WINNER printResult() {
+	public void printResult() {
 		String sb1 = "";
 		String sb2 = "";
 		for (int i = 0; i < no_players; i++) {
@@ -1180,8 +1180,6 @@ public abstract class Game {
 		}
 
 		System.out.println("Result (1->win; 0->lose): " + sb1 + sb2 + "timesteps:" + this.getGameTick());
-		
-		return avatars[0].getWinState();
 		// System.out.println("Result (1->win; 0->lose):"+ winner.key() + ",
 		// Score:" + score + ", timesteps:" + this.getGameTick());
 	}

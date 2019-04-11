@@ -221,13 +221,13 @@ public class AEstrella {
 					piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
 			// Comprueba si hay un monstruo arriba, abajo, a la izquierda o a la derecha
 			boolean monstruo_alrededores = false;
-			if(fila-1>0)
+			if(fila-1>=0)
 				if(mundo[columna][fila-1].size()>0)
 					monstruo_alrededores = monstruo_alrededores || mundo[columna][fila-1].get(0).itype==11 || mundo[columna][fila-1].get(0).itype==10;
 			if(fila+1<alto)
 				if(mundo[columna][fila+1].size()>0)
 					monstruo_alrededores = monstruo_alrededores || mundo[columna][fila+1].get(0).itype==11 || mundo[columna][fila+1].get(0).itype==10;
-			if(columna-1>0)
+			if(columna-1>=0)
 				if(mundo[columna-1][fila].size()>0)
 					monstruo_alrededores = monstruo_alrededores || mundo[columna-1][fila].get(0).itype==11 || mundo[columna-1][fila].get(0).itype==10;
 			if(columna+1<ancho)
