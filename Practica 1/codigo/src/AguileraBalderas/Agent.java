@@ -49,8 +49,6 @@ import tools.Vector2d;
 import tools.pathfinder.Node;
 import tools.pathfinder.PathFinder;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 import AguileraBalderas.ResolutorTareas;
 
 import javax.swing.*;
@@ -73,18 +71,16 @@ public class Agent extends AbstractPlayer {
     
     int alto, ancho;
     
-    ArrayList<Vector2di> puntos_huida;
     int fila_portal, col_portal;
     int fila_inicial, col_inicial;
+    int tercer_punto_fila, tercer_punto_col;
     
     boolean escapando;
     
     int veces_escapadas;
-    boolean yendo_por_piedra = true;
     
     int bloqueado = 0;
     Gema gema_objetivo = null;
-    int col_anterior, fila_anterior;
     
         
     
@@ -96,7 +92,6 @@ public class Agent extends AbstractPlayer {
     	veces_escapadas=0;
     	escapando=false;
     	acabado = false;
-    	yendo_por_piedra = false;
  	
     	lista_acciones = new ArrayList<Types.ACTIONS>();
         //Creamos una lista de IDs de obstaculos
@@ -142,13 +137,11 @@ public class Agent extends AbstractPlayer {
         		resolutor.reset();
         		resolutor.setParametros(stateObs);
         		if(isAccesible(mundo, i, j)) {
-	        		if(resolutor.obtenCamino(i, j, elapsedTimer, true, false).get(0)!=Types.ACTIONS.ACTION_NIL)
+	        		if(resolutor.obtenCamino(i, j, elapsedTimer, true).get(0)!=Types.ACTIONS.ACTION_NIL)
 	        			posiciones_accesibles.add(new Vector2di(i,j));
         		}
         	}
         
-        
-        puntos_huida = new ArrayList<Vector2di>();
         
         col_portal = (int) Math.round(stateObs.getPortalsPositions()[0].get(0).position.x / this.fescalaX);
     	fila_portal = (int) Math.round(stateObs.getPortalsPositions()[0].get(0).position.y / this.fescalaY);
@@ -156,21 +149,15 @@ public class Agent extends AbstractPlayer {
     	col_inicial = (int) Math.round(stateObs.getAvatarPosition().x / this.fescalaX);
     	fila_inicial = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
     	
-    	puntos_huida.add(new Vector2di(col_inicial, fila_inicial));
-    	//puntos_huida.add(new Vector2di(col_portal, fila_portal));
-    	
     	Vector2di max_dist = posiciones_accesibles.get(0);
         for(Vector2di pos : posiciones_accesibles) {
         	if(distanciaManhattan(max_dist.x, max_dist.y, col_inicial, fila_inicial)<distanciaManhattan(pos.x, pos.y, col_inicial, fila_inicial))
         		if(distanciaManhattan(max_dist.x, max_dist.y, col_portal, fila_portal)<distanciaManhattan(pos.x, pos.y, col_portal, fila_portal))
         			max_dist = pos;
         }
-        puntos_huida.add(new Vector2di(max_dist.x, max_dist.y));
-    	
-    	for(int i = 0; i < 3; ++i) {
-    		int n = ThreadLocalRandom.current().nextInt(0, posiciones_accesibles.size());
-	    	puntos_huida.add(posiciones_accesibles.get(n));
-    	}
+                
+        tercer_punto_col = max_dist.x;
+        tercer_punto_fila = max_dist.y;
     }
 
 
@@ -187,7 +174,6 @@ public class Agent extends AbstractPlayer {
 			Gema gema = new Gema();
 			gema.coordenadas.x = (int) Math.round(o.position.x / fescalaX);
 			gema.coordenadas.y = (int) Math.round(o.position.y / fescalaY);
-			gema.mira_piedras=true;
 			gemas.add(gema);
 		}
 		ArrayList<Gema> gemas9 = new ArrayList<Gema>();
@@ -197,7 +183,7 @@ public class Agent extends AbstractPlayer {
 				resolutor_aux.reset();
 				resolutor_aux.setParametros(stateObs);
 				for(int j = 0; j < 20; j++) {
-					if(resolutor_aux.obtenCamino(gema.coordenadas.x, gema.coordenadas.y, timer,true, true).get(0)!=Types.ACTIONS.ACTION_NIL) {
+					if(resolutor_aux.obtenCamino2(col_actual,fila_actual,gema.coordenadas.x, gema.coordenadas.y, timer,true).get(0)!=Types.ACTIONS.ACTION_NIL) {
 						gema.distancia_actual = resolutor_aux.cantidad_pasos;
 						gemas_faciles.add(gema);
 					}
@@ -219,38 +205,6 @@ public class Agent extends AbstractPlayer {
 			
 		}
 		return gemas9;
-    }
-		
-		private ArrayList<Gema> obtenListaGemaFacil(StateObservation stateObs, ElapsedCpuTimer timer) {
-	    	int col_actual = (int) Math.round(stateObs.getAvatarPosition().x / this.fescalaX);
-	    	int fila_actual = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
-	    	ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
-			ResolutorTareas resolutor_aux = new ResolutorTareas(mundo, mundo.length, mundo[0].length, stateObs, fescalaX, fescalaY);
-			ArrayList<Gema> gemas_faciles = new ArrayList<Gema>();
-			ArrayList<Gema> gemas = new ArrayList<Gema>();
-			
-			ArrayList<Observation>[] posiciones_gemas = stateObs.getResourcesPositions(new Vector2d(col_inicial, fila_inicial));
-			for(Observation o : posiciones_gemas[0]) {
-				Gema gema = new Gema();
-				gema.coordenadas.x = (int) Math.round(o.position.x / fescalaX);
-				gema.coordenadas.y = (int) Math.round(o.position.y / fescalaY);
-				gema.mira_piedras=false;
-				gemas.add(gema);
-			}
-			ArrayList<Gema> gemas9 = new ArrayList<Gema>();
-			gemas_faciles = new ArrayList<Gema>();
-			for(Gema gema : gemas) {
-				resolutor_aux.reset();
-				resolutor_aux.setParametros(stateObs);
-				for(int j = 0; j < 5; j++) {
-					if(resolutor_aux.obtenCamino(gema.coordenadas.x, gema.coordenadas.y, timer,false, false).get(0)!=Types.ACTIONS.ACTION_NIL) {
-						gemas9.add(gema);
-						return gemas9;
-					}
-				}
-			}
-			
-		return gemas9;
 	}
     
 	@Override
@@ -258,98 +212,39 @@ public class Agent extends AbstractPlayer {
 		//return Types.ACTIONS.ACTION_NIL;
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
-    	ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
+    		
     	
-    	//System.out.println(lista_acciones.toString());
-    	
-    	if(stateObs.getAvatarResources().size()>0)
-    		if(stateObs.getAvatarResources().get(6)>=9) {
-    			if(acabado==false) {
-    				lista_acciones = new ArrayList<Types.ACTIONS>();
-    				lista_gemas_faciles = new ArrayList<Gema>();
-    			}
-    			acabado=true;
-    		}
-    
     	resolutor.setParametros(stateObs);
     	if(lista_gemas_faciles.size()>0)
-	    	if(gema_objetivo.equals(lista_gemas_faciles.get(0)) || (col_start==col_anterior && fila_start==fila_anterior))
+	    	if(gema_objetivo.equals(lista_gemas_faciles.get(0)))
 	    		bloqueado+=1;
 	    	else {
 	    		gema_objetivo = lista_gemas_faciles.get(0);
 	    		bloqueado=0;
 	    	}
     	
-    	if(bloqueado>=75) {
-    		if(col_start==col_anterior && fila_start==fila_anterior)
-				escapando=false;
-    		if(bloqueado==75) {
-    			resolutor.reset();
-    			lista_acciones = resolutor.obtenCamino(col_inicial, fila_inicial, elapsedTimer, false, true); 
-    			bloqueado+=1;
-    		}
-    		else {
-	    		//System.out.println("Me he quedado bloqueado");
-	    		ArrayList<Gema> gema_facil = obtenListaGemaFacil(stateObs,elapsedTimer);
-	    		/*if(gema_facil.size()>0)
-	    			System.out.println("Ahora voy a ir a " + gema_facil.get(0));
-	    		else
-	    			System.out.println("No he conseguido una gema accesible desde donde estoy");*/
-	    		if(gema_facil.size()>0) {
-	    			if(lista_gemas_faciles.size()>0) {
-	    				if(!gema_facil.equals(lista_gemas_faciles.get(0)))
-	    					lista_gemas_faciles.add(0, gema_facil.get(0));
-	    			}
-	    			else
-	    				lista_gemas_faciles.add(0, gema_facil.get(0));
-	    		}
-    		}
+    	if(bloqueado>150) {
+    		Gema gem = lista_gemas_faciles.get(0);
+    		lista_gemas_faciles.remove(0);
+    		lista_gemas_faciles.add(gem);
     	}
+    		
     	
-    	col_anterior = col_start;
-    	fila_anterior = fila_start;    		
+    	if(stateObs.getAvatarResources().size()>0)
+    		if(stateObs.getAvatarResources().get(6)==9)
+    			acabado=true;
     	
     	if(lista_acciones.size()==0) {
     		resolutor.reset();
     		escapando=false;
-    		yendo_por_piedra = false;
-    	}
-    	if(lista_gemas_faciles.size()==0 && !acabado) {
-    		lista_gemas_faciles = obtenListaGemasFaciles(stateObs,elapsedTimer);
     	}
     	
-    	if(lista_gemas_faciles.size()==0 && !yendo_por_piedra) {
-    		resolutor.reset();
-    		if(stateObs.getAvatarResources().size()>0) {
-	    		if(stateObs.getAvatarResources().get(6)<9) {
-	    			acabado = false;
-	    			
-	    			ArrayList<Observation>[] piedras = stateObs.getMovablePositions(/*new Vector2d(col_start,fila_start)*/);
-	    			int n =(int) Math.round((Math.random()+1)*100);
-	    			int col_piedra =(int) Math.round(piedras[0].get(n%piedras[0].size()).position.x)/fescalaX;
-	    			int fil_piedra = (int) Math.round(piedras[0].get(n%piedras[0].size()).position.y)/fescalaY;
-	    			if(fila_start != fil_piedra+1) {
-		    			if(isAccesible(mundo, col_piedra-1, fil_piedra+1) && isAccesible(mundo, col_piedra+1, fil_piedra)) {
-		    				lista_acciones = resolutor.obtenCamino(col_piedra-1, fil_piedra+1, elapsedTimer, true, false);
-		    				lista_acciones.addAll(resolutor.moverPiedra(col_piedra-1,fil_piedra+1,col_piedra, fil_piedra));
-		    				yendo_por_piedra = true;
-		    			}
-		    			else if(isAccesible(mundo, col_piedra+1, fil_piedra+1) && isAccesible(mundo, col_piedra-1, fil_piedra)) {
-		    				lista_acciones = resolutor.obtenCamino(col_piedra+1, fil_piedra+1, elapsedTimer, true, false);
-		    				lista_acciones.addAll(resolutor.moverPiedra(col_piedra+1,fil_piedra+1,col_piedra, fil_piedra));
-		    				yendo_por_piedra = true;
-		    			}
-	    			}
-	    		}
-	    		else	
-	    			acabado=true;
-    		}
-		}
-    	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0 && !acabado) {
-    		if(col_start != lista_gemas_faciles.get(0).coordenadas.x || fila_start != lista_gemas_faciles.get(0).coordenadas.y) {    	
-    			//System.out.println("Me estoy moviendo hacia la gema " + lista_gemas_faciles.get(0).toString());
-    			//System.out.println("Estoy teniendo en cuenta las piedras: " + lista_gemas_faciles.get(0).mira_piedras);
-    			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles.get(0).coordenadas.x, lista_gemas_faciles.get(0).coordenadas.y,elapsedTimer,false, lista_gemas_faciles.get(0).mira_piedras);
+    	if(lista_gemas_faciles.size()==0)
+    		acabado=true;
+    	
+    	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0) {
+    		if(col_start != lista_gemas_faciles.get(0).coordenadas.x || fila_start != lista_gemas_faciles.get(0).coordenadas.y) {    		
+    			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles.get(0).coordenadas.x, lista_gemas_faciles.get(0).coordenadas.y,elapsedTimer,false);
     			if(lista_acciones.size()==1 && lista_acciones.get(0)==Types.ACTIONS.ACTION_NIL)
     				lista_acciones.remove(0);
     				stateObs.advance(Types.ACTIONS.ACTION_NIL);
@@ -361,10 +256,10 @@ public class Agent extends AbstractPlayer {
     		}
     	}
     	if(lista_acciones.size()>0) {
-    		if(this.escapando && hayPeligroBicho(stateObs, lista_acciones) && !acabado) {
+    		if(this.escapando && hayPeligroBicho(stateObs, lista_acciones)) {
     			lista_acciones = escapaReactivo(stateObs, lista_acciones);
     		}
-    		else if(hayPeligroBicho(stateObs, lista_acciones) && !acabado) {
+    		else if(hayPeligroBicho(stateObs, lista_acciones)) {
     			escapando=true;
     			lista_acciones = esquivaBicho(stateObs,lista_acciones, elapsedTimer);
     		}
@@ -377,35 +272,13 @@ public class Agent extends AbstractPlayer {
     	}
     	if(acabado) {
     		lista_acciones = resolutor.salirPortal(elapsedTimer);
-    		if(lista_acciones.get(0)==Types.ACTIONS.ACTION_NIL)
-    			yendo_por_piedra = true;
     	}
     	stateObs.advance(Types.ACTIONS.ACTION_NIL);
     	return Types.ACTIONS.ACTION_NIL;
     	
     }
     
-    private boolean hayPeligroVecinos(StateObservation stateObs) {
-		ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
-		int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
-    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
-    	boolean monstruo_alrededores = false;
-    	if(fila_start-1>=0)
-    		if(mundo[col_start][fila_start-1].size()>0)
-    			monstruo_alrededores = monstruo_alrededores || mundo[col_start][fila_start-1].get(0).itype==11 || mundo[col_start][fila_start-1].get(0).itype==10;
-    	if(fila_start+1<alto)
-    		if(mundo[col_start][fila_start+1].size()>0)
-    			monstruo_alrededores = monstruo_alrededores || mundo[col_start][fila_start+1].get(0).itype==11 || mundo[col_start][fila_start+1].get(0).itype==10;
-    	if(col_start-1>=0)
-    		if(mundo[col_start-1][fila_start].size()>0)
-    			monstruo_alrededores = monstruo_alrededores || mundo[col_start-1][fila_start].get(0).itype==11 || mundo[col_start-1][fila_start].get(0).itype==10;
-    	if(col_start+1<ancho)
-    		if(mundo[col_start+1][fila_start].size()>0)
-    			monstruo_alrededores = monstruo_alrededores || mundo[col_start+1][fila_start].get(0).itype==11 || mundo[col_start+1][fila_start].get(0).itype==10;
-		return monstruo_alrededores;
-	}
-
-	private ArrayList<ACTIONS> escapaReactivo(StateObservation obs, ArrayList<ACTIONS> lista_acciones2) {
+    private ArrayList<ACTIONS> escapaReactivo(StateObservation obs, ArrayList<ACTIONS> lista_acciones2) {
     	ArrayList<Observation>[][] mundo = obs.getObservationGrid();
     	ArrayList<Types.ACTIONS> lista_acciones = new ArrayList<Types.ACTIONS>();
     	int col_start = (int) Math.round(obs.getAvatarPosition().x / fescalaX);
@@ -496,6 +369,7 @@ public class Agent extends AbstractPlayer {
 			}
 		}
 		else {
+		//else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_DOWN) {
 			if(obs.getAvatarOrientation().y==-1.0) {
 				if(isAccesible(mundo, col_start, fila_start-1))
 					lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
@@ -523,7 +397,6 @@ public class Agent extends AbstractPlayer {
 				}
 			}
 		}
-    		
 		return lista_acciones;
 	}
 
@@ -571,459 +444,303 @@ public class Agent extends AbstractPlayer {
     	int col_start = (int) Math.round(obs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(obs.getAvatarPosition().y / fescalaY);
     	
-    	/*resolutor.reset();
+    	ArrayList<Vector2di> puntos_huida = new ArrayList<Vector2di>();
+    	puntos_huida.add(new Vector2di(this.col_inicial, this.fila_inicial));
+    	puntos_huida.add(new Vector2di(this.col_portal, this.fila_portal));
+    	puntos_huida.add(new Vector2di(this.tercer_punto_col, this.tercer_punto_fila));
+    	
+    	resolutor.reset();
     	resolutor.setParametros(obs);
     	
-    	int pos = 0;
+    	boolean aleatorio = Math.random() < 0.25;
     	
-    	for(int i = 0; i<puntos_huida.size();++i) {
-    		if(distanciaManhattan(puntos_huida.get(pos).x, puntos_huida.get(pos).y, col_start, fila_start)<distanciaManhattan(puntos_huida.get(i).x, puntos_huida.get(i).y, col_start, fila_start)) {
-    			pos = i;
-    		}
-    	}*/
+    	/*int distancia_portal = distanciaManhattan(col_portal, fila_portal, col_start, fila_start);
+    	int distancia_origen = distanciaManhattan(col_inicial, fila_inicial, col_start, fila_start);
+    	int distancia_tercero = distanciaManhattan(tercer_punto_col, tercer_punto_fila, col_start, fila_start);
     	
-    	Vector2di punto_huida = puntos_huida.get(this.veces_escapadas%puntos_huida.size());    	
-    	lista_acciones = resolutor.obtenCamino(punto_huida.x,punto_huida.y, timer, false, false);
-    	
-    	
-    	/*
-    	if(this.veces_escapadas%3==0)
-    		lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
-    	else if(this.veces_escapadas%2==1)
+    	if(distancia_portal>distancia_origen && distancia_portal>distancia_tercero)
+    		lista_acciones = resolutor.obtenCamino(this.col_portal, this.fila_portal, timer, false);
+    	else if(distancia_origen>distancia_portal && distancia_origen>distancia_tercero)
     		lista_acciones = resolutor.obtenCamino(this.tercer_punto_col, this.tercer_punto_fila, timer, false);
     	else
-    		lista_acciones = resolutor.obtenCamino(this.col_portal, this.fila_portal, timer, false);*/
+    		lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);*/
+    	
+    	if(aleatorio) {
+	    	ArrayList<Integer> minima_distancia_bicho = new ArrayList<Integer>();
+	    	    	
+	    	for(Vector2di punto : puntos_huida) {
+	    		int minima_distancia = Integer.MAX_VALUE;
+	    		for(ArrayList<Observation> ob : obs.getNPCPositions(new Vector2d(col_start, fila_start))) {
+	    			int col_bicho =(int) Math.round(ob.get(0).position.x / fescalaX);
+	    			int fila_bicho =(int) Math.round(ob.get(0).position.y / fescalaY);
+	    			if(distanciaManhattan(col_bicho, fila_bicho, punto.x, punto.y)<minima_distancia)
+	    				minima_distancia = distanciaManhattan(col_bicho, fila_bicho, punto.x, punto.y);
+	    		}
+	    		minima_distancia_bicho.add(minima_distancia);
+	    	}
+	    	
+	    	int maximo = 0;
+	    	for(int i = 0; i < minima_distancia_bicho.size();++i)
+	    		if(minima_distancia_bicho.get(i)>minima_distancia_bicho.get(maximo))
+	    			maximo = i;
+	    	
+	    	lista_acciones = resolutor.obtenCamino(puntos_huida.get(maximo).x, puntos_huida.get(maximo).y, timer, false);
+    	}
+    	else {
+			if(this.veces_escapadas%3==0)
+				lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
+			else if(this.veces_escapadas%3==1)
+				lista_acciones = resolutor.obtenCamino(this.tercer_punto_col, this.tercer_punto_fila, timer, false);
+			else
+				lista_acciones = resolutor.obtenCamino(this.col_portal, this.fila_portal, timer, false);
+    	}
     	return lista_acciones;
 	}
+    
+    public boolean noHayMuroPiedra(int col, int fila, ArrayList<Observation>[][] mundo) {
+    	boolean no_muro_piedra = true;
+    	if(col>=0 && fila>=0 && col<ancho && fila<alto) {
+    		if(mundo[col][fila].size()>0) {
+    			Observation ob = mundo[col][fila].get(0);
+    			if(ob.itype!=7 && ob.itype!=0 && ob.itype!=4)
+    				no_muro_piedra=true;
+    		}
+    		else
+    			no_muro_piedra=true;
+    	}
+    	return no_muro_piedra;
+    }
 
-	public boolean hayPeligroBicho(StateObservation obs, ArrayList<Types.ACTIONS> lista_acciones) {
+    public boolean hayPeligroBicho(StateObservation obs, ArrayList<Types.ACTIONS> lista_acciones) {
     	int col_start = (int) Math.round(obs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(obs.getAvatarPosition().y / fescalaY);
-    	/*
-    	ArrayList<Observation> [] bichos = obs.getNPCPositions(new Vector2d(col_start, fila_start));
-    	
-    	// Bucle para escorpiones
-    	for(int i = 0; i<bichos[0].size(); i++) {
-    		if(distanciaManhattan(fila_start, col_start,(int)Math.round(bichos[0].get(i).position.y)/fescalaY, (int)Math.round(bichos[0].get(i).position.x)/fescalaX) <= 3 
-    								&& ! hayBarrera(col_start, fila_start,(int)Math.round(bichos[0].get(i).position.x)/fescalaX,(int)Math.round(bichos[0].get(i).position.y)/fescalaY,obs))
-    			return true;
-    	}
-    	
-    	for(int i = 0; i<bichos[1].size(); i++) {
-    		if(distanciaManhattan(fila_start, col_start,(int)Math.round(bichos[0].get(i).position.y)/fescalaY, (int)Math.round(bichos[0].get(i).position.x)/fescalaX) <= 3
-    				&& ! hayBarrera(col_start, fila_start,(int)Math.round(bichos[0].get(i).position.x)/fescalaX,(int)Math.round(bichos[0].get(i).position.y)/fescalaY,obs))
-    			return true;
-    	}
-    	*/
     	ArrayList<Observation>[][] mundo = obs.getObservationGrid();
     	
     	boolean hay_bicho = false;
+    	ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
     	
     	Types.ACTIONS accion = lista_acciones.get(0);
     	if(accion == Types.ACTIONS.ACTION_DOWN) {
-    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(fila_start+2>=0 && fila_start+2<ancho) {
-    			/*System.out.println("Estamos en " + col_start + ":" + fila_start);
-    			System.out.println("Vamos a " + col_start + ":" + fila_start+2);
-    			System.out.println("Ancho: " + ancho + ", alto: " + alto);*/
-    			if(mundo[col_start][fila_start+2].size()>0) {
-    				if(mundo[col_start][fila_start+2].get(0).itype!=0 && mundo[col_start][fila_start+2].get(0).itype!=7) {	
-			    		posiciones.add(new Vector2di(col_start, fila_start+3));
-			    		posiciones.add(new Vector2di(col_start, fila_start+2));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start+2));
-			    		posiciones.add(new Vector2di(col_start-1, fila_start+2));
-			    		posiciones.add(new Vector2di(col_start, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-			    		
-			    		posiciones.add(new Vector2di(col_start-1, fila_start));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start));
-			    		
-			    		posiciones.add(new Vector2di(col_start, fila_start-1));
-			    		posiciones.add(new Vector2di(col_start-1, fila_start-1));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start-1));
-			    		if(col_start+1<ancho)
-			    			if(mundo[col_start+1][fila_start].size()>0) {
-			    				if(mundo[col_start+1][fila_start].get(0).itype!=7 && mundo[col_start+1][fila_start].get(0).itype!=4 && mundo[col_start+1][fila_start].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start+2, fila_start));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start+2, fila_start));
-			    		
-			    		if(col_start-1>=0)
-			    			if(mundo[col_start-1][fila_start].size()>0) {
-			    				if(mundo[col_start-1][fila_start].get(0).itype!=7 && mundo[col_start-1][fila_start].get(0).itype!=4 && mundo[col_start-1][fila_start].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start-2, fila_start));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start-2, fila_start));
-    				}
-    			}
-    		}
-    			else {
-    				posiciones.add(new Vector2di(col_start, fila_start+3));
-		    		posiciones.add(new Vector2di(col_start, fila_start+2));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start+2));
-		    		posiciones.add(new Vector2di(col_start-1, fila_start+2));
-		    		posiciones.add(new Vector2di(col_start, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-		    		
-		    		posiciones.add(new Vector2di(col_start-1, fila_start));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start));
-		    		
-		    		posiciones.add(new Vector2di(col_start, fila_start-1));
-		    		posiciones.add(new Vector2di(col_start-1, fila_start-1));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start-1));
-		    		if(col_start+1<ancho)
-		    			if(mundo[col_start+1][fila_start].size()>0) {
-		    				if(mundo[col_start+1][fila_start].get(0).itype!=7 && mundo[col_start+1][fila_start].get(0).itype!=4 && mundo[col_start+1][fila_start].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start+2, fila_start));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start+2, fila_start));
-		    		
-		    		if(col_start-1>=0)
-		    			if(mundo[col_start-1][fila_start].size()>0) {
-		    				if(mundo[col_start-1][fila_start].get(0).itype!=7 && mundo[col_start-1][fila_start].get(0).itype!=4 && mundo[col_start-1][fila_start].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start-2, fila_start));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start-2, fila_start));
-		    		
-    			}
-    		if(col_start-1>=0 && col_start-1<ancho && fila_start+1>=0 && fila_start+1<alto)
-    			if(mundo[col_start-1][fila_start+1].size()!=0) {
-    				if(mundo[col_start-1][fila_start+1].get(0).itype!=0 && mundo[col_start-1][fila_start+1].get(0).itype!=7 && mundo[col_start-1][fila_start+1].get(0).itype!=4)
-    					posiciones.add(new Vector2di(col_start-2, fila_start+1));
-    			}
-    			else
-    				posiciones.add(new Vector2di(col_start-2, fila_start+1));
-    		if(col_start+1>=0 && col_start+1<ancho && fila_start+1>=0 && fila_start+1<alto)
-    			if(mundo[col_start+1][fila_start+1].size()!=0) {
-    				if(mundo[col_start+1][fila_start+1].get(0).itype!=0 && mundo[col_start+1][fila_start+1].get(0).itype!=7 && mundo[col_start+1][fila_start+1].get(0).itype!=4)
-    					posiciones.add(new Vector2di(col_start+2, fila_start+1));
-    			}
-    			else
-    				posiciones.add(new Vector2di(col_start+2, fila_start+1));
-    		//System.out.println("Estamos yendo hacia abajo");
-    		for(Vector2di pos : posiciones)
-    			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
-    				if(mundo[pos.x][pos.y].size()!=0) {
-    					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					//System.out.println(mundo[pos.x][pos.y].get(0).itype);
-    				}
-    		//System.out.println(hay_bicho);
-    		//System.out.println("\n\n");
+    		
+    		if(noHayMuroPiedra(col_start, fila_start+1, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start+1));
+    		if(noHayMuroPiedra(col_start-1, fila_start+1, mundo))
+    			posiciones.add(new Vector2di(col_start-1, fila_start+1));
+    		if(noHayMuroPiedra(col_start+1, fila_start+1, mundo))
+    			posiciones.add(new Vector2di(col_start+1, fila_start+1));
+    		
+    		if(noHayMuroPiedra(col_start-1, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start-1, fila_start));
+    		if(noHayMuroPiedra(col_start+1, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start+1, fila_start));
+    		
+    		//Comprobamos primero las casillas de la izquierda y derecha
+    		if(posiciones.contains(new Vector2di(col_start-1, fila_start)) && noHayMuroPiedra(col_start-2, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start-2, fila_start));
+    		if(posiciones.contains(new Vector2di(col_start+1, fila_start)) && noHayMuroPiedra(col_start+2, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start+2, fila_start));
+    		
+    		//Comprobamos ahora las casillas a izquierda y derecha a distancia 2
+    		/*if(posiciones.contains(new Vector2di(col_start-2, fila_start)) && noHayMuroPiedra(col_start-3, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start-3, fila_start));
+    		if(posiciones.contains(new Vector2di(col_start+2, fila_start)) && noHayMuroPiedra(col_start+3, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start+3, fila_start));*/
+    		
+    		//Compruebo la primera y segunda diagonal
+    		Vector2di cmenosuno_f = new Vector2di(col_start-1, fila_start);
+    		Vector2di c_fmasuno = new Vector2di(col_start, fila_start+1);
+    		Vector2di cmenosuno_fmasuno = new Vector2di(col_start-1, fila_start+1);
+    		Vector2di cmasuno_f = new Vector2di(col_start+1, fila_start);
+    		Vector2di cmasuno_fmasuno = new Vector2di(col_start+1, fila_start+1);
+    		Vector2di c_fmasdos = new Vector2di(col_start, fila_start+2);
+    		
+    		if(((posiciones.contains(cmenosuno_f) && posiciones.contains(cmenosuno_fmasuno)) || (posiciones.contains(cmenosuno_fmasuno) && posiciones.contains(c_fmasuno))) && noHayMuroPiedra(col_start-2, fila_start+1, mundo))
+    			posiciones.add(new Vector2di(col_start-2, fila_start+1));
+    		if(((posiciones.contains(cmasuno_f) && posiciones.contains(cmasuno_fmasuno)) || (posiciones.contains(cmasuno_fmasuno) && posiciones.contains(c_fmasuno))) && noHayMuroPiedra(col_start+2, fila_start+1, mundo))
+    			posiciones.add(new Vector2di(col_start+2, fila_start+1));
+    		
+    		//Comprobamos dos posiciones enfrente
+    		if(noHayMuroPiedra(col_start, fila_start+2, mundo) && posiciones.contains(new Vector2di(col_start, fila_start+1)))
+    			posiciones.add(new Vector2di(col_start, fila_start+2));
+ 
+    		//Comprobamos la segunda diagonal
+    		if(noHayMuroPiedra(col_start-1, fila_start+2, mundo) && ((posiciones.contains(cmenosuno_fmasuno) && posiciones.contains(cmenosuno_f)) || (posiciones.contains(cmenosuno_fmasuno) && posiciones.contains(c_fmasuno)) || (posiciones.contains(c_fmasdos) && posiciones.contains(c_fmasuno))))
+    			posiciones.add(new Vector2di(col_start-1, fila_start+2));
+    		if(noHayMuroPiedra(col_start+1, fila_start+2, mundo) && ((posiciones.contains(cmasuno_fmasuno) && posiciones.contains(c_fmasuno)) || (posiciones.contains(cmasuno_fmasuno) && posiciones.contains(cmasuno_f)) || (posiciones.contains(c_fmasdos) && posiciones.contains(c_fmasuno))))
+    			posiciones.add(new Vector2di(col_start+1, fila_start+2));
+    		
+    		//Comprobamos dos posiciones tres posiciones enfrente
+    		if(noHayMuroPiedra(col_start, fila_start+3, mundo) && posiciones.contains(new Vector2di(col_start, fila_start+2)))
+    			posiciones.add(new Vector2di(col_start, fila_start+3));
+    		
     	}
     	else if(accion == Types.ACTIONS.ACTION_UP) {
-    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(fila_start-2>=0 && fila_start-2<ancho)
-    			if(mundo[col_start][fila_start-2].size()>0) {
-    				if(mundo[col_start][fila_start-2].get(0).itype!=0 && mundo[col_start][fila_start-2].get(0).itype!=7) {
-    					posiciones.add(new Vector2di(col_start, fila_start-3));
-    					posiciones.add(new Vector2di(col_start, fila_start-2));
-    					posiciones.add(new Vector2di(col_start+1, fila_start-2));
-    					posiciones.add(new Vector2di(col_start-1, fila_start-2));
-    					posiciones.add(new Vector2di(col_start, fila_start-1));
-    					posiciones.add(new Vector2di(col_start-1, fila_start-1));
-    					posiciones.add(new Vector2di(col_start+1, fila_start-1));
-    					
-    					posiciones.add(new Vector2di(col_start-1, fila_start));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start));
-			    		
-			    		posiciones.add(new Vector2di(col_start, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-			    		if(col_start+1<ancho)
-			    			if(mundo[col_start+1][fila_start].size()>0) {
-			    				if(mundo[col_start+1][fila_start].get(0).itype!=7 && mundo[col_start+1][fila_start].get(0).itype!=4 && mundo[col_start+1][fila_start].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start+2, fila_start));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start+2, fila_start));
-			    		
-			    		if(col_start-1>=0)
-			    			if(mundo[col_start-1][fila_start].size()>0) {
-			    				if(mundo[col_start-1][fila_start].get(0).itype!=7 && mundo[col_start-1][fila_start].get(0).itype!=4 && mundo[col_start-1][fila_start].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start-2, fila_start));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start-2, fila_start));
-			    		
-    				}
-    			}
-    			else {
-    				posiciones.add(new Vector2di(col_start, fila_start-3));
-					posiciones.add(new Vector2di(col_start, fila_start-2));
-					posiciones.add(new Vector2di(col_start+1, fila_start-2));
-					posiciones.add(new Vector2di(col_start-1, fila_start-2));
-					posiciones.add(new Vector2di(col_start, fila_start-1));
-					posiciones.add(new Vector2di(col_start-1, fila_start-1));
-					posiciones.add(new Vector2di(col_start+1, fila_start-1));
-					
-					posiciones.add(new Vector2di(col_start-1, fila_start));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start));
-		    		
-		    		posiciones.add(new Vector2di(col_start, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-		    		if(col_start+1<ancho)
-		    			if(mundo[col_start+1][fila_start].size()>0) {
-		    				if(mundo[col_start+1][fila_start].get(0).itype!=7 && mundo[col_start+1][fila_start].get(0).itype!=4 && mundo[col_start+1][fila_start].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start+2, fila_start));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start+2, fila_start));
-		    		
-		    		if(col_start-1>=0)
-		    			if(mundo[col_start-1][fila_start].size()>0) {
-		    				if(mundo[col_start-1][fila_start].get(0).itype!=7 && mundo[col_start-1][fila_start].get(0).itype!=4 && mundo[col_start-1][fila_start].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start-2, fila_start));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start-2, fila_start));
-		    		
-    			}
-    		if(col_start-1>=0 && col_start-1<ancho && fila_start-1>=0 && fila_start-1<alto)
-    			if(mundo[col_start-1][fila_start-1].size()!=0) {
-    				if(mundo[col_start-1][fila_start-1].get(0).itype!=0 && mundo[col_start-1][fila_start-1].get(0).itype!=7 && mundo[col_start-1][fila_start-1].get(0).itype!=4)
-    					posiciones.add(new Vector2di(col_start-2, fila_start-1));
-    			}
-    			else
-    				posiciones.add(new Vector2di(col_start-2, fila_start-1));
-    		if(col_start+1>=0 && col_start+1<ancho && fila_start-1>=0 && fila_start-1<alto)
-    			if(mundo[col_start+1][fila_start-1].size()!=0) {
-    				if(mundo[col_start+1][fila_start-1].get(0).itype!=0 && mundo[col_start+1][fila_start-1].get(0).itype!=7 && mundo[col_start+1][fila_start-1].get(0).itype!=7)
-    					posiciones.add(new Vector2di(col_start+2, fila_start-1));
-    			}
-    			else
-    				posiciones.add(new Vector2di(col_start+2, fila_start-1));
-    		//System.out.println("Estamos yendo hacia arriba");
-    		for(Vector2di pos : posiciones)
-    			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
-    				if(mundo[pos.x][pos.y].size()!=0) {
-    					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					//System.out.println(mundo[pos.x][pos.y].get(0).itype);
-    				}
-    		//System.out.println(hay_bicho);
-    		//System.out.println("\n\n");
+    		if(noHayMuroPiedra(col_start, fila_start-1, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start-1));
+    		if(noHayMuroPiedra(col_start-1, fila_start-1, mundo))
+    			posiciones.add(new Vector2di(col_start-1, fila_start-1));
+    		if(noHayMuroPiedra(col_start+1, fila_start-1, mundo))
+    			posiciones.add(new Vector2di(col_start+1, fila_start-1));
+    		
+    		if(noHayMuroPiedra(col_start-1, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start-1, fila_start));
+    		if(noHayMuroPiedra(col_start+1, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start+1, fila_start));
+    		
+    		//Comprobamos primero las casillas de la izquierda y derecha
+    		if(posiciones.contains(new Vector2di(col_start-1, fila_start)) && noHayMuroPiedra(col_start-2, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start-2, fila_start));
+    		if(posiciones.contains(new Vector2di(col_start+1, fila_start)) && noHayMuroPiedra(col_start+2, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start+2, fila_start));
+    		
+    		//Comprobamos ahora las casillas a izquierda y derecha a distancia 2
+    		/*if(posiciones.contains(new Vector2di(col_start-2, fila_start)) && noHayMuroPiedra(col_start-3, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start-3, fila_start));
+    		if(posiciones.contains(new Vector2di(col_start+2, fila_start)) && noHayMuroPiedra(col_start+3, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start+3, fila_start));*/
+    		
+    		//Compruebo la primera y segunda diagonal
+    		Vector2di cmenosuno_f = new Vector2di(col_start-1, fila_start);
+    		Vector2di c_fmenosuno = new Vector2di(col_start, fila_start-1);
+    		Vector2di cmenosuno_fmenosuno = new Vector2di(col_start-1, fila_start-1);
+    		Vector2di cmasuno_f = new Vector2di(col_start+1, fila_start);
+    		Vector2di cmasuno_fmenosuno = new Vector2di(col_start+1, fila_start-1);
+    		Vector2di c_fmenosdos = new Vector2di(col_start, fila_start-2);
+    		
+    		if(((posiciones.contains(cmenosuno_f) && posiciones.contains(cmenosuno_fmenosuno)) || (posiciones.contains(cmenosuno_fmenosuno) && posiciones.contains(c_fmenosuno))) && noHayMuroPiedra(col_start-2, fila_start-1, mundo))
+    			posiciones.add(new Vector2di(col_start-2, fila_start-1));
+    		if(((posiciones.contains(cmasuno_f) && posiciones.contains(cmasuno_fmenosuno)) || (posiciones.contains(cmasuno_fmenosuno) && posiciones.contains(c_fmenosuno))) && noHayMuroPiedra(col_start+2, fila_start-1, mundo))
+    			posiciones.add(new Vector2di(col_start+2, fila_start-1));
+    		
+    		//Comprobamos dos posiciones enfrente
+    		if(noHayMuroPiedra(col_start, fila_start-2, mundo) && posiciones.contains(new Vector2di(col_start, fila_start-1)))
+    			posiciones.add(new Vector2di(col_start, fila_start-2));
+ 
+    		//Comprobamos la segunda diagonal
+    		if(noHayMuroPiedra(col_start-1, fila_start-2, mundo) && ((posiciones.contains(cmenosuno_fmenosuno) && posiciones.contains(cmenosuno_f)) || (posiciones.contains(cmenosuno_fmenosuno) && posiciones.contains(c_fmenosuno)) || (posiciones.contains(c_fmenosdos) && posiciones.contains(c_fmenosuno))))
+    			posiciones.add(new Vector2di(col_start-1, fila_start-2));
+    		if(noHayMuroPiedra(col_start+1, fila_start-2, mundo) && ((posiciones.contains(cmasuno_fmenosuno) && posiciones.contains(c_fmenosuno)) || (posiciones.contains(cmasuno_fmenosuno) && posiciones.contains(cmasuno_f)) || (posiciones.contains(c_fmenosdos) && posiciones.contains(c_fmenosuno))))
+    			posiciones.add(new Vector2di(col_start+1, fila_start-2));
+    		
+    		//Comprobamos dos posiciones tres posiciones enfrente
+    		if(noHayMuroPiedra(col_start, fila_start-3, mundo) && posiciones.contains(new Vector2di(col_start, fila_start-2)))
+    			posiciones.add(new Vector2di(col_start, fila_start-3));
+    		
     	}
     	else if(accion == Types.ACTIONS.ACTION_LEFT) {
-    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(col_start-2>=0 && col_start-2<ancho)
-    			if(mundo[col_start-2][fila_start].size()>0) {
-    				if(mundo[col_start-2][fila_start].get(0).itype!=0 && mundo[col_start-2][fila_start].get(0).itype!=7) {
-			    		posiciones.add(new Vector2di(col_start-3, fila_start));
-			    		posiciones.add(new Vector2di(col_start-2, fila_start));
-			    		posiciones.add(new Vector2di(col_start-2, fila_start-1));
-			    		posiciones.add(new Vector2di(col_start-2, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start-1, fila_start));
-			    		posiciones.add(new Vector2di(col_start-1, fila_start-1));
-			    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
-			    		
-			    		posiciones.add(new Vector2di(col_start, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start, fila_start-1));
-			    		
-			    		posiciones.add(new Vector2di(col_start+1, fila_start));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start-1));
-			    		if(fila_start+1<alto)
-			    			if(mundo[col_start][fila_start+1].size()>0) {
-			    				if(mundo[col_start][fila_start+1].get(0).itype!=7 && mundo[col_start][fila_start+1].get(0).itype!=4 && mundo[col_start][fila_start+1].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start, fila_start+2));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start, fila_start+2));
-			    		
-			    		if(fila_start-1>=0)
-			    			if(mundo[col_start][fila_start-1].size()>0) {
-			    				if(mundo[col_start][fila_start-1].get(0).itype!=7 && mundo[col_start][fila_start-1].get(0).itype!=4 && mundo[col_start][fila_start-1].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start, fila_start-2));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start, fila_start-2));
-    				}
-    			}
-    			else {
-    				posiciones.add(new Vector2di(col_start-3, fila_start));
-		    		posiciones.add(new Vector2di(col_start-2, fila_start));
-		    		posiciones.add(new Vector2di(col_start-2, fila_start-1));
-		    		posiciones.add(new Vector2di(col_start-2, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start-1, fila_start));
-		    		posiciones.add(new Vector2di(col_start-1, fila_start-1));
-		    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
-		    		
-		    		posiciones.add(new Vector2di(col_start, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start, fila_start-1));
-		    		
-		    		posiciones.add(new Vector2di(col_start+1, fila_start));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start-1));
-		    		if(fila_start+1<alto)
-		    			if(mundo[col_start][fila_start+1].size()>0) {
-		    				if(mundo[col_start][fila_start+1].get(0).itype!=7 && mundo[col_start][fila_start+1].get(0).itype!=4 && mundo[col_start][fila_start+1].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start, fila_start+2));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start, fila_start+2));
-		    		
-		    		if(fila_start-1>=0)
-		    			if(mundo[col_start][fila_start-1].size()>0) {
-		    				if(mundo[col_start][fila_start-1].get(0).itype!=7 && mundo[col_start][fila_start-1].get(0).itype!=4 && mundo[col_start][fila_start-1].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start, fila_start-2));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start, fila_start-2));
-		    		
-    			}
-    		if(col_start-1>=0 && col_start-1<ancho && fila_start-1>=0 && fila_start-1<alto)
-    			if(mundo[col_start-1][fila_start-1].size()!=0) {
-    				if(mundo[col_start-1][fila_start-1].get(0).itype!=0 && mundo[col_start-1][fila_start-1].get(0).itype!=7 && mundo[col_start-1][fila_start-1].get(0).itype!=4)
-    					posiciones.add(new Vector2di(col_start-1, fila_start-2));
-    			}
-    			else
-    				posiciones.add(new Vector2di(col_start-1, fila_start-2));
-    		if(col_start-1>=0 && col_start-1<ancho && fila_start+1>=0 && fila_start+1<alto)
-    			if(mundo[col_start-1][fila_start+1].size()!=0) {
-    				if(mundo[col_start-1][fila_start+1].get(0).itype!=0 && mundo[col_start-1][fila_start+1].get(0).itype!=7 && mundo[col_start-1][fila_start+1].get(0).itype!=4)
-    					posiciones.add(new Vector2di(col_start-1, fila_start+2));
-    			}
-    			else
-    				posiciones.add(new Vector2di(col_start-1, fila_start+2));
-    		//System.out.println("Estamos yendo hacia la izquierda");
-    		for(Vector2di pos : posiciones)
-    			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
-    				if(mundo[pos.x][pos.y].size()!=0) {
-    					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					//System.out.println(mundo[pos.x][pos.y].get(0).itype);
-    				}
-    		//System.out.println(hay_bicho);
-    		//System.out.println("\n\n");
+    		if(noHayMuroPiedra(col_start-1, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start-1, fila_start));
+    		if(noHayMuroPiedra(col_start-1, fila_start-1, mundo))
+    			posiciones.add(new Vector2di(col_start-1, fila_start-1));
+    		if(noHayMuroPiedra(col_start-1, fila_start+1, mundo))
+    			posiciones.add(new Vector2di(col_start-1, fila_start+1));
+    		
+    		if(noHayMuroPiedra(col_start, fila_start-1, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start-1));
+    		if(noHayMuroPiedra(col_start, fila_start+1, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start+1));
+    		
+    		//Comprobamos primero las casillas de la izquierda y derecha
+    		if(posiciones.contains(new Vector2di(col_start, fila_start-1)) && noHayMuroPiedra(col_start, fila_start-2, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start-2));
+    		if(posiciones.contains(new Vector2di(col_start, fila_start+1)) && noHayMuroPiedra(col_start, fila_start+2, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start+2));
+    		
+    		//Comprobamos ahora las casillas a izquierda y derecha a distancia 2
+    		/*if(posiciones.contains(new Vector2di(col_start, fila_start-2)) && noHayMuroPiedra(col_start, fila_start-3, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start-3));
+    		if(posiciones.contains(new Vector2di(col_start, fila_start+2)) && noHayMuroPiedra(col_start, fila_start+3, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start+3));*/
+    		
+    		//Compruebo la primera y segunda diagonal
+    		Vector2di c_fmenosuno = new Vector2di(col_start, fila_start-1);
+    		Vector2di cmenosuno_f = new Vector2di(col_start-1, fila_start);
+    		Vector2di cmenosuno_fmenosuno = new Vector2di(col_start-1, fila_start-1);
+    		Vector2di c_fmasuno = new Vector2di(col_start, fila_start+1);
+    		Vector2di cmenosuno_fmasuno = new Vector2di(col_start-1, fila_start+1);
+    		Vector2di cmenosdos_f = new Vector2di(col_start-2, fila_start);
+    		
+    		if(((posiciones.contains(c_fmenosuno) && posiciones.contains(cmenosuno_fmenosuno)) || (posiciones.contains(cmenosuno_fmenosuno) && posiciones.contains(cmenosuno_f))) && noHayMuroPiedra(col_start-1, fila_start-2, mundo))
+    			posiciones.add(new Vector2di(col_start-1, fila_start-2));
+    		if(((posiciones.contains(c_fmasuno) && posiciones.contains(cmenosuno_fmasuno)) || (posiciones.contains(cmenosuno_fmasuno) && posiciones.contains(cmenosuno_f))) && noHayMuroPiedra(col_start-1, fila_start+2, mundo))
+    			posiciones.add(new Vector2di(col_start-1, fila_start+2));
+    		
+    		//Comprobamos dos posiciones enfrente
+    		if(noHayMuroPiedra(col_start-2, fila_start, mundo) && posiciones.contains(new Vector2di(col_start-1, fila_start)))
+    			posiciones.add(new Vector2di(col_start-2, fila_start));
+ 
+    		//Comprobamos la segunda diagonal
+    		if(noHayMuroPiedra(col_start-2, fila_start-1, mundo) && ((posiciones.contains(cmenosuno_fmenosuno) && posiciones.contains(c_fmenosuno)) || (posiciones.contains(cmenosuno_fmenosuno) && posiciones.contains(cmenosuno_f)) || (posiciones.contains(cmenosdos_f) && posiciones.contains(cmenosuno_f))))
+    			posiciones.add(new Vector2di(col_start-2, fila_start-1));
+    		if(noHayMuroPiedra(col_start-2, fila_start+1, mundo) && ((posiciones.contains(cmenosuno_fmasuno) && posiciones.contains(cmenosuno_f)) || (posiciones.contains(cmenosuno_fmasuno) && posiciones.contains(c_fmasuno)) || (posiciones.contains(cmenosdos_f) && posiciones.contains(cmenosuno_f))))
+    			posiciones.add(new Vector2di(col_start-2, fila_start+1));
+    		
+    		//Comprobamos dos posiciones tres posiciones enfrente
+    		if(noHayMuroPiedra(col_start-3, fila_start, mundo) && posiciones.contains(new Vector2di(col_start-2, fila_start)))
+    			posiciones.add(new Vector2di(col_start-3, fila_start));
     	}
     	else if(accion == Types.ACTIONS.ACTION_RIGHT) {
-    		ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
-    		if(col_start+2>=0 && col_start+2<ancho)
-    			if(mundo[col_start+2][fila_start].size()>0) {
-    				if(mundo[col_start+2][fila_start].get(0).itype!=0 && mundo[col_start+2][fila_start].get(0).itype!=7) {
-			    		posiciones.add(new Vector2di(col_start+3, fila_start));
-			    		posiciones.add(new Vector2di(col_start+2, fila_start));
-			    		posiciones.add(new Vector2di(col_start+2, fila_start-1));
-			    		posiciones.add(new Vector2di(col_start+2, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start-1));
-			    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-			    		
-			    		posiciones.add(new Vector2di(col_start, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start, fila_start-1));
-			    		
-			    		posiciones.add(new Vector2di(col_start-1, fila_start));
-			    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
-			    		posiciones.add(new Vector2di(col_start-1, fila_start-1));
-			    		if(fila_start+1<alto)
-			    			if(mundo[col_start][fila_start+1].size()>0) {
-			    				if(mundo[col_start][fila_start+1].get(0).itype!=7 && mundo[col_start][fila_start+1].get(0).itype!=4 && mundo[col_start][fila_start+1].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start, fila_start+2));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start, fila_start+2));
-			    		
-			    		if(fila_start-1>=0)
-			    			if(mundo[col_start][fila_start-1].size()>0) {
-			    				if(mundo[col_start][fila_start-1].get(0).itype!=7 && mundo[col_start][fila_start-1].get(0).itype!=4 && mundo[col_start][fila_start-1].get(0).itype!=0)
-			    					posiciones.add(new Vector2di(col_start, fila_start-2));
-			    			}
-			    			else
-			    				posiciones.add(new Vector2di(col_start, fila_start-2));
-			    		
-    				}
-    			}
-    			else {
-    				posiciones.add(new Vector2di(col_start+3, fila_start));
-		    		posiciones.add(new Vector2di(col_start+2, fila_start));
-		    		posiciones.add(new Vector2di(col_start+2, fila_start-1));
-		    		posiciones.add(new Vector2di(col_start+2, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start-1));
-		    		posiciones.add(new Vector2di(col_start+1, fila_start+1));
-		    		
-		    		posiciones.add(new Vector2di(col_start, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start, fila_start-1));
-		    		
-		    		posiciones.add(new Vector2di(col_start-1, fila_start));
-		    		posiciones.add(new Vector2di(col_start-1, fila_start+1));
-		    		posiciones.add(new Vector2di(col_start-1, fila_start-1));
-		    		if(fila_start+1<alto)
-		    			if(mundo[col_start][fila_start+1].size()>0) {
-		    				if(mundo[col_start][fila_start+1].get(0).itype!=7 && mundo[col_start][fila_start+1].get(0).itype!=4 && mundo[col_start][fila_start+1].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start, fila_start+2));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start, fila_start+2));
-		    		
-		    		if(fila_start-1>=0)
-		    			if(mundo[col_start][fila_start-1].size()>0) {
-		    				if(mundo[col_start][fila_start-1].get(0).itype!=7 && mundo[col_start][fila_start-1].get(0).itype!=4 && mundo[col_start][fila_start-1].get(0).itype!=0)
-		    					posiciones.add(new Vector2di(col_start, fila_start-2));
-		    			}
-		    			else
-		    				posiciones.add(new Vector2di(col_start, fila_start-2));
-		    	
-    			}
-    		if(col_start+1>=0 && col_start+1<ancho && fila_start-1>=0 && fila_start-1<alto)
-    			if(mundo[col_start+1][fila_start-1].size()!=0) {
-    				if(mundo[col_start+1][fila_start-1].get(0).itype!=0 && mundo[col_start+1][fila_start-1].get(0).itype!=7 && mundo[col_start+1][fila_start-1].get(0).itype!=4)
-    					posiciones.add(new Vector2di(col_start+1, fila_start-2));
-    			}
-    			else
-    				posiciones.add(new Vector2di(col_start+1, fila_start-2));
-    		if(col_start+1>=0 && col_start+1<ancho && fila_start+1>=0 && fila_start+1<alto)
-    			if(mundo[col_start+1][fila_start+1].size()!=0) {
-    				if(mundo[col_start+1][fila_start+1].get(0).itype!=0 && mundo[col_start+1][fila_start+1].get(0).itype!=7 && mundo[col_start+1][fila_start+1].get(0).itype!=4)
-    					posiciones.add(new Vector2di(col_start+1, fila_start+2));
-    			}
-    			else
-    				posiciones.add(new Vector2di(col_start+1, fila_start+2));
-    		//System.out.println("Estamos yendo hacia la derecha");
-    		for(Vector2di pos : posiciones)
-    			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
-    				if(mundo[pos.x][pos.y].size()!=0) {
-    					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
-    					//System.out.println(mundo[pos.x][pos.y].get(0).itype);
-    				}
-    		//System.out.println(hay_bicho);
-    		//System.out.println("\n\n");
+    		if(noHayMuroPiedra(col_start+1, fila_start, mundo))
+    			posiciones.add(new Vector2di(col_start+1, fila_start));
+    		if(noHayMuroPiedra(col_start+1, fila_start-1, mundo))
+    			posiciones.add(new Vector2di(col_start+1, fila_start-1));
+    		if(noHayMuroPiedra(col_start+1, fila_start+1, mundo))
+    			posiciones.add(new Vector2di(col_start+1, fila_start+1));
+    		
+    		if(noHayMuroPiedra(col_start, fila_start-1, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start-1));
+    		if(noHayMuroPiedra(col_start, fila_start+1, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start+1));
+    		
+    		//Comprobamos primero las casillas de la izquierda y derecha
+    		if(posiciones.contains(new Vector2di(col_start, fila_start-1)) && noHayMuroPiedra(col_start, fila_start-2, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start-2));
+    		if(posiciones.contains(new Vector2di(col_start, fila_start+1)) && noHayMuroPiedra(col_start, fila_start+2, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start+2));
+    		
+    		//Comprobamos ahora las casillas a izquierda y derecha a distancia 2
+    		/*if(posiciones.contains(new Vector2di(col_start, fila_start-2)) && noHayMuroPiedra(col_start, fila_start-3, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start-3));
+    		if(posiciones.contains(new Vector2di(col_start, fila_start+2)) && noHayMuroPiedra(col_start, fila_start+3, mundo))
+    			posiciones.add(new Vector2di(col_start, fila_start+3));*/
+    		
+    		//Compruebo la primera y segunda diagonal
+    		Vector2di c_fmenosuno = new Vector2di(col_start, fila_start-1);
+    		Vector2di cmasuno_f = new Vector2di(col_start+1, fila_start);
+    		Vector2di cmasuno_fmenosuno = new Vector2di(col_start+1, fila_start-1);
+    		Vector2di c_fmasuno = new Vector2di(col_start, fila_start+1);
+    		Vector2di cmasuno_fmasuno = new Vector2di(col_start+1, fila_start+1);
+    		Vector2di cmasdos_f = new Vector2di(col_start+2, fila_start);
+    		
+    		if(((posiciones.contains(c_fmenosuno) && posiciones.contains(cmasuno_fmenosuno)) || (posiciones.contains(cmasuno_fmenosuno) && posiciones.contains(cmasuno_f))) && noHayMuroPiedra(col_start+1, fila_start-2, mundo))
+    			posiciones.add(new Vector2di(col_start+1, fila_start-2));
+    		if(((posiciones.contains(c_fmasuno) && posiciones.contains(cmasuno_fmasuno)) || (posiciones.contains(cmasuno_fmasuno) && posiciones.contains(cmasuno_f))) && noHayMuroPiedra(col_start+1, fila_start+2, mundo))
+    			posiciones.add(new Vector2di(col_start+1, fila_start+2));
+    		
+    		//Comprobamos dos posiciones enfrente
+    		if(noHayMuroPiedra(col_start+2, fila_start, mundo) && posiciones.contains(new Vector2di(col_start+1, fila_start)))
+    			posiciones.add(new Vector2di(col_start+2, fila_start));
+ 
+    		//Comprobamos la segunda diagonal
+    		if(noHayMuroPiedra(col_start+2, fila_start-1, mundo) && ((posiciones.contains(cmasuno_fmenosuno) && posiciones.contains(c_fmenosuno)) || (posiciones.contains(cmasuno_fmenosuno) && posiciones.contains(cmasuno_f)) || (posiciones.contains(cmasdos_f) && posiciones.contains(cmasuno_f))))
+    			posiciones.add(new Vector2di(col_start+2, fila_start-1));
+    		if(noHayMuroPiedra(col_start+2, fila_start+1, mundo) && ((posiciones.contains(cmasuno_fmasuno) && posiciones.contains(cmasuno_f)) || (posiciones.contains(cmasuno_fmasuno) && posiciones.contains(c_fmasuno)) || (posiciones.contains(cmasdos_f) && posiciones.contains(cmasuno_f))))
+    			posiciones.add(new Vector2di(col_start+2, fila_start+1));
+    		
+    		//Comprobamos dos posiciones tres posiciones enfrente
+    		if(noHayMuroPiedra(col_start+3, fila_start, mundo) && posiciones.contains(new Vector2di(col_start+2, fila_start)))
+    			posiciones.add(new Vector2di(col_start+3, fila_start));
     	}
+    	
+    	for(Vector2di pos : posiciones)
+			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
+				if(mundo[pos.x][pos.y].size()!=0) {
+					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
+				}
     	
     	return hay_bicho;
     	//return false;
     }
-	/*
-	private boolean hayBarrera(int col1, int fil1, int col2, int fil2, StateObservation obs) {
-		ArrayList<Observation>[][] mundo = obs.getObservationGrid();
-		if(fil1 != fil2) {
-			if(Math.abs(fil2 - fil1) == 2)
-				if(mundo[col1][(int)(fil2+fil1)/2].size() > 0)
-					return (mundo[col1][(int)(fil2+fil1)/2].get(0).itype == 0 /*|| (mundo[col1][(fil2+fil1)/2].get(0).itype == 4 && mundo[col2][(fil2+fil1)/2].get(0).itype == 4)*///);
-				/*else
-					return false;
-			else if(Math.abs(fil2 - fil1) > 2)
-				return true;
-			else
-				return false;
-		}
-		else {
-			if(Math.abs(col2-col1) == 2)
-				if(mundo[col1][(int)(fil2+fil1)/2].size() > 0)
-					return (mundo[fil1][(int)(col2+col1)/2].get(0).itype == 0 /*|| (mundo[fil1][(col2+col1)/2].get(0).itype == 4 && mundo[fil2][(col2+col1)/2].get(0).itype == 4)*///);
-				/*else
-					return false;
-			else if(Math.abs(col2-col1) > 2)
-				return true;
-			else 
-				return false;
-		}
-	}*/
 
 
 }

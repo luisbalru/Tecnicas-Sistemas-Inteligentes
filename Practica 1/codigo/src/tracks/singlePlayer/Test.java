@@ -38,7 +38,7 @@ public class Test {
 
 		// Game and level to play
 		int gameIdx = 11;//11
-		int levelIdx = 0; // level names from 0 to 4 (game_lvlN.txt).
+		int levelIdx = 1; // level names from 0 to 4 (game_lvlN.txt).
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
 		String level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);
@@ -70,7 +70,7 @@ public class Test {
 
 		//5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).
 		
-		int L = 5, M = 3;
+		int L = 5, M = 5;
 		boolean saveActions = false;
 		String[] levels = new String[L];
 		String[] actionFiles = new String[L*M];

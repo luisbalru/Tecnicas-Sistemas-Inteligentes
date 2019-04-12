@@ -3,7 +3,6 @@ package AguileraBalderas;
 public class Gema {
 	Vector2di coordenadas;
 	int distancia_actual;
-	boolean mira_piedras;
 	
 	public Gema() {
 		this.coordenadas = new Vector2di(-1,-1);

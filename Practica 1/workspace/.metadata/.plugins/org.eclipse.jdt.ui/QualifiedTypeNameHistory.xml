@@ -24,14 +24,16 @@
     <fullyQualifiedTypeName name="java.lang.System"/>
     <fullyQualifiedTypeName name="com.sun.org.apache.xpath.internal.operations.Equals"/>
     <fullyQualifiedTypeName name="java.util.PriorityQueue"/>
-    <fullyQualifiedTypeName name="core.game.Observation"/>
     <fullyQualifiedTypeName name="java.util.Vector"/>
     <fullyQualifiedTypeName name="java.sql.Array"/>
     <fullyQualifiedTypeName name="AguileraBalderas.Nodo"/>
-    <fullyQualifiedTypeName name="ontology.Types.ACTIONS"/>
-    <fullyQualifiedTypeName name="AguileraBalderas.Vector2di"/>
     <fullyQualifiedTypeName name="AguileraBalderas.Agent"/>
-    <fullyQualifiedTypeName name="java.lang.Integer"/>
-    <fullyQualifiedTypeName name="tools.Vector2d"/>
+    <fullyQualifiedTypeName name="java.lang.Boolean"/>
+    <fullyQualifiedTypeName name="ontology.Types.WINNER"/>
     <fullyQualifiedTypeName name="java.util.ArrayList"/>
+    <fullyQualifiedTypeName name="java.lang.Integer"/>
+    <fullyQualifiedTypeName name="ontology.Types.ACTIONS"/>
+    <fullyQualifiedTypeName name="core.game.Observation"/>
+    <fullyQualifiedTypeName name="tools.Vector2d"/>
+    <fullyQualifiedTypeName name="AguileraBalderas.Vector2di"/>
 </qualifiedTypeNameHistroy>

@@ -124,7 +124,7 @@ public class AEstrella {
 	 * @param timer Objeto de tipo {@link ElapsedCpuTimer} para controlar el tiempo transcurrido
 	 * @return
 	 */
-	public List<Nodo> buscaCamino(ElapsedCpuTimer timer, boolean notime, boolean mira_piedras){
+	public List<Nodo> buscaCamino(ElapsedCpuTimer timer, boolean notime){
 		//Inicializamos el camino, los abiertos y el mejor nodo.
 		List<Nodo> path = new ArrayList<Nodo>();
 		mejor_nodo = nodo_inicial;
@@ -142,7 +142,7 @@ public class AEstrella {
 			// Si el nodo sacado es el objetivo
 			if(nodo_actual.equals(nodo_objetivo)) {
 				// Reconstruimos el camino y lo devolvemos
-				while(nodo_actual!=null && !nodo_actual.equals(nodo_inicial)) {
+				while(!nodo_actual.equals(nodo_inicial)) {
 					path.add(nodo_actual);
 					nodo_actual = nodo_actual.padre;
 				}
@@ -156,7 +156,7 @@ public class AEstrella {
 			// Para cada vecino
 			for(int i=0; i < vecinos.size(); i++) {
 				//Comprobamos si es accesible
-				boolean accesible = isAccesible(mundo,vecinos.get(i), notime, mira_piedras);
+				boolean accesible = isAccesible(mundo,vecinos.get(i), notime);
 				if(accesible) {
 					// Actualizamos su padre, el coste y la f.
 					vecinos.get(i).padre = nodo_actual;
@@ -184,7 +184,7 @@ public class AEstrella {
 			cerrados.add(nodo_actual);
 		}
 		// Si no hemos encontrado el camino hasta el nodo objetivo reconstruimos el camino hasta el mejor nodo que hemos sacado
-		while(mejor_nodo!=null && !mejor_nodo.equals(nodo_inicial)) {
+		while(!mejor_nodo.equals(nodo_inicial)) {
 			path.add(mejor_nodo);
 			mejor_nodo = mejor_nodo.padre;
 		}
@@ -200,7 +200,7 @@ public class AEstrella {
 	 * @param nodo Nodo que queremos comprobar si es accesible
 	 * @return Devuelve un booleano indicando si el nodo es accesible
 	 */
-	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo, boolean constructor, boolean mira_piedras) {
+	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo, boolean constructor) {
 		int fila = nodo.fila;
 		int columna = nodo.columna;
 		// Si el nodo está vacío es accesible
@@ -215,27 +215,24 @@ public class AEstrella {
 			// Comprueba si la casilla tiene una piedra encima
 			boolean piedra_arriba = false;
 			if(fila>0 && mundo[columna][fila-1].size()>0)
-				if(!mira_piedras)
-					piedra_arriba = mundo[columna][fila-1].get(0).itype==7 && nodo.padre.fila==fila+1;
-				else
-					piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
+				piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
 			// Comprueba si hay un monstruo arriba, abajo, a la izquierda o a la derecha
-			boolean monstruo_alrededores = false;
-			if(fila-1>0)
+			/*boolean monstruo_alrededores = false;
+			if(fila-1>=0)
 				if(mundo[columna][fila-1].size()>0)
 					monstruo_alrededores = monstruo_alrededores || mundo[columna][fila-1].get(0).itype==11 || mundo[columna][fila-1].get(0).itype==10;
 			if(fila+1<alto)
 				if(mundo[columna][fila+1].size()>0)
 					monstruo_alrededores = monstruo_alrededores || mundo[columna][fila+1].get(0).itype==11 || mundo[columna][fila+1].get(0).itype==10;
-			if(columna-1>0)
+			if(columna-1>=0)
 				if(mundo[columna-1][fila].size()>0)
 					monstruo_alrededores = monstruo_alrededores || mundo[columna-1][fila].get(0).itype==11 || mundo[columna-1][fila].get(0).itype==10;
 			if(columna+1<ancho)
 				if(mundo[columna+1][fila].size()>0)
-					monstruo_alrededores = monstruo_alrededores || mundo[columna+1][fila].get(0).itype==11 || mundo[columna+1][fila].get(0).itype==10;
+					monstruo_alrededores = monstruo_alrededores || mundo[columna+1][fila].get(0).itype==11 || mundo[columna+1][fila].get(0).itype==10;*/
 			// Si no hay un bicho ni un muro ni una piedra ni una piedra encima entonces es una casilla accesible
 			boolean condicion;
-			condicion = !bicho && !muro && !piedra && !piedra_arriba /*&& !monstruo_alrededores*/;
+			condicion = !bicho && !muro && !piedra && !piedra_arriba;
 			return condicion;
 		}
 		return true;

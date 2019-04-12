@@ -97,5 +97,10 @@ public class Vector2di {
 	public String toString() {
         return x + " : " + y;
     }
+    
+    @Override
+	public int hashCode() {
+		return Double.valueOf((this.x/Math.exp(this.y))).hashCode();
+	}
 
 }
