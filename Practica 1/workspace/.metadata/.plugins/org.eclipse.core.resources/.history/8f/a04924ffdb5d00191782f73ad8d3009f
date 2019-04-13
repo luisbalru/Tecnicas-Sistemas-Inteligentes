@@ -259,7 +259,7 @@ public class Agent extends AbstractPlayer {
     		}
     	}
     	if(lista_acciones.size()>0) {
-    		if(this.escapando && hayPeligroBicho(stateObs, lista_acciones) && !this.escapando_reactivo) {
+    		if(this.escapando && hayPeligroBicho(stateObs, lista_acciones) && !this.escapando_reactivo && !this.acabado) {
     			this.escapando_reactivo = true;
     			System.out.println("Escapando reactivo");
     			lista_acciones = escapaReactivo(stateObs, lista_acciones);

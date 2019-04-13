@@ -78,7 +78,6 @@ public class Agent extends AbstractPlayer {
     boolean escapando;
     
     int veces_escapadas;
-    boolean escapando_reactivo;
     
     int bloqueado = 0;
     Gema gema_objetivo = null;
@@ -90,7 +89,6 @@ public class Agent extends AbstractPlayer {
 	}
     
     public Agent(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
-    	this.escapando_reactivo=false;
     	veces_escapadas=0;
     	escapando=false;
     	acabado = false;
@@ -237,7 +235,6 @@ public class Agent extends AbstractPlayer {
     			acabado=true;
     	
     	if(lista_acciones.size()==0) {
-    		this.escapando_reactivo=false;
     		resolutor.reset();
     		escapando=false;
     	}
@@ -248,10 +245,10 @@ public class Agent extends AbstractPlayer {
     	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0) {
     		if(col_start != lista_gemas_faciles.get(0).coordenadas.x || fila_start != lista_gemas_faciles.get(0).coordenadas.y) {    		
     			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles.get(0).coordenadas.x, lista_gemas_faciles.get(0).coordenadas.y,elapsedTimer,false);
-    			/*if(lista_acciones.size()==1 && lista_acciones.get(0)==Types.ACTIONS.ACTION_NIL)
+    			if(lista_acciones.size()==1 && lista_acciones.get(0)==Types.ACTIONS.ACTION_NIL)
     				lista_acciones.remove(0);
     				stateObs.advance(Types.ACTIONS.ACTION_NIL);
-    				return Types.ACTIONS.ACTION_NIL;*/
+    				return Types.ACTIONS.ACTION_NIL;
     		}
     		else {
     			lista_gemas_faciles.remove(0);
@@ -259,13 +256,11 @@ public class Agent extends AbstractPlayer {
     		}
     	}
     	if(lista_acciones.size()>0) {
-    		if(this.escapando && hayPeligroBicho(stateObs, lista_acciones) && !this.escapando_reactivo) {
-    			this.escapando_reactivo = true;
+    		if(this.escapando && hayPeligroBicho(stateObs, lista_acciones)) {
     			System.out.println("Escapando reactivo");
     			lista_acciones = escapaReactivo(stateObs, lista_acciones);
-    			System.out.println(lista_acciones);
     		}
-    		else if(hayPeligroBicho(stateObs, lista_acciones) && !this.acabado) {
+    		else if(hayPeligroBicho(stateObs, lista_acciones)) {
     			System.out.println("Escapando plafinicado");
     			escapando=true;
     			lista_acciones = esquivaBicho(stateObs,lista_acciones, elapsedTimer);
@@ -293,10 +288,8 @@ public class Agent extends AbstractPlayer {
     	
     	if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_LEFT) {
 			if(obs.getAvatarOrientation().x==1.0) {
-				if(isAccesible(mundo, col_start+1, fila_start)) {
+				if(isAccesible(mundo, col_start+1, fila_start))
 					lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
-					lista_acciones.add(0,Types.ACTIONS.ACTION_RIGHT);
-				}
 				else if(isAccesible(mundo, col_start, fila_start+1)) {
 					lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
 					lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
@@ -323,10 +316,8 @@ public class Agent extends AbstractPlayer {
     	}
 		else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_RIGHT) {
 			if(obs.getAvatarOrientation().x==-1.0) {
-				if(isAccesible(mundo, col_start-1, fila_start)) {
-					lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
-					lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
-				}
+				if(isAccesible(mundo, col_start-1, fila_start))
+					lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);	
 				else if(isAccesible(mundo, col_start, fila_start-1)) {
 					lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
 					lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
@@ -353,10 +344,8 @@ public class Agent extends AbstractPlayer {
 		}
 		else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_UP) {
 			if(obs.getAvatarOrientation().y==1.0) {
-				if(isAccesible(mundo, col_start, fila_start+1)) {
+				if(isAccesible(mundo, col_start, fila_start+1))
 					lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
-					lista_acciones.add(0,Types.ACTIONS.ACTION_DOWN);
-				}
 				else if(isAccesible(mundo, col_start-1, fila_start)) {
 					lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 					lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
@@ -384,10 +373,8 @@ public class Agent extends AbstractPlayer {
 		else {
 		//else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_DOWN) {
 			if(obs.getAvatarOrientation().y==-1.0) {
-				if(isAccesible(mundo, col_start, fila_start-1)) {
+				if(isAccesible(mundo, col_start, fila_start-1))
 					lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
-					lista_acciones.add(0,Types.ACTIONS.ACTION_UP);
-				}
 				else if(isAccesible(mundo, col_start-1, fila_start)) {
 					lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
 					lista_acciones.add(0,Types.ACTIONS.ACTION_LEFT);
@@ -412,32 +399,6 @@ public class Agent extends AbstractPlayer {
 				}
 			}
 		}
-    	if(lista_acciones.size()>0) {
-    	if(lista_acciones.get(0)==Types.ACTIONS.ACTION_RIGHT){
-    		if(isAccesible(mundo, col_start+1, fila_start-1)) {
-	    		lista_acciones.add(Types.ACTIONS.ACTION_UP);
-	    		lista_acciones.add(Types.ACTIONS.ACTION_UP);
-    		}
-    	}
-    	else if(lista_acciones.get(0)==Types.ACTIONS.ACTION_UP) {
-    		if(isAccesible(mundo, col_start-1, fila_start-1)) {
-    			lista_acciones.add(Types.ACTIONS.ACTION_LEFT);
-    			lista_acciones.add(Types.ACTIONS.ACTION_LEFT);
-    		}
-    	}
-    	else if(lista_acciones.get(0)==Types.ACTIONS.ACTION_LEFT) {
-    		if(isAccesible(mundo, col_start-1, fila_start+1)) {
-				lista_acciones.add(Types.ACTIONS.ACTION_DOWN);
-				lista_acciones.add(Types.ACTIONS.ACTION_DOWN);
-    		}
-	    }
-    	else {
-	    	if(isAccesible(mundo, col_start+1, fila_start-1)) {	
-	    		lista_acciones.add(Types.ACTIONS.ACTION_RIGHT);
-	    		lista_acciones.add(Types.ACTIONS.ACTION_RIGHT);
-	    	}
-    	}
-    	}
 		return lista_acciones;
 	}
 
@@ -563,9 +524,6 @@ public class Agent extends AbstractPlayer {
     	Types.ACTIONS accion = lista_acciones.get(0);
     	if(accion == Types.ACTIONS.ACTION_DOWN) {
     		
-    		if(noHayMuroPiedra(col_start, fila_start-1, mundo))
-    			posiciones.add(new Vector2di(col_start, fila_start-1));
-    		
     		if(noHayMuroPiedra(col_start, fila_start+1, mundo))
     			posiciones.add(new Vector2di(col_start, fila_start+1));
     		if(noHayMuroPiedra(col_start-1, fila_start+1, mundo))
@@ -619,9 +577,6 @@ public class Agent extends AbstractPlayer {
     		
     	}
     	else if(accion == Types.ACTIONS.ACTION_UP) {
-    		if(noHayMuroPiedra(col_start, fila_start+1, mundo))
-    			posiciones.add(new Vector2di(col_start, fila_start+1));
-    		
     		if(noHayMuroPiedra(col_start, fila_start-1, mundo))
     			posiciones.add(new Vector2di(col_start, fila_start-1));
     		if(noHayMuroPiedra(col_start-1, fila_start-1, mundo))
@@ -675,9 +630,6 @@ public class Agent extends AbstractPlayer {
     		
     	}
     	else if(accion == Types.ACTIONS.ACTION_LEFT) {
-    		if(noHayMuroPiedra(col_start+1, fila_start, mundo))
-    			posiciones.add(new Vector2di(col_start+1, fila_start));
-    		
     		if(noHayMuroPiedra(col_start-1, fila_start, mundo))
     			posiciones.add(new Vector2di(col_start-1, fila_start));
     		if(noHayMuroPiedra(col_start-1, fila_start-1, mundo))
@@ -730,9 +682,6 @@ public class Agent extends AbstractPlayer {
     			posiciones.add(new Vector2di(col_start-3, fila_start));
     	}
     	else if(accion == Types.ACTIONS.ACTION_RIGHT) {
-    		if(noHayMuroPiedra(col_start-1, fila_start, mundo))
-    			posiciones.add(new Vector2di(col_start-1, fila_start));
-    		
     		if(noHayMuroPiedra(col_start+1, fila_start, mundo))
     			posiciones.add(new Vector2di(col_start+1, fila_start));
     		if(noHayMuroPiedra(col_start+1, fila_start-1, mundo))

@@ -4,7 +4,6 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Random;
 
 import core.vgdl.VGDLFactory;
@@ -514,7 +513,6 @@ public class ArcadeMachine {
 	    
 	    niveles_pasados.add(pasados.contains(true));
 	    System.out.println(pasados);
-	    System.out.println("Nos hemos pasado: " + java.util.Collections.frequency(pasados, true));
 	    System.out.println("\n\n");
 	}
 

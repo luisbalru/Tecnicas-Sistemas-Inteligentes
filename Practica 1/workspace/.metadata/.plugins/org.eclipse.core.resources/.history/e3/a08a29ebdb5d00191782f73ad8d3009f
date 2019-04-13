@@ -265,7 +265,7 @@ public class Agent extends AbstractPlayer {
     			lista_acciones = escapaReactivo(stateObs, lista_acciones);
     			System.out.println(lista_acciones);
     		}
-    		else if(hayPeligroBicho(stateObs, lista_acciones) && !this.acabado) {
+    		else if(hayPeligroBicho(stateObs, lista_acciones)) {
     			System.out.println("Escapando plafinicado");
     			escapando=true;
     			lista_acciones = esquivaBicho(stateObs,lista_acciones, elapsedTimer);
