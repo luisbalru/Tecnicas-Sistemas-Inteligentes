@@ -36,6 +36,8 @@ public class AEstrella {
 	// Mejor nodo en cada momento del A*
 	Nodo mejor_nodo;
 	
+	HashSet<Vector2di> contornos_bichos;
+	
 	/**
 	 * Constructor de la clase AEstrella
 	 * @param start Nodo de inicio
@@ -45,6 +47,7 @@ public class AEstrella {
 	 * @param alto Alto del mundo
 	 */
 	public AEstrella(int ancho, int alto) {
+		this.contornos_bichos = new HashSet<Vector2di>();
 		this.ancho = ancho;
 		this.alto = alto;
 		this.cerrados = new HashSet<Nodo>();
@@ -206,6 +209,8 @@ public class AEstrella {
 		// Si el nodo está vacío es accesible
 		boolean vacio = mundo[columna][fila].size()==0;
 		if(!vacio) {
+			//Esta en el contorno de un bicho
+			boolean contorno_bicho = contornos_bichos.contains(new Vector2di(columna, fila));
 			// Comprueba si hay un bicho
 			boolean bicho = mundo[columna][fila].get(0).itype==11 || mundo[columna][fila].get(0).itype==10;
 			// Comprueba si hay un muro
@@ -232,7 +237,7 @@ public class AEstrella {
 					monstruo_alrededores = monstruo_alrededores || mundo[columna+1][fila].get(0).itype==11 || mundo[columna+1][fila].get(0).itype==10;*/
 			// Si no hay un bicho ni un muro ni una piedra ni una piedra encima entonces es una casilla accesible
 			boolean condicion;
-			condicion = !bicho && !muro && !piedra && !piedra_arriba;
+			condicion = !bicho && !muro && !piedra && !piedra_arriba && !contorno_bicho;
 			return condicion;
 		}
 		return true;

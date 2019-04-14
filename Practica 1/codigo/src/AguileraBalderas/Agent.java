@@ -53,8 +53,34 @@ import AguileraBalderas.ResolutorTareas;
 
 import javax.swing.*;
 
+
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.Image;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.RenderingHints.Key;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ImageObserver;
+import java.awt.image.RenderedImage;
+import java.awt.image.renderable.RenderableImage;
+import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public class Agent extends AbstractPlayer {
 	//Factores de escala para conversión del mundo
@@ -101,13 +127,25 @@ public class Agent extends AbstractPlayer {
     //Gema objetivo, se usa para ver si llevamos mucho tiempo yendo a por la misma gema.
     Gema gema_objetivo = null;
     
-        
+    //Set de posiciones que no se pueden tocar porque hay bichos
+    HashSet<Vector2di> contornos_bichos;
+    
+    StateObservation obs_draw;
+    
+    boolean primer_act = false;
+            
     
     private int distanciaManhattan(int fila1, int col1, int fila2, int col2) {
 		return Math.abs(fila1-fila2) + Math.abs(col1 - col2);
 	}
     
     public Agent(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+    	this.primer_act=true;
+    	for(int i = 0; i<100 ; ++i)
+    		stateObs.advance(Types.ACTIONS.ACTION_NIL);
+    	
+    	this.contornos_bichos = new HashSet<Vector2di>();
+    	
     	this.escapando_reactivo=false;
     	veces_escapadas=0;
     	escapando=false;
@@ -118,11 +156,14 @@ public class Agent extends AbstractPlayer {
         this.fescalaX = stateObs.getWorldDimension().width / stateObs.getObservationGrid().length;
         this.fescalaY = stateObs.getWorldDimension().height / stateObs.getObservationGrid()[0].length;
         
-        lista_gemas_faciles = new ArrayList<Gema>();
-        lista_gemas_faciles = obtenListaGemasFaciles(stateObs,elapsedTimer);
-        gema_objetivo = lista_gemas_faciles.get(0);
+        resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getObservationGrid().length, stateObs.getObservationGrid()[0].length,stateObs, this.fescalaX, this.fescalaY);        
+        this.contornos_bichos = resolutor.obtenRegionesBichos(stateObs);
+        resolutor.reset();
+        resolutor.setParametros(stateObs, this.contornos_bichos);
         
-        resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getObservationGrid().length, stateObs.getObservationGrid()[0].length,stateObs, this.fescalaX, this.fescalaY);
+        lista_gemas_faciles = new ArrayList<Gema>();
+        lista_gemas_faciles = obtenListaGemasFacilesSinBichos(stateObs,elapsedTimer);
+        gema_objetivo = lista_gemas_faciles.get(0);
         
         ancho = stateObs.getObservationGrid().length;
         alto = stateObs.getObservationGrid()[0].length;
@@ -133,7 +174,7 @@ public class Agent extends AbstractPlayer {
         for(int i=0; i < ancho;++i)
         	for(int j = 0; j < alto; j++) {
         		resolutor.reset();
-        		resolutor.setParametros(stateObs);
+        		resolutor.setParametros(stateObs, this.contornos_bichos);
         		if(isAccesible(mundo, i, j)) {
 	        		if(resolutor.obtenCamino(i, j, elapsedTimer, true).get(0)!=Types.ACTIONS.ACTION_NIL)
 	        			posiciones_accesibles.add(new Vector2di(i,j));
@@ -156,10 +197,19 @@ public class Agent extends AbstractPlayer {
                 
         tercer_punto_col = max_dist.x;
         tercer_punto_fila = max_dist.y;
+        
+        this.obs_draw = stateObs;
+    }
+    
+    @Override
+    public void draw(Graphics2D g) {
+    	Debugger deb = new Debugger(this.obs_draw);
+    	for(Vector2di v : this.contornos_bichos)
+    		deb.drawCell(g, Color.red, v);
     }
 
 
-    private ArrayList<Gema> obtenListaGemasFaciles(StateObservation stateObs, ElapsedCpuTimer timer) {
+    private ArrayList<Gema> obtenListaGemasFacilesSinBichos(StateObservation stateObs, ElapsedCpuTimer timer) {
     	int col_actual = (int) Math.round(stateObs.getAvatarPosition().x / this.fescalaX);
     	int fila_actual = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
     	ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
@@ -172,14 +222,15 @@ public class Agent extends AbstractPlayer {
 			Gema gema = new Gema();
 			gema.coordenadas.x = (int) Math.round(o.position.x / fescalaX);
 			gema.coordenadas.y = (int) Math.round(o.position.y / fescalaY);
-			gemas.add(gema);
+			if(!contornos_bichos.contains(gema.coordenadas))
+				gemas.add(gema);
 		}
 		ArrayList<Gema> gemas9 = new ArrayList<Gema>();
 		while(gemas.size()>0) {
 			gemas_faciles = new ArrayList<Gema>();
 			for(Gema gema : gemas) {
 				resolutor_aux.reset();
-				resolutor_aux.setParametros(stateObs);
+				resolutor_aux.setParametros(stateObs, this.contornos_bichos);
 				for(int j = 0; j < 20; j++) {
 					if(resolutor_aux.obtenCamino2(col_actual,fila_actual,gema.coordenadas.x, gema.coordenadas.y, timer,true).get(0)!=Types.ACTIONS.ACTION_NIL) {
 						gema.distancia_actual = resolutor_aux.cantidad_pasos;
@@ -207,11 +258,20 @@ public class Agent extends AbstractPlayer {
     
 	@Override
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(lista_gemas_faciles);
+		this.obs_draw = stateObs;
+		
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
-    		
     	
-    	resolutor.setParametros(stateObs);
+    	resolutor.setParametros(stateObs, this.contornos_bichos);
+    	this.contornos_bichos = resolutor.obtenRegionesBichos(stateObs);
     	if(lista_gemas_faciles.size()>0)
 	    	if(gema_objetivo.equals(lista_gemas_faciles.get(0)))
 	    		bloqueado+=1;
@@ -220,10 +280,16 @@ public class Agent extends AbstractPlayer {
 	    		bloqueado=0;
 	    	}
     	
-    	if(bloqueado>150) {
-    		Gema gem = lista_gemas_faciles.get(0);
-    		lista_gemas_faciles.remove(0);
-    		lista_gemas_faciles.add(gem);
+    	
+    	if(bloqueado>100) {
+    		if(lista_gemas_faciles.size()>0) {
+    			Gema gem = lista_gemas_faciles.get(0);
+    			lista_gemas_faciles.remove(0);
+    			resolutor.reset();
+    			if(resolutor.obtenCamino(gem.coordenadas.x, gem.coordenadas.y, elapsedTimer, false).get(0)!=Types.ACTIONS.ACTION_NIL)
+    				lista_gemas_faciles.add(gem);
+    		}
+    		bloqueado = 0;
     	}
     		
     	
@@ -254,10 +320,10 @@ public class Agent extends AbstractPlayer {
     			this.escapando_reactivo = true;
     			lista_acciones = escapaReactivo(stateObs, lista_acciones);
     		}
-    		else if(hayPeligroBicho(stateObs, lista_acciones) && !this.acabado) {
+    		/*else if(hayPeligroBicho(stateObs, lista_acciones) && !this.acabado) {
     			escapando=true;
     			lista_acciones = esquivaBicho(stateObs,lista_acciones, elapsedTimer);
-    		}
+    		}*/
     		if(lista_acciones.size()==0)
     			return Types.ACTIONS.ACTION_NIL;
 	    	Types.ACTIONS accion = lista_acciones.get(0);
@@ -467,7 +533,6 @@ public class Agent extends AbstractPlayer {
     // Hasta ahora consigue deshacerse del bicho a veces si no se ve atrapado
     private ArrayList<ACTIONS> esquivaBicho(StateObservation obs,ArrayList<ACTIONS> lista_acciones2, ElapsedCpuTimer timer) {
     	this.veces_escapadas+=1;
-    	ArrayList<Observation>[][] mundo = obs.getObservationGrid();
     	ArrayList<Types.ACTIONS> lista_acciones = new ArrayList<Types.ACTIONS>();
     	int col_start = (int) Math.round(obs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(obs.getAvatarPosition().y / fescalaY);
@@ -478,7 +543,7 @@ public class Agent extends AbstractPlayer {
     	puntos_huida.add(new Vector2di(this.tercer_punto_col, this.tercer_punto_fila));
     	
     	resolutor.reset();
-    	resolutor.setParametros(obs);
+    	resolutor.setParametros(obs, this.contornos_bichos);
     	
     	boolean aleatorio = Math.random() < 0.25;
     	
