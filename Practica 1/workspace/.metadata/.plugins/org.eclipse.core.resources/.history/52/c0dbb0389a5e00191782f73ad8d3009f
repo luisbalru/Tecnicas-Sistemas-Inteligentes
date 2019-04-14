@@ -98,7 +98,6 @@ public class Agent extends AbstractPlayer {
     
     //Número de veces que hemos estado yendo a por la misma gema o que nos hemos quedado en la misma posicion, se usan para desbloquear al avatar
     int bloqueado = 0;
-    //Gema objetivo, se usa para ver si llevamos mucho tiempo yendo a por la misma gema.
     Gema gema_objetivo = null;
     
         

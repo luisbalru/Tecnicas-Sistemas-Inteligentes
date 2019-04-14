@@ -57,48 +57,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Agent extends AbstractPlayer {
-	//Factores de escala para conversión del mundo
     private int fescalaX;
     private int fescalaY;
     
-    //Lista de acciones a realizar
     private ArrayList<Types.ACTIONS> lista_acciones;
-    
-    //Lista de gemas que se pueden coger si interaccionar con piedras ni bichos
     private ArrayList<Gema> lista_gemas_faciles;
     
-    //Lista de gemas que se pueden coger fácil interaccionando con piedras
-    private ArrayList<Gema> lista_gemas_faciles_piedras;
-    
-    //Lista de gemas que se pueden coger fácil interaccionando con bichos
-    private ArrayList<Gema> lista_gemas_faciles_bichos;
-    
-    //Resolutor de tareas, nos da caminos y rutinas de acciones
     private ResolutorTareas resolutor;
     
-    //Valor booleano que nos dice si hemos acabado la partida
     private boolean acabado;
     
-    //Dimensiones del mundo
     int alto, ancho;
     
-    //Coordenadas del portal, el punto inicial y un punto alejado a los dos primeros (se usan para escapar de forma planificada)
     int fila_portal, col_portal;
     int fila_inicial, col_inicial;
     int tercer_punto_fila, tercer_punto_col;
     
-    //Valor booleano que nos indica si estamos escapando
     boolean escapando;
     
-    //Número de veces que hemos escapado (para escoger de forma aleatoria el punto inicial, el portal o el tercer punto)
     int veces_escapadas;
-    
-    //Valor booleano para saber si estamos escpando de forma reactiva
     boolean escapando_reactivo;
     
-    //Número de veces que hemos estado yendo a por la misma gema o que nos hemos quedado en la misma posicion, se usan para desbloquear al avatar
     int bloqueado = 0;
-    //Gema objetivo, se usa para ver si llevamos mucho tiempo yendo a por la misma gema.
     Gema gema_objetivo = null;
     
         
@@ -114,6 +94,10 @@ public class Agent extends AbstractPlayer {
     	acabado = false;
  	
     	lista_acciones = new ArrayList<Types.ACTIONS>();
+        //Creamos una lista de IDs de obstaculos
+        ArrayList<Integer> tiposObs = new ArrayList();
+        tiposObs.add(0); //<- Muros
+        tiposObs.add(7); //<- Piedra
 
         this.fescalaX = stateObs.getWorldDimension().width / stateObs.getObservationGrid().length;
         this.fescalaY = stateObs.getWorldDimension().height / stateObs.getObservationGrid()[0].length;

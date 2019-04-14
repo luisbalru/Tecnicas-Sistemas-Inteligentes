@@ -167,19 +167,6 @@ public class ResolutorTareas {
 		this.mundo = obs.getObservationGrid();
 	}
 	
-	public ArrayList<Vector2di> getVecinos(Vector2di posicion){
-		ArrayList<Vector2di> vecinos = new ArrayList<Vector2di>();
-		if(posicion.x-1>=0 && posicion.x-1<ancho && posicion.y>=0 && posicion.y<alto)
-			vecinos.add(new Vector2di(posicion.x-1, posicion.y));
-		if(posicion.y-1>=0 && posicion.y-1<alto && posicion.x>=0 && posicion.x<ancho)
-			vecinos.add(new Vector2di(posicion.x, posicion.y-1));
-		if(posicion.x+1<ancho && posicion.x+1>=0 && posicion.y<alto && posicion.y>=0)
-			vecinos.add(new Vector2di(posicion.x+1, posicion.y));
-		if(posicion.y+1<alto && posicion.y+1>=0 && posicion.x>=0 && posicion.x<ancho)
-			vecinos.add(new Vector2di(posicion.x, posicion.y+1));
-		return vecinos;
-	}
-	
 	public HashSet<Vector2di> obtenRegionesBichos(StateObservation stateObs){
 		ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
 		HashSet<Vector2di> interiores = new HashSet<Vector2di>();
@@ -191,33 +178,12 @@ public class ResolutorTareas {
 			posiciones_bichos.add(bicho);
 		}
 		
-		//Ya tenemos con este trozo los interiores de las zonas de los bichos
 		ArrayList<Vector2di> desarrollando = new ArrayList<Vector2di>(posiciones_bichos);
 		Vector2di actual = new Vector2di(-1,-1);
 		while(!desarrollando.isEmpty()) {
 			actual = desarrollando.get(0);
 			desarrollando.remove(0);
-			interiores.add(actual);
-			ArrayList<Vector2di> vecinos_vacios = getVecinos(actual);
-			for(Vector2di vecino : vecinos_vacios)
-				if(!interiores.contains(vecino) && mundo[vecino.x][vecino.y].size()==0)
-					desarrollando.add(vecino);
 		}
-		
-		
-		ArrayList<Vector2di> desarrollando_interiores = new ArrayList<Vector2di>(interiores);
-		actual = new Vector2di(-1,-1);
-		while(!desarrollando_interiores.isEmpty()) {
-			actual = desarrollando_interiores.get(0);
-			desarrollando.remove(0);
-			ArrayList<Vector2di> vecinos_no_vacios = getVecinos(actual);
-			for(Vector2di vecino : vecinos_no_vacios) {
-				if(!contornos.contains(vecino) && mundo[vecino.x][vecino.y].size()>0)
-					contornos.add(vecino);
-			}
-		}
-		
-		return contornos;
 	}
 
 }

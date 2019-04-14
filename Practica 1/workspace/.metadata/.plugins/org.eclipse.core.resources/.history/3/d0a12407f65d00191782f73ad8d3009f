@@ -514,6 +514,7 @@ public class ArcadeMachine {
 	    
 	    niveles_pasados.add(pasados.contains(true));
 	    System.out.println(pasados);
+	    System.out.println("Nos hemos pasado: " + java.util.Collections.frequency(niveles_pasados, true));
 	    System.out.println("\n\n");
 	}
 
@@ -530,7 +531,6 @@ public class ArcadeMachine {
 	 	//+ " , " + performance.mean());
 	
 	System.out.println(niveles_pasados);
-	System.out.println("Nos hemos pasado: " + java.util.Collections.frequency(niveles_pasados, true));
     }
 
     /**

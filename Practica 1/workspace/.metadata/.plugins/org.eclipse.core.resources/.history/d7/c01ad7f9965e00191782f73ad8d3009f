@@ -167,7 +167,7 @@ public class ResolutorTareas {
 		this.mundo = obs.getObservationGrid();
 	}
 	
-	public ArrayList<Vector2di> getVecinos(Vector2di posicion){
+	public ArrayList<Vector2di> getVecinos(Vector2di posicion, ArrayList<Observation>[][] mundo){
 		ArrayList<Vector2di> vecinos = new ArrayList<Vector2di>();
 		if(posicion.x-1>=0 && posicion.x-1<ancho && posicion.y>=0 && posicion.y<alto)
 			vecinos.add(new Vector2di(posicion.x-1, posicion.y));
@@ -198,7 +198,7 @@ public class ResolutorTareas {
 			actual = desarrollando.get(0);
 			desarrollando.remove(0);
 			interiores.add(actual);
-			ArrayList<Vector2di> vecinos_vacios = getVecinos(actual);
+			ArrayList<Vector2di> vecinos_vacios = getVecinos(actual, mundo);
 			for(Vector2di vecino : vecinos_vacios)
 				if(!interiores.contains(vecino) && mundo[vecino.x][vecino.y].size()==0)
 					desarrollando.add(vecino);
@@ -210,14 +210,12 @@ public class ResolutorTareas {
 		while(!desarrollando_interiores.isEmpty()) {
 			actual = desarrollando_interiores.get(0);
 			desarrollando.remove(0);
-			ArrayList<Vector2di> vecinos_no_vacios = getVecinos(actual);
+			ArrayList<Vector2di> vecinos_no_vacios = getVecinos(actual, mundo);
 			for(Vector2di vecino : vecinos_no_vacios) {
 				if(!contornos.contains(vecino) && mundo[vecino.x][vecino.y].size()>0)
 					contornos.add(vecino);
 			}
 		}
-		
-		return contornos;
 	}
 
 }

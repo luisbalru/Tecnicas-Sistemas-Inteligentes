@@ -530,7 +530,7 @@ public class ArcadeMachine {
 	 	//+ " , " + performance.mean());
 	
 	System.out.println(niveles_pasados);
-	System.out.println("Nos hemos pasado: " + java.util.Collections.frequency(niveles_pasados, true));
+	System.out.println("\033[32mNos hemos pasado: " + java.util.Collections.frequency(niveles_pasados, true));
     }
 
     /**
