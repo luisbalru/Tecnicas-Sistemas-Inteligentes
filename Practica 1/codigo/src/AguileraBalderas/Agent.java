@@ -133,6 +133,7 @@ public class Agent extends AbstractPlayer {
     StateObservation obs_draw;
     
     boolean primer_act = false;
+    boolean nils;
             
     
     private int distanciaManhattan(int fila1, int col1, int fila2, int col2) {
@@ -140,6 +141,9 @@ public class Agent extends AbstractPlayer {
 	}
     
     public Agent(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+    	this.lista_gemas_faciles_bichos=new ArrayList<Gema>();
+    	this.lista_gemas_faciles_piedras = new ArrayList<Gema>();
+    	
     	this.primer_act=true;
     	for(int i = 0; i<100 ; ++i)
     		stateObs.advance(Types.ACTIONS.ACTION_NIL);
@@ -256,23 +260,106 @@ public class Agent extends AbstractPlayer {
 		return gemas9;
 	}
     
+    private ArrayList<Gema> obtenListaGemasFacilesPiedras(StateObservation stateObs) {
+    	ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
+		ArrayList<Gema> gemas = new ArrayList<Gema>();
+		
+		ArrayList<Observation>[] posiciones_gemas = stateObs.getResourcesPositions();
+		for(Observation o : posiciones_gemas[0]) {
+			Gema gema = new Gema();
+			gema.coordenadas.x = (int) Math.round(o.position.x / fescalaX);
+			gema.coordenadas.y = (int) Math.round(o.position.y / fescalaY);
+			if(!contornos_bichos.contains(gema.coordenadas))
+				gemas.add(gema);
+		}
+		
+		ArrayList<Gema> gemas_piedras = new ArrayList<Gema>();
+		for(Gema gema : gemas) {
+			if(!lista_gemas_faciles.contains(gema)) {
+				//Comprobamos el primer tipo de gema con piedras
+				if(esPiedra(mundo,gema.coordenadas.x, gema.coordenadas.y-1) && ((isAccesible(mundo, gema.coordenadas.x+1, gema.coordenadas.y-1) && isAccesible(mundo, gema.coordenadas.x+1, gema.coordenadas.y)) || (isAccesible(mundo, gema.coordenadas.x-1, gema.coordenadas.y-1) && isAccesible(mundo, gema.coordenadas.x-1, gema.coordenadas.y)))) {
+					gema.tipo_gema_piedra=1;
+					gemas_piedras.add(gema);
+				}
+				else if(isAccesible(mundo, gema.coordenadas.x, gema.coordenadas.y-2) && isAccesible(mundo, gema.coordenadas.x, gema.coordenadas.y-3) && esPiedra(mundo,gema.coordenadas.x, gema.coordenadas.y+1) && !isAccesible(mundo, gema.coordenadas.x-1, gema.coordenadas.y) && !isAccesible(mundo, gema.coordenadas.x+1, gema.coordenadas.y) && !esPiedra(mundo, gema.coordenadas.x, gema.coordenadas.y-1)) {
+					gema.tipo_gema_piedra=0;
+					gemas_piedras.add(gema);
+				}
+			}
+		}
+		return gemas_piedras;
+	}
+    
 	@Override
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
-		try {
+		/*try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		System.out.println(lista_gemas_faciles);
+		}*/
 		this.obs_draw = stateObs;
-		
-    	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
-    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
-    	
+		this.contornos_bichos = resolutor.obtenRegionesBichos(stateObs);
     	resolutor.setParametros(stateObs, this.contornos_bichos);
-    	this.contornos_bichos = resolutor.obtenRegionesBichos(stateObs);
-    	if(lista_gemas_faciles.size()>0)
+    	
+    	if(this.nils && lista_acciones.isEmpty()) {
+			this.nils=false;
+			if(!lista_gemas_faciles.isEmpty()) {
+				Gema gem = lista_gemas_faciles.get(0);
+				resolutor.reset();
+				if(resolutor.obtenCamino(gem.coordenadas.x, gem.coordenadas.y, elapsedTimer, false).get(0)==Types.ACTIONS.ACTION_NIL)
+					lista_gemas_faciles.remove(0);
+			}
+		}
+		
+		if(this.primer_act) {
+			for(int i = 0; i<20; ++i)
+				lista_acciones.add(Types.ACTIONS.ACTION_NIL);
+			this.primer_act=false;
+			this.nils=true;
+		}
+		
+		if(this.acabado) {
+			if(lista_acciones.isEmpty())
+				lista_acciones = resolutor.salirPortal(elapsedTimer);
+			else {
+				Types.ACTIONS accion = lista_acciones.get(0);
+				lista_acciones.remove(0);
+				return accion;
+			}
+		}
+		else if(!this.lista_gemas_faciles.isEmpty())
+			return actGemasFaciles(stateObs, elapsedTimer);
+		else if(this.lista_gemas_faciles.isEmpty() && !this.lista_gemas_faciles_piedras.isEmpty())
+			return Types.ACTIONS.ACTION_NIL;
+		else if(this.lista_gemas_faciles.isEmpty() && this.lista_gemas_faciles_piedras.isEmpty() && !this.lista_gemas_faciles_bichos.isEmpty())
+			return Types.ACTIONS.ACTION_NIL;
+		else{
+			if(lista_acciones.isEmpty())
+				lista_acciones = resolutor.salirPortal(elapsedTimer);
+			else {
+				Types.ACTIONS accion = lista_acciones.get(0);
+				lista_acciones.remove(0);
+				return accion;
+			}
+		}
+		return Types.ACTIONS.ACTION_NIL;
+    	
+    }
+	
+	private Types.ACTIONS actGemasFaciles(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
+    	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
+    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);    
+    	resolutor.setParametros(stateObs, this.contornos_bichos);
+    	
+    	if(stateObs.getAvatarResources().size()>0 && !acabado)
+    		if(stateObs.getAvatarResources().get(6)==9) {
+    			resolutor.reset();
+    			acabado=true;
+    			return Types.ACTIONS.ACTION_NIL;
+    		}
+    	
+    	if(lista_gemas_faciles.size()>0 && !acabado)
 	    	if(gema_objetivo.equals(lista_gemas_faciles.get(0)))
 	    		bloqueado+=1;
 	    	else {
@@ -281,7 +368,7 @@ public class Agent extends AbstractPlayer {
 	    	}
     	
     	
-    	if(bloqueado>100) {
+    	if(bloqueado>50) {
     		if(lista_gemas_faciles.size()>0) {
     			Gema gem = lista_gemas_faciles.get(0);
     			lista_gemas_faciles.remove(0);
@@ -291,20 +378,12 @@ public class Agent extends AbstractPlayer {
     		}
     		bloqueado = 0;
     	}
-    		
-    	
-    	if(stateObs.getAvatarResources().size()>0)
-    		if(stateObs.getAvatarResources().get(6)==9)
-    			acabado=true;
     	
     	if(lista_acciones.size()==0) {
     		this.escapando_reactivo=false;
     		resolutor.reset();
     		escapando=false;
     	}
-    	
-    	if(lista_gemas_faciles.size()==0)
-    		acabado=true;
     	
     	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0) {
     		if(col_start != lista_gemas_faciles.get(0).coordenadas.x || fila_start != lista_gemas_faciles.get(0).coordenadas.y) {    		
@@ -316,11 +395,11 @@ public class Agent extends AbstractPlayer {
     		}
     	}
     	if(lista_acciones.size()>0) {
-    		if(this.escapando && hayPeligroBicho(stateObs, lista_acciones) && !this.escapando_reactivo) {
+    		/*if(this.escapando && hayPeligroBicho(stateObs, lista_acciones) && !this.escapando_reactivo) {
     			this.escapando_reactivo = true;
     			lista_acciones = escapaReactivo(stateObs, lista_acciones);
     		}
-    		/*else if(hayPeligroBicho(stateObs, lista_acciones) && !this.acabado) {
+    		else if(hayPeligroBicho(stateObs, lista_acciones) && !this.acabado) {
     			escapando=true;
     			lista_acciones = esquivaBicho(stateObs,lista_acciones, elapsedTimer);
     		}*/
@@ -331,13 +410,9 @@ public class Agent extends AbstractPlayer {
 	    	lista_acciones.remove(0);
 	    	return(accion);
     	}
-    	if(acabado) {
-    		lista_acciones = resolutor.salirPortal(elapsedTimer);
-    	}
     	stateObs.advance(Types.ACTIONS.ACTION_NIL);
     	return Types.ACTIONS.ACTION_NIL;
-    	
-    }
+	}
     
     private ArrayList<ACTIONS> escapaReactivo(StateObservation obs, ArrayList<ACTIONS> lista_acciones2) {
     	ArrayList<Observation>[][] mundo = obs.getObservationGrid();
@@ -495,6 +570,8 @@ public class Agent extends AbstractPlayer {
 	}
 
 	private boolean isAccesible(ArrayList<Observation>[][] mundo, int columna, int fila) {
+		if(columna<0 || columna>=ancho || fila<0 || fila>= alto)
+			return false;
 		// Si el nodo está vacío es accesible
 		boolean vacio = mundo[columna][fila].size()==0;
 		if(!vacio) {
@@ -811,5 +888,15 @@ public class Agent extends AbstractPlayer {
     	return hay_bicho;
     }
 
-
+    public boolean esPiedra(ArrayList<Observation>[][] mundo, int columna, int fila) {
+    	if(columna<0 || fila<0 || columna>=ancho || fila>=alto)
+    		return false;
+    	if(mundo[columna][fila].size()==0)
+    		return false;
+    	else {
+    		if(mundo[columna][fila].get(0).itype==7)
+    			return true;
+    	}
+    	return false;
+    }
 }
