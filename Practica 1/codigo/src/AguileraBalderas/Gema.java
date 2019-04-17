@@ -1,13 +1,19 @@
 package AguileraBalderas;
 
+import java.util.ArrayList;
+
+import AguileraBalderas.Vector2di;
+
 public class Gema {
 	Vector2di coordenadas;
 	int distancia_actual;
 	//Es tipo 0 si está rodeada de piedras menos en la posición de arriba
 	//Es de tipo 1 si tiene piedras arriba pero no en alguno de los dos lados
 	int tipo_gema_piedra;
+	ArrayList<Vector2di> posiciones_a_ir;
 	
 	public Gema() {
+		this.posiciones_a_ir = new ArrayList<Vector2di>();
 		this.coordenadas = new Vector2di(-1,-1);
 		this.distancia_actual = -1;
 	}

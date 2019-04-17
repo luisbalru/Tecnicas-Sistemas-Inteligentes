@@ -141,6 +141,9 @@ public class Agent extends AbstractPlayer {
 	}
     
     public Agent(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+    	ancho = stateObs.getObservationGrid().length;
+        alto = stateObs.getObservationGrid()[0].length;
+    	
     	this.lista_gemas_faciles_bichos=new ArrayList<Gema>();
     	this.lista_gemas_faciles_piedras = new ArrayList<Gema>();
     	
@@ -167,10 +170,12 @@ public class Agent extends AbstractPlayer {
         
         lista_gemas_faciles = new ArrayList<Gema>();
         lista_gemas_faciles = obtenListaGemasFacilesSinBichos(stateObs,elapsedTimer);
-        gema_objetivo = lista_gemas_faciles.get(0);
+        gema_objetivo = lista_gemas_faciles.size()>0 ? lista_gemas_faciles.get(0) : new Gema();
         
-        ancho = stateObs.getObservationGrid().length;
-        alto = stateObs.getObservationGrid()[0].length;
+        lista_gemas_faciles_piedras = obtenListaGemasFacilesPiedras(stateObs);
+        System.out.println("Gemas faciles piedras: " + lista_gemas_faciles_piedras);
+        
+        
         ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
         
         
@@ -210,6 +215,12 @@ public class Agent extends AbstractPlayer {
     	Debugger deb = new Debugger(this.obs_draw);
     	for(Vector2di v : this.contornos_bichos)
     		deb.drawCell(g, Color.red, v);
+    	
+    	for(Gema gem : this.lista_gemas_faciles)
+    		deb.drawCell(g, Color.blue, gem.coordenadas);
+    	
+    	for(Gema gem : this.lista_gemas_faciles_piedras)
+    		deb.drawCell(g, Color.green, gem.coordenadas);
     }
 
 
@@ -269,22 +280,47 @@ public class Agent extends AbstractPlayer {
 			Gema gema = new Gema();
 			gema.coordenadas.x = (int) Math.round(o.position.x / fescalaX);
 			gema.coordenadas.y = (int) Math.round(o.position.y / fescalaY);
-			if(!contornos_bichos.contains(gema.coordenadas))
+			if(!contornos_bichos.contains(gema.coordenadas) && !lista_gemas_faciles.contains(gema))
 				gemas.add(gema);
 		}
 		
 		ArrayList<Gema> gemas_piedras = new ArrayList<Gema>();
 		for(Gema gema : gemas) {
-			if(!lista_gemas_faciles.contains(gema)) {
-				//Comprobamos el primer tipo de gema con piedras
-				if(esPiedra(mundo,gema.coordenadas.x, gema.coordenadas.y-1) && ((isAccesible(mundo, gema.coordenadas.x+1, gema.coordenadas.y-1) && isAccesible(mundo, gema.coordenadas.x+1, gema.coordenadas.y)) || (isAccesible(mundo, gema.coordenadas.x-1, gema.coordenadas.y-1) && isAccesible(mundo, gema.coordenadas.x-1, gema.coordenadas.y)))) {
-					gema.tipo_gema_piedra=1;
-					gemas_piedras.add(gema);
-				}
-				else if(isAccesible(mundo, gema.coordenadas.x, gema.coordenadas.y-2) && isAccesible(mundo, gema.coordenadas.x, gema.coordenadas.y-3) && esPiedra(mundo,gema.coordenadas.x, gema.coordenadas.y+1) && !isAccesible(mundo, gema.coordenadas.x-1, gema.coordenadas.y) && !isAccesible(mundo, gema.coordenadas.x+1, gema.coordenadas.y) && !esPiedra(mundo, gema.coordenadas.x, gema.coordenadas.y-1)) {
-					gema.tipo_gema_piedra=0;
-					gemas_piedras.add(gema);
-				}
+			//Comprobamos el primer tipo de gema con piedras
+			if(esPiedra(mundo,gema.coordenadas.x, gema.coordenadas.y-1)){
+					if(isAccesibleSinPiedraArriba(mundo, gema.coordenadas.x+1, gema.coordenadas.y-1) && isAccesibleSinPiedraArriba(mundo, gema.coordenadas.x+1, gema.coordenadas.y)) {
+						gema.posiciones_a_ir.add(new Vector2di(gema.coordenadas.x+1, gema.coordenadas.y));
+						gema.posiciones_a_ir.add(gema.coordenadas);
+						gema.tipo_gema_piedra=1;
+						gemas_piedras.add(gema);
+					}
+					else if(isAccesibleSinPiedraArriba(mundo, gema.coordenadas.x-1, gema.coordenadas.y-1) && isAccesibleSinPiedraArriba(mundo, gema.coordenadas.x-1, gema.coordenadas.y)) {
+						gema.posiciones_a_ir.add(new Vector2di(gema.coordenadas.x-1, gema.coordenadas.y));
+						gema.posiciones_a_ir.add(gema.coordenadas);
+						gema.tipo_gema_piedra=1;
+						gemas_piedras.add(gema);
+					}
+			}
+			else if(isAccesibleSinPiedraArriba(mundo, gema.coordenadas.x, gema.coordenadas.y+2)) {
+				if(isAccesibleSinPiedraArriba(mundo, gema.coordenadas.x, gema.coordenadas.y+3))
+					if(esPiedra(mundo,gema.coordenadas.x, gema.coordenadas.y+1))
+						if(!isAccesibleSinPiedraArriba(mundo, gema.coordenadas.x-1, gema.coordenadas.y))
+							if(!isAccesibleSinPiedraArriba(mundo, gema.coordenadas.x+1, gema.coordenadas.y))
+								if(!esPiedra(mundo, gema.coordenadas.x, gema.coordenadas.y-1)) {
+									if(isAccesible(mundo, gema.coordenadas.x-1, gema.coordenadas.y+2))
+										gema.posiciones_a_ir.add(new Vector2di(gema.coordenadas.x-1, gema.coordenadas.y+2));
+									else if(isAccesible(mundo, gema.coordenadas.x+1, gema.coordenadas.y+2))
+										gema.posiciones_a_ir.add(new Vector2di(gema.coordenadas.x+1, gema.coordenadas.y+2));
+									if(isAccesible(mundo, gema.coordenadas.x-1, gema.coordenadas.y+3))
+										gema.posiciones_a_ir.add(new Vector2di(gema.coordenadas.x-1, gema.coordenadas.y+3));
+									else if(isAccesible(mundo, gema.coordenadas.x+1, gema.coordenadas.y+3))
+										gema.posiciones_a_ir.add(new Vector2di(gema.coordenadas.x+1, gema.coordenadas.y+3));
+									if(gema.posiciones_a_ir.size()==2) {
+										gema.posiciones_a_ir.add(gema.coordenadas);
+										gema.tipo_gema_piedra=0;
+										gemas_piedras.add(gema);
+									}
+								}
 			}
 		}
 		return gemas_piedras;
@@ -293,7 +329,7 @@ public class Agent extends AbstractPlayer {
 	@Override
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
 		/*try {
-			Thread.sleep(500);
+			Thread.sleep(250);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -330,13 +366,16 @@ public class Agent extends AbstractPlayer {
 		}
 		else if(!this.lista_gemas_faciles.isEmpty())
 			return actGemasFaciles(stateObs, elapsedTimer);
-		else if(this.lista_gemas_faciles.isEmpty() && !this.lista_gemas_faciles_piedras.isEmpty())
-			return Types.ACTIONS.ACTION_NIL;
+		else if(this.lista_gemas_faciles.isEmpty() && !this.lista_gemas_faciles_piedras.isEmpty()) {
+			return actGemasPiedras(stateObs, elapsedTimer);
+		}
 		else if(this.lista_gemas_faciles.isEmpty() && this.lista_gemas_faciles_piedras.isEmpty() && !this.lista_gemas_faciles_bichos.isEmpty())
 			return Types.ACTIONS.ACTION_NIL;
 		else{
-			if(lista_acciones.isEmpty())
+			if(lista_acciones.isEmpty()) {
+				resolutor.reset();
 				lista_acciones = resolutor.salirPortal(elapsedTimer);
+			}
 			else {
 				Types.ACTIONS accion = lista_acciones.get(0);
 				lista_acciones.remove(0);
@@ -347,6 +386,77 @@ public class Agent extends AbstractPlayer {
     	
     }
 	
+	private Types.ACTIONS actGemasPiedras(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+		int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
+    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);    
+    	resolutor.setParametros(stateObs, this.contornos_bichos);
+    	
+    	if(stateObs.getAvatarResources().size()>0 && !acabado)
+    		if(stateObs.getAvatarResources().get(6)==9) {
+    			resolutor.reset();
+    			acabado=true;
+    			return Types.ACTIONS.ACTION_NIL;
+    		}
+    	
+    	if(lista_gemas_faciles_piedras.size()>0 && !acabado)
+	    	if(gema_objetivo.equals(lista_gemas_faciles_piedras.get(0)))
+	    		bloqueado+=1;
+	    	else {
+	    		gema_objetivo = lista_gemas_faciles_piedras.get(0);
+	    		bloqueado=0;
+	    	}
+    	
+    	
+    	if(bloqueado>75) {
+    		if(lista_gemas_faciles_piedras.size()>0) {
+    			Gema gem = lista_gemas_faciles_piedras.get(0);
+    			lista_gemas_faciles_piedras.remove(0);
+    			resolutor.reset();
+    			if(resolutor.obtenCamino(gem.coordenadas.x, gem.coordenadas.y, elapsedTimer, false).get(0)!=Types.ACTIONS.ACTION_NIL)
+    				lista_gemas_faciles_piedras.add(gem);
+    		}
+    		bloqueado = 0;
+    	}
+    	
+    	if(lista_acciones.size()==0 && lista_gemas_faciles_piedras.size()>0) {
+    		if(lista_gemas_faciles_piedras.get(0).posiciones_a_ir.size()==0 && col_start == lista_gemas_faciles_piedras.get(0).coordenadas.x && fila_start == lista_gemas_faciles_piedras.get(0).coordenadas.y) {    		
+    			lista_gemas_faciles_piedras.remove(0);
+    			resolutor.reset();
+    		}
+    		else {
+    			Gema gema = lista_gemas_faciles_piedras.get(0);
+    			if(col_start==gema.posiciones_a_ir.get(0).x && fila_start==gema.posiciones_a_ir.get(0).y) {
+    				int tam = lista_gemas_faciles_piedras.get(0).posiciones_a_ir.size();
+    				lista_gemas_faciles_piedras.get(0).posiciones_a_ir.remove(0);
+    				resolutor.reset();
+    				if(tam>1)
+    					return Types.ACTIONS.ACTION_USE;
+    			}
+    			else {
+    				for(int i = 0; i< 20; ++i)
+    					stateObs.advance(Types.ACTIONS.ACTION_NIL);
+    				lista_acciones = resolutor.obtenCamino(gema.posiciones_a_ir.get(0).x, gema.posiciones_a_ir.get(0).y, elapsedTimer, false);
+    				if(gema.posiciones_a_ir.size()==1)
+    					for(int i = 0; i<20; ++i)
+    						lista_acciones.add(0, Types.ACTIONS.ACTION_NIL);
+    			}
+    		}
+    	}
+    	
+    	if(lista_acciones.size()>0) {
+    		if(lista_acciones.size()==0)
+    			return Types.ACTIONS.ACTION_NIL;
+	    	Types.ACTIONS accion = lista_acciones.get(0);
+	    	stateObs.advance(accion);
+	    	lista_acciones.remove(0);
+	    	return(accion);
+    	}
+    	stateObs.advance(Types.ACTIONS.ACTION_NIL);
+    	return Types.ACTIONS.ACTION_NIL;
+    	
+    	
+	}
+
 	private Types.ACTIONS actGemasFaciles(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);    
@@ -568,9 +678,18 @@ public class Agent extends AbstractPlayer {
     	}
 		return lista_acciones;
 	}
+    
+    private boolean isAccesibleSinPiedraArriba(ArrayList<Observation>[][] mundo, int columna, int fila) {
+    	if(columna<0 || columna>=this.ancho || fila<0 || fila>=this.alto)
+			return false;
+    	if(mundo[columna][fila].size()>0)
+			return mundo[columna][fila].get(0).itype==4 || mundo[columna][fila].get(0).itype==6;
+    	else
+    		return true;
+    }
 
 	private boolean isAccesible(ArrayList<Observation>[][] mundo, int columna, int fila) {
-		if(columna<0 || columna>=ancho || fila<0 || fila>= alto)
+		if(columna<0 || columna>=this.ancho || fila<0 || fila>=this.alto)
 			return false;
 		// Si el nodo está vacío es accesible
 		boolean vacio = mundo[columna][fila].size()==0;

@@ -145,10 +145,7 @@ public class AEstrella {
 			// Si el nodo sacado es el objetivo
 			if(nodo_actual.equals(nodo_objetivo)) {
 				// Reconstruimos el camino y lo devolvemos
-				System.out.println("\n\n");
 				while(!nodo_actual.equals(nodo_inicial)) {
-					System.out.println("Nodo actual: " + nodo_actual);
-					System.out.println("Nodo inicial: " + nodo_inicial);
 					path.add(nodo_actual);
 					nodo_actual = nodo_actual.padre;
 				}
