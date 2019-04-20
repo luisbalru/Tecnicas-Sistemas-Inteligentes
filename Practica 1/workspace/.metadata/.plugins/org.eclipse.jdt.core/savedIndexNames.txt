@@ -1,4 +1,0 @@
-INDEX VERSION 1.131+/home/nacheteam/MEGA/DGIIM/5/2/TSI/Practicas/Practicas/Tecnicas-Sistemas-Inteligentes/Practica 1/workspace/.metadata/.plugins/org.eclipse.jdt.core
-1567687170.index
-535877170.index
-646308851.index

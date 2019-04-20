@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-import javax.swing.text.html.HTMLDocument.Iterator;
-
 import core.game.Observation;
 import core.game.StateObservation;
 import ontology.Types;

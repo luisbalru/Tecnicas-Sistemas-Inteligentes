@@ -219,14 +219,15 @@ public class Agent extends AbstractPlayer {
     	for(Vector2di v : this.contornos_bichos)
     		deb.drawCell(g, Color.red, v);
     	
-    	for(Gema gem : this.lista_gemas_faciles)
-    		deb.drawCell(g, Color.blue, gem.coordenadas);
-    	
-    	for(Gema gem : this.lista_gemas_faciles_piedras)
-    		deb.drawCell(g, Color.green, gem.coordenadas);
-    	
-    	for(Gema gem : this.lista_gemas_faciles_bichos)
-    		deb.drawCell(g, Color.yellow, gem.coordenadas);
+    	if(this.lista_gemas_faciles.size()>0)
+    		for(Gema gem : this.lista_gemas_faciles)
+    			deb.drawCell(g, Color.blue, gem.coordenadas);
+    	else if(this.lista_gemas_faciles_piedras.size()>0)
+    		for(Gema gem : this.lista_gemas_faciles_piedras)
+    			deb.drawCell(g, Color.green, gem.coordenadas);
+    	else
+    		for(Gema gem : this.lista_gemas_faciles_bichos)
+    			deb.drawCell(g, Color.yellow, gem.coordenadas);
     }*/
 
 
@@ -397,7 +398,6 @@ public class Agent extends AbstractPlayer {
 		/*try {
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
 		this.obs_draw = stateObs;
