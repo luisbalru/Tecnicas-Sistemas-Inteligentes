@@ -200,15 +200,17 @@ public class Agent extends AbstractPlayer {
     	col_inicial = (int) Math.round(stateObs.getAvatarPosition().x / this.fescalaX);
     	fila_inicial = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
     	
-    	Vector2di max_dist = posiciones_accesibles.get(0);
-        for(Vector2di pos : posiciones_accesibles) {
-        	if(distanciaManhattan(max_dist.x, max_dist.y, col_inicial, fila_inicial)<distanciaManhattan(pos.x, pos.y, col_inicial, fila_inicial))
-        		if(distanciaManhattan(max_dist.x, max_dist.y, col_portal, fila_portal)<distanciaManhattan(pos.x, pos.y, col_portal, fila_portal))
-        			max_dist = pos;
-        }
+    	if(!posiciones_accesibles.isEmpty()) {
+    		Vector2di max_dist = posiciones_accesibles.get(0);
+    		for(Vector2di pos : posiciones_accesibles) {
+    			if(distanciaManhattan(max_dist.x, max_dist.y, col_inicial, fila_inicial)<distanciaManhattan(pos.x, pos.y, col_inicial, fila_inicial))
+    				if(distanciaManhattan(max_dist.x, max_dist.y, col_portal, fila_portal)<distanciaManhattan(pos.x, pos.y, col_portal, fila_portal))
+    					max_dist = pos;
+    		}
                 
-        tercer_punto_col = max_dist.x;
-        tercer_punto_fila = max_dist.y;
+    		tercer_punto_col = max_dist.x;
+    		tercer_punto_fila = max_dist.y;
+    	}
         
         this.obs_draw = stateObs;
     }
@@ -389,6 +391,7 @@ public class Agent extends AbstractPlayer {
 									}
 								}
 			}
+			
 		}
 		return gemas_piedras;
 	}

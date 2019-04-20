@@ -190,10 +190,12 @@ public class ResolutorTareas {
 		HashSet<Vector2di> contornos = new HashSet<Vector2di>();
 		
 		ArrayList<Vector2di> posiciones_bichos = new ArrayList<Vector2di>();
-		for(ArrayList<Observation> ob : stateObs.getNPCPositions()) {
-			for(Observation obs : ob) {
-				Vector2di bicho = new Vector2di((int) Math.round(obs.position.x / fescalaX), (int) Math.round(obs.position.y / fescalaY));
-				posiciones_bichos.add(bicho);
+		if(stateObs.getNPCPositions()!=null) {
+			for(ArrayList<Observation> ob : stateObs.getNPCPositions()) {
+				for(Observation obs : ob) {
+					Vector2di bicho = new Vector2di((int) Math.round(obs.position.x / fescalaX), (int) Math.round(obs.position.y / fescalaY));
+					posiciones_bichos.add(bicho);
+				}
 			}
 		}
 		

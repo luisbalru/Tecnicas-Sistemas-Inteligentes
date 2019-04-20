@@ -42,6 +42,7 @@ public class Test {
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
 		String level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);
+		level1 = "src/AguileraBalderas/fallido.txt";
 
 		String recordActionsFile = /*null;*/ "actions_" + games[gameIdx] + "_lvl" + levelIdx + "_" + seed + ".txt";
 						// where to record the actions
