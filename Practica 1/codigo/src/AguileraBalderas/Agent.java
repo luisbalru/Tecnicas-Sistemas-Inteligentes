@@ -391,6 +391,39 @@ public class Agent extends AbstractPlayer {
 									}
 								}
 			}
+			//Añadiendo caso de dos piedras debajo de una gema para pasar el mapa 0
+			else if(isAccesibleSinPiedraArriba(mundo,gema.coordenadas.x,gema.coordenadas.y+3)) {
+				if(isAccesibleSinPiedraArriba(mundo,gema.coordenadas.x,gema.coordenadas.y+4)) {
+					if(esPiedra(mundo,gema.coordenadas.x,gema.coordenadas.y+1) && 
+							esPiedra(mundo,gema.coordenadas.x,gema.coordenadas.y+2) && !contornos_bichos.contains(new Vector2di(gema.coordenadas.x,gema.coordenadas.y+1))
+							&& !contornos_bichos.contains(new Vector2di(gema.coordenadas.x,gema.coordenadas.y+2))){
+						if(!esPiedra(mundo,gema.coordenadas.x,gema.coordenadas.y-1)) {
+							if(isAccesible(mundo,gema.coordenadas.x-1,gema.coordenadas.y+3)) {
+								gema.posiciones_a_ir.add(new Vector2di(gema.coordenadas.x-1,gema.coordenadas.y+3));
+								gema.orientaciones.add(new Vector2d(1.0,0.0));
+							}
+							else if(isAccesible(mundo,gema.coordenadas.x+1,gema.coordenadas.y+3)) {
+								gema.posiciones_a_ir.add(new Vector2di(gema.coordenadas.x+1,gema.coordenadas.y+3));
+								gema.orientaciones.add(new Vector2d(-1.0,0.0));
+							}
+							if(isAccesible(mundo,gema.coordenadas.x-1,gema.coordenadas.y+4)) {
+								gema.posiciones_a_ir.add(new Vector2di(gema.coordenadas.x-1, gema.coordenadas.y+4));
+								gema.orientaciones.add(new Vector2d(1.0,0.0));
+							}
+							else if(isAccesible(mundo, gema.coordenadas.x+1, gema.coordenadas.y+4)) {
+								gema.posiciones_a_ir.add(new Vector2di(gema.coordenadas.x+1, gema.coordenadas.y+4));
+								gema.orientaciones.add(new Vector2d(-1.0,0.0));
+							}
+							if(gema.posiciones_a_ir.size()==2) {
+								gema.posiciones_a_ir.add(gema.coordenadas);
+								gema.orientaciones.add(null);
+								gema.tipo_gema_piedra=0;
+								gemas_piedras.add(gema);
+							}
+						}
+					}
+				}
+			}
 			
 		}
 		return gemas_piedras;
