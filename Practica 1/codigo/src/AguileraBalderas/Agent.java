@@ -591,7 +591,7 @@ public class Agent extends AbstractPlayer {
 	    	}
     	
     	
-    	if(bloqueado>50) {
+    	if(bloqueado>100) {
     		if(lista_gemas_faciles_piedras.size()>0) {
     			Gema gem = lista_gemas_faciles_piedras.get(0);
     			lista_gemas_faciles_piedras.remove(0);
@@ -602,8 +602,9 @@ public class Agent extends AbstractPlayer {
     		bloqueado = 0;
     	}
     	
-    	if(lista_acciones.size()==0 && lista_gemas_faciles_piedras.size()>0) {
+    	if(lista_acciones.size()==0 && lista_gemas_faciles_piedras.size()>0) {    		
     		if(lista_gemas_faciles_piedras.get(0).posiciones_a_ir.size()==0 && col_start == lista_gemas_faciles_piedras.get(0).coordenadas.x && fila_start == lista_gemas_faciles_piedras.get(0).coordenadas.y) {    		
+    			lista_gemas_faciles = obtenListaGemasFacilesSinBichos(stateObs, elapsedTimer);
     			lista_gemas_faciles_piedras.remove(0);
     			resolutor.reset();
     		}

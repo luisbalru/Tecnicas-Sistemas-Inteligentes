@@ -25,7 +25,7 @@ public class Gema {
 	
 	@Override
 	public String toString() {
-		return "||" + coordenadas.toString() + ", Distancia actual: " + distancia_actual + "||";
+		return "||" + coordenadas.toString() + ", Distancia actual: " + distancia_actual + "||" + ", Posiciones a ir: " + posiciones_a_ir + "||" + ", Orientaciones: " + orientaciones + "||";
 	}
 	
 	@Override
