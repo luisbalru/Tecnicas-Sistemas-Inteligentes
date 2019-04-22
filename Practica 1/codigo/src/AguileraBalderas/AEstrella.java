@@ -33,14 +33,11 @@ public class AEstrella {
 	int ancho, alto;
 	// Mejor nodo en cada momento del A*
 	Nodo mejor_nodo;
-	
+	// Set que contiene los contornos de los bichos, estas casillas no serán accesibles
 	HashSet<Vector2di> contornos_bichos;
 	
 	/**
 	 * Constructor de la clase AEstrella
-	 * @param start Nodo de inicio
-	 * @param end Nodo final
-	 * @param mundo Grid con el estado del mundo
 	 * @param ancho Ancho del mundo
 	 * @param alto Alto del mundo
 	 */
@@ -59,6 +56,13 @@ public class AEstrella {
 		});
 	}
 	
+	/**
+	 * Función que se emplea para actualizar los parámetros fundamentales de un objeto AEstrella. Esta función se utiliza para controlar la ejecución
+	 * del algoritmo en varios turnos consecutivos.
+	 * @param start Nodo desde donde se empieza
+	 * @param end Nodo hasta donde queremos llegar
+	 * @param mundo Matriz que representa el mundo
+	 */
 	public void setParametros(Nodo start, Nodo end, ArrayList<Observation>[][] mundo) {
 		this.mundo = mundo;
 		this.nodo_inicial = start;
@@ -157,7 +161,7 @@ public class AEstrella {
 			// Para cada vecino
 			for(int i=0; i < vecinos.size(); i++) {
 				//Comprobamos si es accesible
-				boolean accesible = isAccesible(mundo,vecinos.get(i), notime);
+				boolean accesible = isAccesible(mundo,vecinos.get(i));
 				if(accesible) {
 					// Actualizamos su padre, el coste y la f.
 					vecinos.get(i).padre = nodo_actual;
@@ -201,7 +205,7 @@ public class AEstrella {
 	 * @param nodo Nodo que queremos comprobar si es accesible
 	 * @return Devuelve un booleano indicando si el nodo es accesible
 	 */
-	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo, boolean constructor) {
+	private boolean isAccesible(ArrayList<Observation>[][] mundo, Nodo nodo) {
 		int fila = nodo.fila;
 		int columna = nodo.columna;
 		// Si el nodo está vacío es accesible
@@ -219,21 +223,7 @@ public class AEstrella {
 			boolean piedra_arriba = false;
 			if(fila>0 && mundo[columna][fila-1].size()>0)
 				piedra_arriba = mundo[columna][fila-1].get(0).itype==7;
-			// Comprueba si hay un monstruo arriba, abajo, a la izquierda o a la derecha
-			/*boolean monstruo_alrededores = false;
-			if(fila-1>=0)
-				if(mundo[columna][fila-1].size()>0)
-					monstruo_alrededores = monstruo_alrededores || mundo[columna][fila-1].get(0).itype==11 || mundo[columna][fila-1].get(0).itype==10;
-			if(fila+1<alto)
-				if(mundo[columna][fila+1].size()>0)
-					monstruo_alrededores = monstruo_alrededores || mundo[columna][fila+1].get(0).itype==11 || mundo[columna][fila+1].get(0).itype==10;
-			if(columna-1>=0)
-				if(mundo[columna-1][fila].size()>0)
-					monstruo_alrededores = monstruo_alrededores || mundo[columna-1][fila].get(0).itype==11 || mundo[columna-1][fila].get(0).itype==10;
-			if(columna+1<ancho)
-				if(mundo[columna+1][fila].size()>0)
-					monstruo_alrededores = monstruo_alrededores || mundo[columna+1][fila].get(0).itype==11 || mundo[columna+1][fila].get(0).itype==10;*/
-			// Si no hay un bicho ni un muro ni una piedra ni una piedra encima entonces es una casilla accesible
+			// Si no hay un bicho ni un muro ni una piedra ni una piedra encima ni está en el contorno de un bicho entonces es una casilla accesible
 			boolean condicion;
 			condicion = !bicho && !muro && !piedra && !piedra_arriba && !contorno_bicho;
 			return condicion;
@@ -250,10 +240,10 @@ public class AEstrella {
 	
 	/*
 	 * Función que una vez calculado el camino por el A* devuelve la lista de acciones que te llevan por dicho camino
+	 * @param obs Objeto de tipo StateObservation que define el estado actual del mundo y el avatar.
 	 */
 	public ArrayList<Types.ACTIONS> devuelveAcciones(StateObservation obs){
 		Nodo nodo_actual = nodo_inicial;
-		//System.out.println(this.camino.toString());
 		ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
 		
 		// En función de la orientación hay que dar uno o dos movimientos
@@ -339,6 +329,10 @@ public class AEstrella {
 		return acciones;
 	}
 	
+	/**
+	 * Función que resetea el estado actual de un objeto de tipo AEstrella. Esta función se usa para controlar la ejecución del algoritmo
+	 * en varios turnos consecutivos con la misma información.
+	 */
 	public void reset() {
 		this.cerrados = new HashSet<Nodo>();
 		this.abiertos_set = new HashSet<Nodo>();
