@@ -1,0 +1,8 @@
+\BOOKMARK [1][-]{section.1}{Introducci\363n}{}% 1
+\BOOKMARK [1][-]{section.2}{Planificaci\363n a alto nivel}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Gemas f\341ciles}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Gemas que requieren mover piedras}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Gemas y contacto con enemigos}{section.2}% 5
+\BOOKMARK [1][-]{section.3}{Planificaci\363n a bajo nivel}{}% 6
+\BOOKMARK [2][-]{subsection.3.1}{Construcci\363n de caminos con A*}{section.3}% 7
+\BOOKMARK [2][-]{subsection.3.2}{Esquivando enemigos}{section.3}% 8
