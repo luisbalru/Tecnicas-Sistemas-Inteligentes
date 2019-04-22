@@ -16,6 +16,9 @@ public class Gema {
 	//Orientaciones que tiene que tener al final de ir a casa posición.
 	ArrayList<Vector2d> orientaciones;
 	
+	/*
+	 * Constructor del objeto Gema.
+	 */
 	public Gema() {
 		this.orientaciones = new ArrayList<Vector2d>();
 		this.posiciones_a_ir = new ArrayList<Vector2di>();
