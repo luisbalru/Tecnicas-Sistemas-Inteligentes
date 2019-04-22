@@ -66,6 +66,7 @@ public class ResolutorTareas {
 	 * @param col_obj Columna del objetivo a ir
 	 * @param fila_obj Fila del objetivo a ir
 	 * @param timer Objeto de tipo {@link ElapsedCpuTimer} para controlar el tiempo consumido en el AEstrella
+	 * @param notime Booleano que controla si queremos que el tiempo se tenga o no en cuenta en el algoritmo AEstrella (usado en el constructor)
 	 * @return Devuelve una lista de acciones a realizar para ir hacia el objetivo
 	 */
 	public ArrayList<Types.ACTIONS> obtenCamino(int col_obj, int fila_obj, ElapsedCpuTimer timer, boolean notime){
@@ -75,46 +76,58 @@ public class ResolutorTareas {
     	// Inicializamos el nodo de inicio con la posición del avatar y el final con la posición del objetivo
 		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null, obs.getAvatarOrientation());
 		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null, obs.getAvatarOrientation());
+		//Actualizamos los parámetros del algoritmo
 		aestrella.setParametros(inicio, fin, mundo);
+		//Calculamos el camino
 		List<Nodo> camino = aestrella.buscaCamino(timer,notime);
 		
+		//Si hemos llegado al objetivo entonces devolvemos nil
 		if(col_actual == col_obj && fila_actual == fila_obj) {
 			ArrayList<Types.ACTIONS> idle = new ArrayList<Types.ACTIONS>();
 			idle.add(Types.ACTIONS.ACTION_NIL);
 			return idle;
 		}
 		
+		//Si la última posición del camino no es la objetivo devolvemos nil porque el algoritmo AEstrella no ha acabado
 		if(camino.get(camino.size()-1).columna!=col_obj || camino.get(camino.size()-1).fila!=fila_obj) {
 			ArrayList<Types.ACTIONS> idle = new ArrayList<Types.ACTIONS>();
 			idle.add(Types.ACTIONS.ACTION_NIL);
 			return idle;
 		}
+		//En otro caso calculamos la lista de acciones asociadas al camino y la devolvemos.
 		ArrayList<Types.ACTIONS> acciones = aestrella.devuelveAcciones(obs);
 		return acciones;
 	}
 	
 	/**
-	 * Función que recibe una posición e inicia una instancia de AEstrella para llevar el avatar a la posición dada por col_obj y fila_obj
+	 * Función que recibe una posición e inicia una instancia de AEstrella para llevar el avatar a la posición dada por col_obj y fila_obj desde una
+	 * posición dada por col_actual y fila_actual y no por la posición del avatar.
 	 * @param col_actual Columna de inicio
 	 * @param fila_actual Fila de inicio
 	 * @param col_obj Columna del objetivo a ir
 	 * @param fila_obj Fila del objetivo a ir
 	 * @param timer Objeto de tipo {@link ElapsedCpuTimer} para controlar el tiempo consumido en el AEstrella
+	 * @param notime Booleano que indica si queremos que se tenga o no en cuenta el tiempo.
 	 * @return Devuelve una lista de acciones a realizar para ir hacia el objetivo
 	 */
 	public ArrayList<Types.ACTIONS> obtenCamino2(int col_actual, int fila_actual,int col_obj, int fila_obj, ElapsedCpuTimer timer, boolean notime){
     	// Inicializamos el nodo de inicio con la posición del avatar y el final con la posición del objetivo
 		Nodo inicio = new Nodo(0, distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), col_actual, fila_actual, null, obs.getAvatarOrientation());
 		Nodo fin = new Nodo(distanciaManhattan(fila_actual, col_actual, fila_obj, col_obj), 0, col_obj, fila_obj, null, obs.getAvatarOrientation());
+		//Establecemos los parámetros del algoritmo
 		aestrella.setParametros(inicio, fin, mundo);
+		//Calculamos la secuencia de nodos
 		List<Nodo> camino = aestrella.buscaCamino(timer,notime);
 		
+		//Si no hemos llegado devolvemos nil
 		if(camino.get(camino.size()-1).columna!=col_obj || camino.get(camino.size()-1).fila!=fila_obj) {
 			ArrayList<Types.ACTIONS> idle = new ArrayList<Types.ACTIONS>();
 			idle.add(Types.ACTIONS.ACTION_NIL);
 			return idle;
 		}
+		//Si hemos llegado entonces calculamos la lista de acciones asociada
 		ArrayList<Types.ACTIONS> acciones = aestrella.devuelveAcciones(obs);
+		//Guardamos el número de pasos que tenemos que dar como costo del camino (número de ticks necesarios para llegar)
 		cantidad_pasos = acciones.size();
 		return acciones;
 	}
@@ -144,26 +157,45 @@ public class ResolutorTareas {
     	
 	}
 	
+	/**
+	 * Función que devuelve una lista de acciones para tirar una piedra dada
+	 * @param col Columna desde la que queremos tirar la piedra
+	 * @param fil Fila desde la que queremos tirar la piedra
+	 * @param col_piedra Columna de la piedra
+	 * @param fila_piedra Fila de la piedra
+	 * @return Devuelve un ArrayList de acciones asociadas a tirar una piedra incluida la accion USE.
+	 */
 	public ArrayList<Types.ACTIONS> moverPiedra(int col, int fil,int col_piedra, int fila_piedra){
-    	int fila_avatar = fil;
+		//Columna del avatar
     	int columna_avatar = col;
 		ArrayList<Types.ACTIONS> acciones = new ArrayList<Types.ACTIONS>();
+		//Comprobamos si estamos o no en la orientación correcta
 		Vector2d orientacion_avatar = this.obs.getAvatarOrientation();
 		boolean bien_orientados = (col_piedra == columna_avatar + orientacion_avatar.x);
+		//Corregimos la orientación si es necesario
 		if(!bien_orientados) {
 			if(orientacion_avatar.x==1.0)
 				acciones.add(Types.ACTIONS.ACTION_LEFT);
 			else
 				acciones.add(Types.ACTIONS.ACTION_RIGHT);
 		}
+		//Añadimos la acción para excavar
 		acciones.add(Types.ACTIONS.ACTION_USE);
 		return acciones;
 	}
 	
+	/**
+	 * Función que resetea el estado de un objeto de tipo {@link ResolutorTareas} llamando al reset de su objeto AEstrella
+	 */
 	public void reset() {
 		this.aestrella.reset();
 	}
 	
+	/**
+	 * Función que actualiza los parámetros del objeto {@link ResolutorTareas}
+	 * @param obs Estado actual del mundo
+	 * @param contornos_bichos Contorno de los bichos usado en AEstrella
+	 */
 	public void setParametros(StateObservation obs, HashSet<Vector2di> contornos_bichos) {
 		aestrella.contornos_bichos = contornos_bichos;
 		this.contornos_bichos = contornos_bichos;
@@ -171,6 +203,11 @@ public class ResolutorTareas {
 		this.mundo = obs.getObservationGrid();
 	}
 	
+	/**
+	 * Función que obtiene los vecinos de una posición dada
+	 * @param posicion Posición de la que queremos obtener los vecinos
+	 * @return Devuelve un ArrayList de Vector2di con las posiciones de los vecinos si estas son válidas
+	 */
 	public ArrayList<Vector2di> getVecinos(Vector2di posicion){
 		ArrayList<Vector2di> vecinos = new ArrayList<Vector2di>();
 		if(posicion.x-1>=0 && posicion.x-1<ancho && posicion.y>=0 && posicion.y<alto)
@@ -184,11 +221,18 @@ public class ResolutorTareas {
 		return vecinos;
 	}
 	
+	/**
+	 * Función que obtiene las regiones de los bichos (en concreto los contornos)
+	 * @param stateObs Estado del mundo
+	 * @return Devuelve un Set con las casillas que son los contornos de las áreas de los bichos.
+	 */
 	public HashSet<Vector2di> obtenRegionesBichos(StateObservation stateObs){
+		//Obtenemos la matriz del mundo
 		ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
 		HashSet<Vector2di> interiores = new HashSet<Vector2di>();
 		HashSet<Vector2di> contornos = new HashSet<Vector2di>();
 		
+		//Obtenemos las posiciones de los bichos
 		ArrayList<Vector2di> posiciones_bichos = new ArrayList<Vector2di>();
 		if(stateObs.getNPCPositions()!=null) {
 			for(ArrayList<Observation> ob : stateObs.getNPCPositions()) {
@@ -199,7 +243,7 @@ public class ResolutorTareas {
 			}
 		}
 		
-		//Ya tenemos con este trozo los interiores de las zonas de los bichos
+		//Calculamos aquellas posiciones que son accesibles para cada bicho
 		ArrayList<Vector2di> desarrollando = new ArrayList<Vector2di>(posiciones_bichos);
 		Vector2di actual = new Vector2di(-1,-1);
 		while(!desarrollando.isEmpty()) {
@@ -213,6 +257,7 @@ public class ResolutorTareas {
 		}
 		
 		
+		//Calculamos los contornos de las posiciones que son accesibles para los bichos
 		ArrayList<Vector2di> desarrollando_interiores = new ArrayList<Vector2di>(interiores);
 		actual = new Vector2di(-1,-1);
 		while(!desarrollando_interiores.isEmpty()) {

@@ -127,6 +127,7 @@ public class AEstrella {
 	/**
 	 * Funcion que implementa el algoritmo A* para obtener el camino entre el nodo inicial y el objetivo
 	 * @param timer Objeto de tipo {@link ElapsedCpuTimer} para controlar el tiempo transcurrido
+	 * @param notime Booleano que nos indica si queremos que se tenga en cuenta o no el tiempo en el algoritmo.
 	 * @return
 	 */
 	public List<Nodo> buscaCamino(ElapsedCpuTimer timer, boolean notime){
