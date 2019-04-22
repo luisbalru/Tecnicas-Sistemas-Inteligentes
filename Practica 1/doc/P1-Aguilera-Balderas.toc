@@ -1,0 +1,9 @@
+\babel@toc {spanish}{}
+\contentsline {section}{\numberline {1}Introducci\IeC {\'o}n}{3}{section.1}
+\contentsline {section}{\numberline {2}Planificaci\IeC {\'o}n a alto nivel}{3}{section.2}
+\contentsline {subsection}{\numberline {2.1}Gemas f\IeC {\'a}ciles}{4}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Gemas que requieren mover piedras}{4}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Gemas y contacto con enemigos}{5}{subsection.2.3}
+\contentsline {section}{\numberline {3}Planificaci\IeC {\'o}n a bajo nivel}{6}{section.3}
+\contentsline {subsection}{\numberline {3.1}Construcci\IeC {\'o}n de caminos con $A^*$}{6}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Esquivando enemigos}{6}{subsection.3.2}
