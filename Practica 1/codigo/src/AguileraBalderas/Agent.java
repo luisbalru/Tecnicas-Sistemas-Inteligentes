@@ -1,86 +1,17 @@
-/*package AguileraBalderas;
-
-import core.game.StateObservation;
-import core.player.AbstractPlayer;
-import ontology.Types;
-import tools.ElapsedCpuTimer;
-import java.util.Random;
-
-public class Agent extends AbstractPlayer{
-
-	public Agent(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
-		
-	}
-	
-	public void init(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
-		
-	}
-	
-	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
-		Random aleatorio = new Random(System.currentTimeMillis());
-		while(true) {
-			int intAleatorio = aleatorio.nextInt(4);
-			switch (intAleatorio) {
-			case 0:
-				return Types.ACTIONS.ACTION_LEFT;
-			case 1:
-				return Types.ACTIONS.ACTION_RIGHT;
-			case 2:
-				return Types.ACTIONS.ACTION_UP;
-			case 3:
-				return Types.ACTIONS.ACTION_DOWN;
-			default:
-				break;
-			}
-		}
-	}
-	
-}*/
 package AguileraBalderas;
 
 import core.game.Observation;
-import java.util.concurrent.ThreadLocalRandom;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
 import ontology.Types.ACTIONS;
 import tools.ElapsedCpuTimer;
 import tools.Vector2d;
-import tools.pathfinder.Node;
-import tools.pathfinder.PathFinder;
 
 import AguileraBalderas.ResolutorTareas;
 
-import javax.swing.*;
-
-
-import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.Image;
-import java.awt.Paint;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Stroke;
-import java.awt.RenderingHints.Key;
-import java.awt.font.FontRenderContext;
-import java.awt.font.GlyphVector;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.awt.image.ImageObserver;
-import java.awt.image.RenderedImage;
-import java.awt.image.renderable.RenderableImage;
-import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 public class Agent extends AbstractPlayer {
 	//Factores de escala para conversión del mundo
@@ -130,58 +61,88 @@ public class Agent extends AbstractPlayer {
     //Set de posiciones que no se pueden tocar porque hay bichos
     HashSet<Vector2di> contornos_bichos;
     
-    StateObservation obs_draw;
-    
+    //Booleano que controla si estamos en el primer act.
     boolean primer_act = false;
+    //Booleano que controla que los primeros movimientos sean nulos para que caigan las piedras
     boolean nils;
     
+    //Booleano que controla el cálculo de las gemas que requieren mover piedras
     boolean calcula_gemas_piedras;
             
-    
+    /**
+     * Función que calcula la distancia manhattan entre dos puntos
+     * @param fila1 Fila del primer punto
+     * @param col1 Columna del primer punto
+     * @param fila2 Fila del segundo punto
+     * @param col2 Columna del segundo punto
+     * @return Devuelve un valor entero con la distancia entre los dos puntos
+     */
     private int distanciaManhattan(int fila1, int col1, int fila2, int col2) {
 		return Math.abs(fila1-fila2) + Math.abs(col1 - col2);
 	}
     
+    /**
+     * Constructor de la clase Agent
+     * @param stateObs Estado actual del mundo
+     * @param elapsedTimer Objeto para controlar el tiempo
+     */
     public Agent(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+    	//Activamos el cálculo de las gemas que involucran piedras
     	this.calcula_gemas_piedras=true;
+    	//Calculamos las dimensiones del mundo
     	ancho = stateObs.getObservationGrid().length;
         alto = stateObs.getObservationGrid()[0].length;
     	
+        //Inicializamos las listas de gemas de piedras y bichos
     	this.lista_gemas_faciles_bichos=new ArrayList<Gema>();
     	this.lista_gemas_faciles_piedras = new ArrayList<Gema>();
     	
+    	//El siguiente act es el primero
     	this.primer_act=true;
+    	//Avanzamos el mundo para simular que han caido las piedras
     	for(int i = 0; i<100 ; ++i)
     		stateObs.advance(Types.ACTIONS.ACTION_NIL);
     	
+    	//Inicializamos el los contornos de los bichos
     	this.contornos_bichos = new HashSet<Vector2di>();
     	
+    	//Inicializamos el estado
     	this.escapando_reactivo=false;
     	veces_escapadas=0;
     	escapando=false;
     	acabado = false;
  	
+    	//Inicializamos la lista de acciones
     	lista_acciones = new ArrayList<Types.ACTIONS>();
 
+    	//Calculamos los factores de escala del mundo
         this.fescalaX = stateObs.getWorldDimension().width / stateObs.getObservationGrid().length;
         this.fescalaY = stateObs.getWorldDimension().height / stateObs.getObservationGrid()[0].length;
         
-        resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getObservationGrid().length, stateObs.getObservationGrid()[0].length,stateObs, this.fescalaX, this.fescalaY);        
+        //Inicializamos el objeto ResolutorTareas
+        resolutor = new ResolutorTareas(stateObs.getObservationGrid(), stateObs.getObservationGrid().length, stateObs.getObservationGrid()[0].length,stateObs, this.fescalaX, this.fescalaY);
+        //Obetenemos los contornos de los bichos
         this.contornos_bichos = resolutor.obtenRegionesBichos(stateObs);
+        //Reseteamos el resolutor y colocamos los parámetros actuales
         resolutor.reset();
         resolutor.setParametros(stateObs, this.contornos_bichos);
         
+        //Calculamos la lista de gemas fáciles y establecemos la gema objetivo como la actual
         lista_gemas_faciles = new ArrayList<Gema>();
         lista_gemas_faciles = obtenListaGemasFacilesSinBichos(stateObs,elapsedTimer);
         gema_objetivo = lista_gemas_faciles.size()>0 ? lista_gemas_faciles.get(0) : new Gema();
         
+        //Calculamos la lista de gemas que involucran piedras
         lista_gemas_faciles_piedras = obtenListaGemasFacilesPiedras(stateObs);
         
+        //Calculamos la lista de gemas que involucran bichos
         lista_gemas_faciles_bichos = obtenListaGemasConBichos(stateObs, elapsedTimer);
         
+        //Obtenemos la matriz del mundo
         ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
         
         
+        //Calculamos todas las posiciones accesibles por el algoritmo AEstrella
         ArrayList<Vector2di> posiciones_accesibles = new ArrayList<Vector2di>();
         for(int i=0; i < ancho;++i)
         	for(int j = 0; j < alto; j++) {
@@ -193,13 +154,15 @@ public class Agent extends AbstractPlayer {
         		}
         	}
         
-        
+        //Guardamos la posición del portal
         col_portal = (int) Math.round(stateObs.getPortalsPositions()[0].get(0).position.x / this.fescalaX);
     	fila_portal = (int) Math.round(stateObs.getPortalsPositions()[0].get(0).position.y / this.fescalaY);
     	
+    	//Guardamos la posicion inicial
     	col_inicial = (int) Math.round(stateObs.getAvatarPosition().x / this.fescalaX);
     	fila_inicial = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
     	
+    	//Calculamos un tercer punto para escapar de los bichos que es, de los accesibles, el más lejano al portal y la posición inicial
     	if(!posiciones_accesibles.isEmpty()) {
     		Vector2di max_dist = posiciones_accesibles.get(0);
     		for(Vector2di pos : posiciones_accesibles) {
@@ -212,35 +175,27 @@ public class Agent extends AbstractPlayer {
     		tercer_punto_fila = max_dist.y;
     	}
         
-        this.obs_draw = stateObs;
     }
-    
-    /*@Override
-    public void draw(Graphics2D g) {
-    	Debugger deb = new Debugger(this.obs_draw);
-    	for(Vector2di v : this.contornos_bichos)
-    		deb.drawCell(g, Color.red, v);
-    	
-    	if(this.lista_gemas_faciles.size()>0)
-    		for(Gema gem : this.lista_gemas_faciles)
-    			deb.drawCell(g, Color.blue, gem.coordenadas);
-    	else if(this.lista_gemas_faciles_piedras.size()>0)
-    		for(Gema gem : this.lista_gemas_faciles_piedras)
-    			deb.drawCell(g, Color.green, gem.coordenadas);
-    	else
-    		for(Gema gem : this.lista_gemas_faciles_bichos)
-    			deb.drawCell(g, Color.yellow, gem.coordenadas);
-    }*/
 
-
+    /**
+     * Función que calcula la lista de gemas que no involucran bichos ni piedras
+     * @param stateObs Estado actual del mundo
+     * @param timer Objeto para medir el tiempo
+     * @return Devuelve un ArrayList con las gemas fáciles
+     */
     private ArrayList<Gema> obtenListaGemasFacilesSinBichos(StateObservation stateObs, ElapsedCpuTimer timer) {
+    	//Posición del avatar
     	int col_actual = (int) Math.round(stateObs.getAvatarPosition().x / this.fescalaX);
     	int fila_actual = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
+    	//Matriz del mundo
     	ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
+    	//Generamos un resolutor de tareas auxiliar
 		ResolutorTareas resolutor_aux = new ResolutorTareas(mundo, mundo.length, mundo[0].length, stateObs, fescalaX, fescalaY);
+		//Inicializamos los ArrayList
 		ArrayList<Gema> gemas_faciles = new ArrayList<Gema>();
 		ArrayList<Gema> gemas = new ArrayList<Gema>();
 		
+		//Obtenemos las posiciones de las gemas y las ponemos en el ArrayList gemas
 		ArrayList<Observation>[] posiciones_gemas = stateObs.getResourcesPositions();
 		for(Observation o : posiciones_gemas[0]) {
 			Gema gema = new Gema();
@@ -249,6 +204,7 @@ public class Agent extends AbstractPlayer {
 			if(!contornos_bichos.contains(gema.coordenadas))
 				gemas.add(gema);
 		}
+		//Calculamos cuáles de esas son accesibles por AEstrella
 		ArrayList<Gema> gemas9 = new ArrayList<Gema>();
 		while(gemas.size()>0) {
 			gemas_faciles = new ArrayList<Gema>();
@@ -262,6 +218,7 @@ public class Agent extends AbstractPlayer {
 					}
 				}
 			}
+			//Las ordenamos por distancia entre ellas para escoger el camino con menor distancia que pase por todas
 			if(gemas_faciles.size()>0) {
 				Gema min = gemas_faciles.get(0);
 				for(int j = 1; j<gemas_faciles.size();j++) {
@@ -280,14 +237,24 @@ public class Agent extends AbstractPlayer {
 		return gemas9;
 	}
     
+    /**
+     * Función que obtiene la lista de gemas que involucran bichos
+     * @param stateObs Estado actual del mundo
+     * @param timer Objeto para medir el tiempo
+     * @return Devuelve un ArrayList con las gemas
+     */
     private ArrayList<Gema> obtenListaGemasConBichos(StateObservation stateObs, ElapsedCpuTimer timer) {
+    	//Posición actual del avatar
     	int col_actual = (int) Math.round(stateObs.getAvatarPosition().x / this.fescalaX);
     	int fila_actual = (int) Math.round(stateObs.getAvatarPosition().y / this.fescalaY);
+    	//Matriz del mundo
     	ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
+    	//Obtenemos un resolutor auxiliar
 		ResolutorTareas resolutor_aux = new ResolutorTareas(mundo, mundo.length, mundo[0].length, stateObs, fescalaX, fescalaY);
 		ArrayList<Gema> gemas_faciles = new ArrayList<Gema>();
 		ArrayList<Gema> gemas = new ArrayList<Gema>();
 		
+		//Calculamos la posición de las gemas.
 		ArrayList<Observation>[] posiciones_gemas = stateObs.getResourcesPositions();
 		for(Observation o : posiciones_gemas[0]) {
 			Gema gema = new Gema();
@@ -296,11 +263,14 @@ public class Agent extends AbstractPlayer {
 			if(!contornos_bichos.contains(gema.coordenadas))
 				gemas.add(gema);
 		}
+		
+		//Calculamos aquellas que son accesibles
 		ArrayList<Gema> gemas9 = new ArrayList<Gema>();
 		while(gemas.size()>0) {
 			gemas_faciles = new ArrayList<Gema>();
 			for(Gema gema : gemas) {
 				resolutor_aux.reset();
+				//Aquí no colocamos los contornos de los bichos si no un set vacío para no tenerlos en cuenta
 				resolutor_aux.setParametros(stateObs, new HashSet<Vector2di>());
 				for(int j = 0; j < 20; j++) {
 					if(resolutor_aux.obtenCamino2(col_actual,fila_actual,gema.coordenadas.x, gema.coordenadas.y, timer,true).get(0)!=Types.ACTIONS.ACTION_NIL) {
@@ -309,6 +279,7 @@ public class Agent extends AbstractPlayer {
 					}
 				}
 			}
+			//Las ordenamos por distancia
 			if(gemas_faciles.size()>0) {
 				Gema min = gemas_faciles.get(0);
 				for(int j = 1; j<gemas_faciles.size();j++) {
@@ -327,10 +298,17 @@ public class Agent extends AbstractPlayer {
 		return gemas9;
 	}
     
+    /**
+     * Función que obtiene las gemas que son accesibles moviendo piedras
+     * @param stateObs Estado actual del mundo
+     * @return Devuelve un ArrayList con las gemas que son accesibles moviendo piedras
+     */
     private ArrayList<Gema> obtenListaGemasFacilesPiedras(StateObservation stateObs) {
+    	//Matriz del mundo
     	ArrayList<Observation>[][] mundo = stateObs.getObservationGrid();
 		ArrayList<Gema> gemas = new ArrayList<Gema>();
 		
+		//Obtenemos las posiciones de las gemas
 		ArrayList<Observation>[] posiciones_gemas = stateObs.getResourcesPositions();
 		for(Observation o : posiciones_gemas[0]) {
 			Gema gema = new Gema();
@@ -340,6 +318,7 @@ public class Agent extends AbstractPlayer {
 				gemas.add(gema);
 		}
 		
+		//Vamos a comprobar que las gemas concuerdan con los tipos que hemos tenido en cuenta y explicado en la documentación
 		ArrayList<Gema> gemas_piedras = new ArrayList<Gema>();
 		for(Gema gema : gemas) {
 			//Comprobamos el primer tipo de gema con piedras
@@ -431,23 +410,23 @@ public class Agent extends AbstractPlayer {
     
 	@Override
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
-		/*try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}*/
-		this.obs_draw = stateObs;
-		this.contornos_bichos = resolutor.obtenRegionesBichos(stateObs);
+		//Calculamos los contornos de los bichos si lo necesitamos
+		if(lista_gemas_faciles.size()>0 || lista_gemas_faciles_piedras.size()>0)
+			this.contornos_bichos = resolutor.obtenRegionesBichos(stateObs);	
+		
+		//Colocamos los contornos de los bichos si estamos buscando gemas fáciles o gemas que involucran piedras, si son gemas de bichos entonces no
 		if(this.lista_gemas_faciles.size()==0 && this.lista_gemas_faciles_piedras.size()==0 && this.lista_gemas_faciles_bichos.size()>0)
     		resolutor.setParametros(stateObs, new HashSet<Vector2di>());
 		else
 			resolutor.setParametros(stateObs, this.contornos_bichos);
     	
+		//Si tenemos que recalcular la lista de gemas de piedras la recalculamos
     	if(this.calcula_gemas_piedras && lista_gemas_faciles.size()==0) {
     		lista_gemas_faciles_piedras = obtenListaGemasFacilesPiedras(stateObs);
 			this.calcula_gemas_piedras=false;
     	}
     	
+    	//si estamos bloqueados quitamos gemas no accesibles por culpa de los bichos
     	if(this.nils && lista_acciones.isEmpty()) {
 			this.nils=false;
 			if(!lista_gemas_faciles.isEmpty()) {
@@ -458,6 +437,7 @@ public class Agent extends AbstractPlayer {
 			}
 		}
 		
+    	//Si es el primer act hacemos 20 acciones nulas
 		if(this.primer_act) {
 			for(int i = 0; i<20; ++i)
 				lista_acciones.add(Types.ACTIONS.ACTION_NIL);
@@ -465,6 +445,7 @@ public class Agent extends AbstractPlayer {
 			this.nils=true;
 		}
 		
+		//Si ya tenemos las gemas que necesitamos ponemos el estado a acabado
 		if(stateObs.getAvatarResources().size()>0)
     		if(stateObs.getAvatarResources().get(6)>=9) {
     			if(!acabado)
@@ -472,6 +453,7 @@ public class Agent extends AbstractPlayer {
     			acabado=true;
     		}
 		
+		//Si hemos acabado vamos hacia el portal
 		if(this.acabado) {
 			if(lista_acciones.isEmpty())
 				lista_acciones = resolutor.salirPortal(elapsedTimer);
@@ -481,14 +463,18 @@ public class Agent extends AbstractPlayer {
 				return accion;
 			}
 		}
+		//Si hay gemas fáciles vamos a por ellas
 		else if(!this.lista_gemas_faciles.isEmpty()) {
 			return actGemasFaciles(stateObs, elapsedTimer);
 		}
+		//Si no hay gemas fáciles y si gemas de piedras entonces vamos a por ellas
 		else if(this.lista_gemas_faciles.isEmpty() && !this.lista_gemas_faciles_piedras.isEmpty()) {
 			return actGemasPiedras(stateObs, elapsedTimer);
 		}
+		//Si no hay ni gemas fáciles ni de piedras vamos a por las de los bichos
 		else if(this.lista_gemas_faciles.isEmpty() && this.lista_gemas_faciles_piedras.isEmpty() && !this.lista_gemas_faciles_bichos.isEmpty())
 			return actGemasBichos(stateObs, elapsedTimer);
+		//Si no hay de ningún tipo nos vamos al portal
 		else{
 			if(lista_acciones.isEmpty()) {
 				resolutor.reset();
@@ -504,11 +490,20 @@ public class Agent extends AbstractPlayer {
     	
     }
 	
+	/**
+	 * Función que controla el comportamiento cuando estamos yendo a por las gemas de los bichos
+	 * @param stateObs Estado actual del mundo
+	 * @param elapsedTimer Objeto para controlar el tiempo
+	 * @return Devuelve una acción a realizar
+	 */
 	private ACTIONS actGemasBichos(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+		//Posición actual del avatar
 		int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
-    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);    
+    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
+    	//Colocamos los parámetros sin contornos de bichos
     	resolutor.setParametros(stateObs, new HashSet<Vector2di>());
     	
+    	//Si ya tenemos las gemas que queremos actualizamos el estado y señalamos que hemos acabado
     	if(stateObs.getAvatarResources().size()>0 && !acabado)
     		if(stateObs.getAvatarResources().get(6)==9) {
     			resolutor.reset();
@@ -516,6 +511,7 @@ public class Agent extends AbstractPlayer {
     			return Types.ACTIONS.ACTION_NIL;
     		}
     	
+    	//Actualizamos el contador de bloqueado para ver si llevamos mucho tiempo persiguiendo una gema
     	if(lista_gemas_faciles_bichos.size()>0 && !acabado)
 	    	if(gema_objetivo.equals(lista_gemas_faciles_bichos.get(0)))
 	    		bloqueado+=1;
@@ -524,7 +520,7 @@ public class Agent extends AbstractPlayer {
 	    		bloqueado=0;
 	    	}
     	
-    	
+    	//Si nos hemos quedado bloqueados entonces pasamos a la siguiente gema y colocamos esta al final
     	if(bloqueado>50) {
     		if(lista_gemas_faciles_bichos.size()>0) {
     			Gema gem = lista_gemas_faciles_bichos.get(0);
@@ -535,32 +531,43 @@ public class Agent extends AbstractPlayer {
     		bloqueado = 0;
     	}
     	
+    	//Si hemos vaciado la lista de acciones actualizamos el estado
     	if(lista_acciones.size()==0) {
     		this.escapando_reactivo=false;
     		resolutor.reset();
     		escapando=false;
     	}
     	
+    	//Si no tenemos acciones y quedan gemas vamos a por ellas
     	if(lista_acciones.size()==0 && lista_gemas_faciles_bichos.size()>0) {
+    		//Si no hemos llegado a la gema calculamos el camino
     		if(col_start != lista_gemas_faciles_bichos.get(0).coordenadas.x || fila_start != lista_gemas_faciles_bichos.get(0).coordenadas.y) {    		
     			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles_bichos.get(0).coordenadas.x, lista_gemas_faciles_bichos.get(0).coordenadas.y,elapsedTimer,false);
     		}
+    		//Si hemos llegado la eliminamos
     		else {
     			lista_gemas_faciles_bichos.remove(0);
     			resolutor.reset();
     		}
     	}
+    	//Si tenemos acciones por hacer
     	if(lista_acciones.size()>0) {
+    		//Vemos si tenemos peligro de bichos y estamos huyendo
     		if(this.escapando && hayPeligroBicho(stateObs, lista_acciones) && !this.escapando_reactivo) {
     			this.escapando_reactivo = true;
+    			//Escapamos de forma reactiva
     			lista_acciones = escapaReactivo(stateObs, lista_acciones);
     		}
+    		//Vemos si tenemos peligro de bichos y no estamos huyendo
     		else if(hayPeligroBicho(stateObs, lista_acciones) && !this.acabado) {
     			escapando=true;
+    			//Escapamos de forma deliberativa a alguno de los 3 puntos que tenemos
     			lista_acciones = esquivaBicho(stateObs,lista_acciones, elapsedTimer);
     		}
+    		//Si la lista de acciones es vacía devolvemos nil
     		if(lista_acciones.size()==0)
     			return Types.ACTIONS.ACTION_NIL;
+    		//Si no sacamos la siguiente accion y la ejecutamos
 	    	Types.ACTIONS accion = lista_acciones.get(0);
 	    	stateObs.advance(accion);
 	    	lista_acciones.remove(0);
@@ -570,11 +577,20 @@ public class Agent extends AbstractPlayer {
     	return Types.ACTIONS.ACTION_NIL;
 	}
 
+	/**
+	 * Función que calcula la siguiente acción cuando estamos yendo a por gemas de piedras 
+	 * @param stateObs Estado actual del mundo
+	 * @param elapsedTimer Objeto para controlar el tiempo
+	 * @return Devuelve la siguiente acción a realizar si estamos persiguiendo gemas de piedras
+	 */
 	private Types.ACTIONS actGemasPiedras(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+		//Posición actual del avatar
 		int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
-    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);    
+    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
+    	//Colocamos los parámetros del resolutor
     	resolutor.setParametros(stateObs, this.contornos_bichos);
     	
+    	//Si ya tenemos las gemas actualizamos el estado y señalamos que hemos ganado
     	if(stateObs.getAvatarResources().size()>0 && !acabado)
     		if(stateObs.getAvatarResources().get(6)==9) {
     			resolutor.reset();
@@ -582,6 +598,7 @@ public class Agent extends AbstractPlayer {
     			return Types.ACTIONS.ACTION_NIL;
     		}
     	
+    	//Controlamos si llevamos mucho tiempo persiguiendo una gema
     	if(lista_gemas_faciles_piedras.size()>0 && !acabado)
 	    	if(gema_objetivo.equals(lista_gemas_faciles_piedras.get(0)))
 	    		bloqueado+=1;
@@ -590,30 +607,36 @@ public class Agent extends AbstractPlayer {
 	    		bloqueado=0;
 	    	}
     	
-    	
+    	//Si nos hemos quedado bloqueados
     	if(bloqueado>100) {
     		if(lista_gemas_faciles_piedras.size()>0) {
     			Gema gem = lista_gemas_faciles_piedras.get(0);
     			lista_gemas_faciles_piedras.remove(0);
     			resolutor.reset();
+    			//Si somos capaces de seguir la rutina para quitar la gema entonces la ponemos al final, si no, no la añadimos de nuevo
     			if(resolutor.obtenCamino(gem.posiciones_a_ir.get(0).x, gem.posiciones_a_ir.get(0).y, elapsedTimer, false).get(0)!=Types.ACTIONS.ACTION_NIL)
     				lista_gemas_faciles_piedras.add(gem);
     		}
     		bloqueado = 0;
     	}
-    	
-    	if(lista_acciones.size()==0 && lista_gemas_faciles_piedras.size()>0) {    		
+    	//Si no tenemos acciones a realizar y nos quedan gemas vamos a por ellas
+    	if(lista_acciones.size()==0 && lista_gemas_faciles_piedras.size()>0) {  
+    		//Si hemos llegado a la gema la quitamos de la lista
     		if(lista_gemas_faciles_piedras.get(0).posiciones_a_ir.size()==0 && col_start == lista_gemas_faciles_piedras.get(0).coordenadas.x && fila_start == lista_gemas_faciles_piedras.get(0).coordenadas.y) {    		
     			lista_gemas_faciles = obtenListaGemasFacilesSinBichos(stateObs, elapsedTimer);
     			lista_gemas_faciles_piedras.remove(0);
     			resolutor.reset();
     		}
+    		//Si no vamos a ver cuál es la siguiente posición a ir
     		else {
     			Gema gema = lista_gemas_faciles_piedras.get(0);
+    			//Si hemos llegado a la siguiente posición a ir
     			if(col_start==gema.posiciones_a_ir.get(0).x && fila_start==gema.posiciones_a_ir.get(0).y) {
     				int tam = lista_gemas_faciles_piedras.get(0).posiciones_a_ir.size();
     				lista_gemas_faciles_piedras.get(0).posiciones_a_ir.remove(0);
+    				//La última posición a ir es la propia gema, por lo tanto si quedan más de una posición a la que ir
     				if(tam>1) {
+    					//Añadimos la acción USE o bien corregimos la orientación si es necesario
     					lista_acciones.add(orientaAvatar(lista_gemas_faciles_piedras.get(0).orientaciones.get(0), stateObs));
     					if(gema.tipo_gema_piedra==0)
     						lista_acciones.add(Types.ACTIONS.ACTION_USE);
@@ -627,10 +650,14 @@ public class Agent extends AbstractPlayer {
     				lista_gemas_faciles_piedras.get(0).orientaciones.remove(0);
     				resolutor.reset();
     			}
+    			//Si no hemos llegado
     			else {
+    				//Avanzamos el mundo 20 nils
     				for(int i = 0; i< 20; ++i)
     					stateObs.advance(Types.ACTIONS.ACTION_NIL);
+    				//Vamos a la siguiente posición
     				lista_acciones = resolutor.obtenCamino(gema.posiciones_a_ir.get(0).x, gema.posiciones_a_ir.get(0).y, elapsedTimer, false);
+    				//Si solo queda una posición (la propia de la gema) esperamos 20 nils
     				if(gema.posiciones_a_ir.size()==1)
     					for(int i = 0; i<20; ++i)
     						lista_acciones.add(0, Types.ACTIONS.ACTION_NIL);
@@ -638,9 +665,8 @@ public class Agent extends AbstractPlayer {
     		}
     	}
     	
+    	//Si tenemos acciones por hacer las hacemos
     	if(lista_acciones.size()>0) {
-    		if(lista_acciones.size()==0)
-    			return Types.ACTIONS.ACTION_NIL;
 	    	Types.ACTIONS accion = lista_acciones.get(0);
 	    	stateObs.advance(accion);
 	    	lista_acciones.remove(0);
@@ -652,8 +678,15 @@ public class Agent extends AbstractPlayer {
     	
 	}
 
+	/**
+	 * Función que devuelve la misma acción que realizó anteriormente basándose en la orientación del avatar
+	 * @param stateObs Estado actual del mundo
+	 * @return Devuelve una acción
+	 */
 	private ACTIONS mismoMovimiento(StateObservation stateObs) {
+		//Calculamos la orientación
 		Vector2d orientacion_avatar = stateObs.getAvatarOrientation();
+		//En función de la orientación devolvemos la acción que corresponda
 		if(orientacion_avatar.equals(new Vector2d(1.0,0.0)))
 			return Types.ACTIONS.ACTION_RIGHT;
 		else if(orientacion_avatar.equals(new Vector2d(-1.0,0.0)))
@@ -664,10 +697,19 @@ public class Agent extends AbstractPlayer {
 			return Types.ACTIONS.ACTION_UP;
 	}
 
+	/**
+	 * Función que devuelve una acción para cambiar la orientación del avatar a la deseada
+	 * @param orientacion_final Orientación que queremos que tenga el avatar
+	 * @param stateObs Estado del mundo
+	 * @return Devuelve una acción
+	 */
 	private ACTIONS orientaAvatar(Vector2d orientacion_final, StateObservation stateObs) {
+		//Calculamos la orientación actual
 		Vector2d orientacion_avatar = stateObs.getAvatarOrientation();
+		//Si es la misma devolvemos nil
 		if(orientacion_avatar.equals(orientacion_final))
 			return Types.ACTIONS.ACTION_NIL;
+		//En caso contrario ajustamos el movimiento
 		else {
 			if(orientacion_final.equals(new Vector2d(1.0,0.0)))
 				return Types.ACTIONS.ACTION_RIGHT;
@@ -681,11 +723,20 @@ public class Agent extends AbstractPlayer {
 		return Types.ACTIONS.ACTION_NIL;
 	}
 
+	/**
+	 * Función que controla el comportamiento cuando estamos yendo a por gemas fáciles
+	 * @param stateObs Estado actual del mundo
+	 * @param elapsedTimer Objeto para controlar el tiempo
+	 * @return Devuelve la siguiente acción a realizar
+	 */
 	private Types.ACTIONS actGemasFaciles(StateObservation stateObs, ElapsedCpuTimer elapsedTimer){
+		//Posición actual del avatar
     	int col_start = (int) Math.round(stateObs.getAvatarPosition().x / fescalaX);
-    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);    
+    	int fila_start = (int) Math.round(stateObs.getAvatarPosition().y / fescalaY);
+    	//Colocamos los parámetros actuales
     	resolutor.setParametros(stateObs, this.contornos_bichos);
     	
+    	//Si ya tenemos las gemas actualizamos el estado y señalamos que hemos acabado
     	if(stateObs.getAvatarResources().size()>0 && !acabado)
     		if(stateObs.getAvatarResources().get(6)==9) {
     			resolutor.reset();
@@ -693,6 +744,7 @@ public class Agent extends AbstractPlayer {
     			return Types.ACTIONS.ACTION_NIL;
     		}
     	
+    	//Comprobamos si nos estamos quedando bloqueados
     	if(lista_gemas_faciles.size()>0 && !acabado)
 	    	if(gema_objetivo.equals(lista_gemas_faciles.get(0)))
 	    		bloqueado+=1;
@@ -701,28 +753,33 @@ public class Agent extends AbstractPlayer {
 	    		bloqueado=0;
 	    	}
     	
-    	
+    	//Si nos bloqueamos
     	if(bloqueado>50) {
     		if(lista_gemas_faciles.size()>0) {
     			Gema gem = lista_gemas_faciles.get(0);
     			lista_gemas_faciles.remove(0);
     			resolutor.reset();
+    			//Comprobamos si la gema es accesible y si no lo es no la añadimos
     			if(resolutor.obtenCamino(gem.coordenadas.x, gem.coordenadas.y, elapsedTimer, false).get(0)!=Types.ACTIONS.ACTION_NIL)
     				lista_gemas_faciles.add(gem);
     		}
     		bloqueado = 0;
     	}
     	
+    	//Si ya no tenemos más acciones actualizamos el estado
     	if(lista_acciones.size()==0) {
     		this.escapando_reactivo=false;
     		resolutor.reset();
     		escapando=false;
     	}
     	
+    	//Si quedan gemas
     	if(lista_acciones.size()==0 && lista_gemas_faciles.size()>0) {
+    		//Si no estamos en la gema vamos a por ella
     		if(col_start != lista_gemas_faciles.get(0).coordenadas.x || fila_start != lista_gemas_faciles.get(0).coordenadas.y) {    		
     			lista_acciones = resolutor.obtenCamino(lista_gemas_faciles.get(0).coordenadas.x, lista_gemas_faciles.get(0).coordenadas.y,elapsedTimer,false);
     		}
+    		//Si estamos la quitamos
     		else {
     			if(lista_gemas_faciles_bichos.contains(lista_gemas_faciles.get(0)))
     				lista_gemas_faciles_bichos.remove(lista_gemas_faciles.get(0));
@@ -730,15 +787,9 @@ public class Agent extends AbstractPlayer {
     			resolutor.reset();
     		}
     	}
+    	
+    	//Si quedan acciones por hacer las hacemos
     	if(lista_acciones.size()>0) {
-    		/*if(this.escapando && hayPeligroBicho(stateObs, lista_acciones) && !this.escapando_reactivo) {
-    			this.escapando_reactivo = true;
-    			lista_acciones = escapaReactivo(stateObs, lista_acciones);
-    		}
-    		else if(hayPeligroBicho(stateObs, lista_acciones) && !this.acabado) {
-    			escapando=true;
-    			lista_acciones = esquivaBicho(stateObs,lista_acciones, elapsedTimer);
-    		}*/
     		if(lista_acciones.size()==0)
     			return Types.ACTIONS.ACTION_NIL;
 	    	Types.ACTIONS accion = lista_acciones.get(0);
@@ -750,12 +801,21 @@ public class Agent extends AbstractPlayer {
     	return Types.ACTIONS.ACTION_NIL;
 	}
     
+	/**
+	 * Método que devuelve una lista de acciones para escapar de forma reactiva de un bicho
+	 * @param obs Estado actual del mundo
+	 * @param lista_acciones2 Lista de acciones previas que tenía el avatar
+	 * @return Devuelve una nueva lista de acciones para esquivar al bicho
+	 */
     private ArrayList<ACTIONS> escapaReactivo(StateObservation obs, ArrayList<ACTIONS> lista_acciones2) {
+    	//Obtenemos la matriz del mundo
     	ArrayList<Observation>[][] mundo = obs.getObservationGrid();
     	ArrayList<Types.ACTIONS> lista_acciones = new ArrayList<Types.ACTIONS>();
+    	//Obtenemos la posición del avatar
     	int col_start = (int) Math.round(obs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(obs.getAvatarPosition().y / fescalaY);
     	
+    	//Si la última acción era hacia la izquierda y hemos entrado en peligro hacemos la acción contraria si podemos o si no cualquier otra
     	if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_LEFT) {
 			if(obs.getAvatarOrientation().x==1.0) {
 				if(isAccesible(mundo, col_start+1, fila_start)) {
@@ -786,6 +846,7 @@ public class Agent extends AbstractPlayer {
 				}
 			}
     	}
+    	//Igual si nos estabamos moviendo hacia la derecha
 		else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_RIGHT) {
 			if(obs.getAvatarOrientation().x==-1.0) {
 				if(isAccesible(mundo, col_start-1, fila_start)) {
@@ -816,6 +877,7 @@ public class Agent extends AbstractPlayer {
 				}
 			}
 		}
+    	//Igual si nos estabamos moviendo hacia arriba
 		else if(lista_acciones2.get(0)==Types.ACTIONS.ACTION_UP) {
 			if(obs.getAvatarOrientation().y==1.0) {
 				if(isAccesible(mundo, col_start, fila_start+1)) {
@@ -846,6 +908,7 @@ public class Agent extends AbstractPlayer {
 				}
 			}
 		}
+    	//Igual si nos estabamos moviendo hacia abajo
 		else {
 			if(obs.getAvatarOrientation().y==-1.0) {
 				if(isAccesible(mundo, col_start, fila_start-1)) {
@@ -876,6 +939,7 @@ public class Agent extends AbstractPlayer {
 				}
 			}
 		}
+    	//Añadimos además un giro para esquivar al bicho o al menos aumentar la distancia manhattan entre el avatar y el bicho
     	if(lista_acciones.size()>0) {
     	if(lista_acciones.get(0)==Types.ACTIONS.ACTION_RIGHT){
     		if(isAccesible(mundo, col_start+1, fila_start-1)) {
@@ -905,6 +969,13 @@ public class Agent extends AbstractPlayer {
 		return lista_acciones;
 	}
     
+    /**
+     * Función que indica si una casilla es accesible sin comprobar la condición de que tenga una piedra arriba
+     * @param mundo Matriz del mundo
+     * @param columna Columna de la posición a comprobar
+     * @param fila Fila de la posición a comprobar
+     * @return Devuelve un valor booleano que indica si la posición es o no accesible.
+     */
     private boolean isAccesibleSinPiedraArriba(ArrayList<Observation>[][] mundo, int columna, int fila) {
     	if(columna<0 || columna>=this.ancho || fila<0 || fila>=this.alto)
 			return false;
@@ -914,6 +985,13 @@ public class Agent extends AbstractPlayer {
     		return true;
     }
 
+    /**
+     * Función que indica si una posición es accesible
+     * @param mundo Matriz del mundo
+     * @param columna Columna de la posición a comprobar
+     * @param fila Fila de la posición a comprobar
+     * @return Devuelve un valor booleano que indica si la posición es accesible
+     */
 	private boolean isAccesible(ArrayList<Observation>[][] mundo, int columna, int fila) {
 		if(columna<0 || columna>=this.ancho || fila<0 || fila>=this.alto)
 			return false;
@@ -951,24 +1029,34 @@ public class Agent extends AbstractPlayer {
 		return true;
 	}
     
-    // Hay que controlar si la vía de escape está bloqueada para añadir una alternativa
-    // Hasta ahora consigue deshacerse del bicho a veces si no se ve atrapado
+    /**
+     * Función que escapa de un bicho de forma deliberativa
+     * @param obs Estado actual del mundo
+     * @param lista_acciones2 Lista de acciones previas
+     * @param timer Objeto para controlar el paso del tiempo
+     * @return Devuelve una lista de acciones para escapar del bicho
+     */
     private ArrayList<ACTIONS> esquivaBicho(StateObservation obs,ArrayList<ACTIONS> lista_acciones2, ElapsedCpuTimer timer) {
+    	//Mediante esta variable controlamos a qué punto huimos
     	this.veces_escapadas+=1;
     	ArrayList<Types.ACTIONS> lista_acciones = new ArrayList<Types.ACTIONS>();
+    	//Posición del avatar
     	int col_start = (int) Math.round(obs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(obs.getAvatarPosition().y / fescalaY);
     	
+    	//Añadimos los puntos de huida que son el porta, la posición inicial y el punto más alejado a estos dos que sea accesible 
     	ArrayList<Vector2di> puntos_huida = new ArrayList<Vector2di>();
     	puntos_huida.add(new Vector2di(this.col_inicial, this.fila_inicial));
     	puntos_huida.add(new Vector2di(this.col_portal, this.fila_portal));
     	puntos_huida.add(new Vector2di(this.tercer_punto_col, this.tercer_punto_fila));
+    	
     	
     	resolutor.reset();
     	resolutor.setParametros(obs, this.contornos_bichos);
     	
     	boolean aleatorio = Math.random() < 0.25;
     	
+    	//Si se da la condición tomamos aquella casilla que está más lejos de todos los bichos
     	if(aleatorio) {
 	    	ArrayList<Integer> minima_distancia_bicho = new ArrayList<Integer>();
 	    	    	
@@ -990,6 +1078,7 @@ public class Agent extends AbstractPlayer {
 	    	
 	    	lista_acciones = resolutor.obtenCamino(puntos_huida.get(maximo).x, puntos_huida.get(maximo).y, timer, false);
     	}
+    	//En caso contrario tomamos alguna de las 3 posiciones calculadas (portal, inicial y tercer punto)
     	else {
 			if(this.veces_escapadas%3==0)
 				lista_acciones = resolutor.obtenCamino(this.col_inicial, this.fila_inicial, timer, false);
@@ -1001,12 +1090,19 @@ public class Agent extends AbstractPlayer {
     	return lista_acciones;
 	}
     
+    /**
+     * Función que comprueba si en una casilla no hay un muro ni una piedra
+     * @param col Columna de la posición a comprobar
+     * @param fila Fila de la posición a comprobar
+     * @param mundo Matriz con el estado del mundo
+     * @return Devuelve un valor booleano indicando si no hay ni muros ni piedras
+     */
     public boolean noHayMuroPiedra(int col, int fila, ArrayList<Observation>[][] mundo) {
     	boolean no_muro_piedra = false;
     	if(col>=0 && fila>=0 && col<ancho && fila<alto) {
     		if(mundo[col][fila].size()>0) {
     			Observation ob = mundo[col][fila].get(0);
-    			if(ob.itype!=7 && ob.itype!=0 /*&& ob.itype!=4*/)
+    			if(ob.itype!=7 && ob.itype!=0)
     				no_muro_piedra=true;
     		}
     		else
@@ -1015,15 +1111,24 @@ public class Agent extends AbstractPlayer {
     	return no_muro_piedra;
     }
 
+    /**
+     * Función que implementa la detección del peligro por proximidad a un bicho
+     * @param obs Estado actual del mundo
+     * @param lista_acciones Lista previa de acciones
+     * @return Devuelve un valor booleano indicando si hay peligro por un bicho o no
+     */
     public boolean hayPeligroBicho(StateObservation obs, ArrayList<Types.ACTIONS> lista_acciones) {
+    	//Posición actual del avatar
     	int col_start = (int) Math.round(obs.getAvatarPosition().x / fescalaX);
     	int fila_start = (int) Math.round(obs.getAvatarPosition().y / fescalaY);
+    	//Matriz del mundo
     	ArrayList<Observation>[][] mundo = obs.getObservationGrid();
     	
     	boolean hay_bicho = false;
     	ArrayList<Vector2di> posiciones = new ArrayList<Vector2di>();
     	
     	Types.ACTIONS accion = lista_acciones.get(0);
+    	//Si la siguiente acción es hacia abajo comprobamos el cono como hemos indicado en la documentación hacia abajo
     	if(accion == Types.ACTIONS.ACTION_DOWN) {
     		
     		if(noHayMuroPiedra(col_start, fila_start-1, mundo))
@@ -1075,6 +1180,7 @@ public class Agent extends AbstractPlayer {
     			posiciones.add(new Vector2di(col_start, fila_start+3));
     		
     	}
+    	//Si la siguiente acción es hacia arriba comprobamos el cono como hemos indicado en la documentación hacia arriba
     	else if(accion == Types.ACTIONS.ACTION_UP) {
     		if(noHayMuroPiedra(col_start, fila_start+1, mundo))
     			posiciones.add(new Vector2di(col_start, fila_start+1));
@@ -1125,6 +1231,7 @@ public class Agent extends AbstractPlayer {
     			posiciones.add(new Vector2di(col_start, fila_start-3));
     		
     	}
+    	//Si la siguiente acción es hacia la izquierda comprobamos el cono como hemos indicado en la documentación hacia la izquierda
     	else if(accion == Types.ACTIONS.ACTION_LEFT) {
     		if(noHayMuroPiedra(col_start+1, fila_start, mundo))
     			posiciones.add(new Vector2di(col_start+1, fila_start));
@@ -1174,6 +1281,7 @@ public class Agent extends AbstractPlayer {
     		if(noHayMuroPiedra(col_start-3, fila_start, mundo) && posiciones.contains(new Vector2di(col_start-2, fila_start)))
     			posiciones.add(new Vector2di(col_start-3, fila_start));
     	}
+    	//Si la siguiente acción es hacia la derecha comprobamos el cono como hemos indicado en la documentación hacia la derecha
     	else if(accion == Types.ACTIONS.ACTION_RIGHT) {
     		if(noHayMuroPiedra(col_start-1, fila_start, mundo))
     			posiciones.add(new Vector2di(col_start-1, fila_start));
@@ -1224,15 +1332,24 @@ public class Agent extends AbstractPlayer {
     			posiciones.add(new Vector2di(col_start+3, fila_start));
     	}
     	
+    	//Para las posiciones que hemos añadido comprobamos si son un bicho
     	for(Vector2di pos : posiciones)
 			if(pos.x>=0 && pos.x<ancho && pos.y>=0 && pos.y<alto)
 				if(mundo[pos.x][pos.y].size()!=0) {
 					hay_bicho = hay_bicho || mundo[pos.x][pos.y].get(0).itype==11 || mundo[pos.x][pos.y].get(0).itype==10;
 				}
     	
+    	//Si en alguna de las posiciones había un bicho entonces devolvemos true, si no false
     	return hay_bicho;
     }
 
+    /**
+     * Función que comprueba si una posición es una piedra
+     * @param mundo Matriz del mundo
+     * @param columna Columna de la posición a comprobar
+     * @param fila Fila de la posición a comprobar
+     * @return Devuelve un valor booleano que indica si hay una piedra en la posición o no
+     */
     public boolean esPiedra(ArrayList<Observation>[][] mundo, int columna, int fila) {
     	if(columna<0 || fila<0 || columna>=ancho || fila>=alto)
     		return false;
